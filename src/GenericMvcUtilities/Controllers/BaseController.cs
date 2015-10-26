@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNet.Authorization;
+﻿using GenericMvcUtilities.Repositories;
+using Microsoft.AspNet.Authorization;
 using Microsoft.AspNet.Mvc;
-using GenericMvcUtilities.Repositories;
 using System;
-using Microsoft.Framework.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,6 +15,18 @@ namespace GenericMvcUtilities.Controllers
 	{
 		protected readonly BaseRepository<T> Repository;
 
+		/// <summary>
+		/// Gets or sets the controller view model.
+		/// </summary>
+		/// <value>
+		/// The controller view model.
+		/// </value>
+		public ViewModels.ControllerViewData ControllerViewModel { get; set; }
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="BaseController{T}" /> class.
+		/// </summary>
+		/// <param name="Repo">The repo.</param>
 		public BaseController(BaseRepository<T> Repo)
 		{
 			try
@@ -25,6 +36,11 @@ namespace GenericMvcUtilities.Controllers
 					//Set repo to repo field
 					this.Repository = Repo;
 
+					//Get Controler Name
+					var controllerName = this.GetControllerName(this.GetType());
+
+					//Create Controller View Model here
+					this.ControllerViewModel = new ViewModels.ControllerViewData(controllerName);
 				}
 				else
 				{
@@ -39,6 +55,23 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
+		/// <summary>
+		/// Gets the name of the controller.
+		/// </summary>
+		/// <param name="controllerType">Type of the controller.</param>
+		/// <returns></returns>
+		private string GetControllerName(Type controllerType)
+		{
+			string controllerName = controllerType.Name;
+
+			if (controllerName.EndsWith("Controller", StringComparison.OrdinalIgnoreCase))
+			{
+				controllerName = controllerName.Substring(0, controllerName.Length - "Controller".Length);
+			}
+
+			return controllerName;
+		}
+
 		protected string FormatLogMessage(string message, Microsoft.AspNet.Http.HttpRequest request)
 		{
 			return (message + ": \nHTTP Request: \n" + "Header: " + request.Headers.ToString() + "\nBody: " + request.Body.ToString());
@@ -48,19 +81,28 @@ namespace GenericMvcUtilities.Controllers
 		{
 			return (this.GetType().ToString() + ": " + message + ": " + typeof(T).ToString());
 		}
-		
+
 		// GET: /<controller>/
 		[HttpGet]
-		public async Task<IActionResult> Index()
+		public virtual async Task<IActionResult> Index()
 		{
 			try
 			{
-				return View(await Repository.GetAll());
+				ICollection<ViewModels.ActionViewData> actionViewModels = new List<ViewModels.ActionViewData>();
+				var actionViewModel = new ViewModels.ActionViewData(
+					this.ControllerViewModel,
+					this.ActionContext.RouteData.Values["action"].ToString(),
+					await Repository.GetAll());
+
+				actionViewModels.Add(actionViewModel);
+
+				//return view
+				return View(this.ControllerViewModel.SharedViewPath, actionViewModels);
 			}
 			catch (Exception ex)
 			{
 				string Message = "Get All / Index Failed";
-		
+
 				//logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
 
 				throw new Exception(this.FormatExceptionMessage(Message), ex);
@@ -119,7 +161,7 @@ namespace GenericMvcUtilities.Controllers
 					{
 						Type type = typeof(T);
 						T result = (T)Activator.CreateInstance(type);
-						
+
 						return View(result);
 					}
 				}
