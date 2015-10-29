@@ -61,8 +61,13 @@
 		public string SharedViewPath { get; set; } = "~/Views/Shared/_PageWellSection.cshtml";
 	}
 
+	/// <summary>
+	/// The Generic View model for each mvc action.
+	/// This should generally consume the controller view model
+	/// </summary>
 	public class ActionViewData
 	{
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ActionViewData" /> class.
 		/// </summary>
@@ -78,11 +83,19 @@
 			//set structured params
 			this.Controller = controllerViewData.ControllerName;
 
-			this.NestedView = controllerViewData.ModelViewPath+action+".cshtml";
+			this.NestedView = controllerViewData.ModelViewPath + action + ".cshtml";
 
-			this.Title = controllerViewData.ControllerName+" - "+action;
+			this.Title = controllerViewData.ControllerName + " - " + action;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ActionViewData" /> class.
+		/// </summary>
+		/// <param name="title">The title.</param>
+		/// <param name="action">The action.</param>
+		/// <param name="controller">The controller.</param>
+		/// <param name="nestedViewPath">The nested view path.</param>
+		/// <param name="data">The data.</param>
 		public ActionViewData(string title, string action, string controller, string nestedViewPath, object data)
 		{
 			this.Title = title;
@@ -108,7 +121,7 @@
 		public string FormHttpMethod { get; set; } = "Post";
 
 		public char QueryDelinator { get; set; } = '?';
-		
+
 		/// <summary>
 		/// Gets or sets the nested view with it's puesdo fully qualified Name.
 		/// </summary>
