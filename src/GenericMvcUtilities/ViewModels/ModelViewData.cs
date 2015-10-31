@@ -73,12 +73,14 @@
 		/// </summary>
 		/// <param name="controllerViewData">The controller view data.</param>
 		/// <param name="action">The action.</param>
+		/// <param name="instructions">The instructions for the action view.</param>
 		/// <param name="data">The data.</param>
-		public ActionViewData(ControllerViewData controllerViewData, string action, object data)
+		public ActionViewData(ControllerViewData controllerViewData, string action, string instructions, object data)
 		{
 			//set loose params
 			this.Action = action;
 			this.Data = data;
+			this.Instructions = instructions;
 
 			//set structured params
 			this.Controller = controllerViewData.ControllerName;
@@ -115,6 +117,8 @@
 		public string Title { get; set; }
 
 		public string Action { get; set; }
+
+		public string Instructions { get; set; }
 
 		public string Controller { get; set; }
 

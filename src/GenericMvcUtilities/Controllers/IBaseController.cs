@@ -11,7 +11,7 @@ namespace GenericMvcUtilities.Controllers
 {
 	public interface IBaseController<T> where T : class
 	{
-
+		//Create Pair
 		IActionResult Create();
 
 		Task<IActionResult> Create(T item);
@@ -24,8 +24,11 @@ namespace GenericMvcUtilities.Controllers
 
 		Task<T> Get(int? id);
 
+		//Edit Pair
 		Task<IActionResult> Edit(int? id);
-
+		
+		Task<IActionResult> Edit(T item);
+		
 		Task<IActionResult> Delete(int? id);
 	}
 }

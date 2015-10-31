@@ -86,12 +86,17 @@ namespace GenericMvcUtilities.Controllers
 		[HttpGet]
 		public virtual async Task<IActionResult> Index()
 		{
+			string instructions = "All "+this.ControllerViewModel.ControllerName+"s in the Database";
+
+			ICollection<ViewModels.ActionViewData> actionViewModels = new List<ViewModels.ActionViewData>();
+
 			try
 			{
-				ICollection<ViewModels.ActionViewData> actionViewModels = new List<ViewModels.ActionViewData>();
+
 				var actionViewModel = new ViewModels.ActionViewData(
 					this.ControllerViewModel,
 					this.ActionContext.RouteData.Values["action"].ToString(),
+					instructions,
 					await Repository.GetAll());
 
 				actionViewModels.Add(actionViewModel);
@@ -113,6 +118,8 @@ namespace GenericMvcUtilities.Controllers
 		[HttpGet("{id:int}")]
 		public virtual async Task<IActionResult> Details(int? id)
 		{
+			string instructions = "All "+this.ControllerViewModel.ControllerName+"s in the Database";
+			
 			try
 			{
 				if (id != null)
@@ -183,7 +190,7 @@ namespace GenericMvcUtilities.Controllers
 		[Route("[controller]/[action]/")]
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(T item)
+		public virtual async Task<IActionResult> Edit(T item)
 		{
 			try
 			{
