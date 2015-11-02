@@ -1,4 +1,7 @@
-﻿namespace GenericMvcUtilities.ViewModels
+﻿using System.Collections.Generic;
+using System;
+
+namespace GenericMvcUtilities.ViewModels
 {
 	/// <summary>
 	/// This is the generic view model for all view controllers
@@ -62,6 +65,25 @@
 	}
 
 	/// <summary>
+	/// View model used to mash Action view models together for SPA
+	/// </summary>
+	public class PageViewData
+	{
+		public PageViewData()
+		{
+
+			this.ActionViewModels = new List<ActionViewData>();
+		}
+
+		public string Title { get; set; }
+
+		public string HtmlId { get; set; }
+
+		public ICollection<ActionViewData> ActionViewModels { get; set; }
+	}
+
+
+	/// <summary>
 	/// The Generic View model for each mvc action.
 	/// This should generally consume the controller view model
 	/// </summary>
@@ -86,8 +108,6 @@
 			this.Controller = controllerViewData.ControllerName;
 
 			this.NestedView = controllerViewData.ModelViewPath + action + ".cshtml";
-
-			this.Title = controllerViewData.ControllerName + " - " + action;
 		}
 
 		/// <summary>
@@ -105,6 +125,11 @@
 			this.Controller = controller;
 			this.NestedView = nestedViewPath;
 			this.Data = data;
+		}
+
+		public void Conventionalize()
+		{
+			this.Title = this.Controller + " - " + this.Action;
 		}
 
 		/// <summary>
