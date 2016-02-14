@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Microsoft.Data.Entity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity;
+using System.Threading;
+using System.Threading.Tasks;
 
 //ToDo: Add Eager Loading to this and IBaseRepository
 namespace GenericMvcUtilities.Repositories
@@ -16,31 +15,30 @@ namespace GenericMvcUtilities.Repositories
 	/// <typeparam name="T"></typeparam>
 	public class BaseRepository<T> : IBaseRepository<T>, IDisposable where T : class
 	{
-
 		/// <summary>
 		/// Gets or sets the data context.
 		/// </summary>
 		/// <value>
 		/// The data base context.
 		/// </value>
-		public virtual DbContext dataContext { get; set; }
+		public DbContext DataContext { get; set; }
 
 		/// <summary>
-		/// The context set, this is the Set used to access the Table this Repository corresponds to	
+		/// The context set, this is the Set used to access the Table this Repository corresponds to
 		/// </summary>
 		public DbSet<T> ContextSet;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BaseRepository{T}"/> class.
 		/// </summary>
-		/// <param name="DataContext">The data context.</param>
+		/// <param name="dataContext">The data context.</param>
 		/// <exception cref="System.ArgumentNullException">Null Data Context:  + DataContext.ToString()</exception>
 		/// <exception cref="System.Exception">BaseRepository Constructor Failed:  + typeof(T).ToString()</exception>
-		public BaseRepository(DbContext DataContext)
+		public BaseRepository(DbContext dataContext)
 		{
 			try
 			{
-				if (DataContext != null)
+				if (dataContext != null)
 				{
 					/*
 					if(IsTypePresentInDataContext(ApplicationDbContext.TypeList))
@@ -56,19 +54,19 @@ namespace GenericMvcUtilities.Repositories
 					*/
 
 					//set data base context
-					this.dataContext = DataContext;
+					this.DataContext = dataContext;
 
 					//set the working set
-					this.ContextSet = dataContext.Set<T>();
+					this.ContextSet = this.DataContext.Set<T>();
 				}
 				else
 				{
-					throw new ArgumentNullException("Null Data Context: " + DataContext.ToString());
+					throw new ArgumentNullException(nameof(dataContext));
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
-				throw new Exception("BaseRepository Constructor Failed: " + typeof(T).ToString(), ex);
+				throw new Exception("BaseRepository Constructor Failed: " + typeof(T).Name, ex);
 			}
 		}
 
@@ -108,14 +106,14 @@ namespace GenericMvcUtilities.Repositories
 		/// <summary>
 		/// Determines whether [is matched expression] [the specified property name].
 		/// </summary>
-		/// <param name="PropertyName">Name of the property.</param>
-		/// <param name="PropertyValue">The property value.</param>
+		/// <param name="propertyName">Name of the property.</param>
+		/// <param name="propertyValue">The property value.</param>
 		/// <returns></returns>
-		public Expression<Func<T, bool>> IsMatchedExpression(string PropertyName, object PropertyValue)
+		public Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue)
 		{
 			var parameterExpression = Expression.Parameter(typeof(T));
-			var propertyOrField = Expression.PropertyOrField(parameterExpression, PropertyName);
-			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(PropertyValue));
+			var propertyOrField = Expression.PropertyOrField(parameterExpression, propertyName);
+			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(propertyValue));
 			return Expression.Lambda<Func<T, bool>>(binaryExpression, parameterExpression);
 		}
 
@@ -138,19 +136,26 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception"></exception>
-		public virtual async Task<bool> Exists(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public virtual Task<bool> Exists(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
 			try
 			{
-				CancellationToken token = new CancellationToken();
+				if (predicate != null)
+				{
+					var token = new CancellationToken();
 
-				token.ThrowIfCancellationRequested();
+					token.ThrowIfCancellationRequested();
 
-				return await this.ContextSet.AnyAsync(predicate, token);
+					return this.ContextSet.AnyAsync(predicate, token);
+				}
+				else
+				{
+					throw new ArgumentNullException(nameof(predicate));
+				}
 			}
 			catch (Exception ex)
-			{ 
-				throw new Exception(this.GetType().ToString() + ": Exists Failed", ex);
+			{
+				throw new Exception("Exists Failed: " + typeof(T).Name, ex);
 			}
 		}
 
@@ -168,7 +173,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 			catch (Exception ex)
 			{
-				throw new Exception(this.GetType().ToString() + ": Exists Sync Failed", ex);
+				throw new Exception("Exists Sync Failed: " + typeof(T).Name, ex);
 			}
 		}
 
@@ -189,7 +194,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Get All Failed: " + typeof(T).ToString(), ex);
+				throw new Exception("Get All Failed: " + typeof(T).Name, ex);
 			}
 		}
 
@@ -199,24 +204,31 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Get Failed:  + typeof(T).ToString()</exception>
-		public virtual async Task<T> Get(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public virtual Task<T> Get(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
 			try
 			{
-				System.Threading.CancellationToken token = new System.Threading.CancellationToken();
+				if (predicate != null)
+				{
+					System.Threading.CancellationToken token = new System.Threading.CancellationToken();
 
-				//Throw if query is Canceled 
-				token.ThrowIfCancellationRequested();
+					//Throw if query is Canceled
+					token.ThrowIfCancellationRequested();
 
-				return await ContextSet.FirstOrDefaultAsync<T>(predicate, token);
+					return ContextSet.FirstOrDefaultAsync<T>(predicate, token);
+				}
+				else
+				{
+					throw new ArgumentNullException(nameof(predicate));
+				}
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Get Failed: " + typeof(T).ToString(), ex);
+				throw new Exception("Get Failed: " + typeof(T).Name, ex);
 			}
-
 		}
 
+		//todo: also give this a boolean argument for using get or getcomplete
 		/// <summary>
 		/// Gets multiple entities from the data context using the predicate.
 		/// </summary>
@@ -227,15 +239,22 @@ namespace GenericMvcUtilities.Repositories
 		{
 			try
 			{
-				CancellationToken token = new CancellationToken();
+				if (predicate != null)
+				{
+					CancellationToken token = new CancellationToken();
 
-				token.ThrowIfCancellationRequested();
+					token.ThrowIfCancellationRequested();
 
-				return await ContextSet.Where<T>(predicate).ToListAsync(token);
+					return await ContextSet.Where<T>(predicate).ToListAsync(token);
+				}
+				else
+				{
+					throw new ArgumentNullException(nameof(predicate));
+				}
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Get Multi Failed: " + typeof(T).ToString(), ex);
+				throw new Exception("Get Multi Failed: " + typeof(T).Name, ex);
 			}
 		}
 
@@ -245,20 +264,27 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Get Failed:  + typeof(T).ToString()</exception>
-		public virtual async Task<T> GetCompleteItem(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public virtual Task<T> GetCompleteItem(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
 			try
 			{
-				System.Threading.CancellationToken token = new System.Threading.CancellationToken();
+				if (predicate != null)
+				{
+					System.Threading.CancellationToken token = new System.Threading.CancellationToken();
 
-				//Throw if query is canceled
-				token.ThrowIfCancellationRequested();
+					//Throw if query is canceled
+					token.ThrowIfCancellationRequested();
 
-				return await ContextSet.FirstOrDefaultAsync<T>(predicate, token);
+					return ContextSet.FirstOrDefaultAsync<T>(predicate, token);
+				}
+				else
+				{
+					throw new ArgumentNullException(nameof(predicate));
+				}
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Get Failed: " + typeof(T).ToString(), ex);
+				throw new Exception("Get Failed: " + typeof(T).Name, ex);
 			}
 		}
 
@@ -274,9 +300,9 @@ namespace GenericMvcUtilities.Repositories
 			{
 				if (entity != null)
 				{
-					ContextSet.Add(entity);
+					ContextSet.Add(entity, GraphBehavior.IncludeDependents);
 
-					if (await dataContext.SaveChangesAsync() > 0)
+					if (await this.DataContext.SaveChangesAsync() > 0)
 					{
 						return true;
 					}
@@ -292,7 +318,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Insert Failed: " + typeof(T).ToString(), ex);
+				throw new Exception("Insert Failed: " + typeof(T).Name, ex);
 			}
 		}
 
@@ -302,15 +328,15 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="entities">The entities.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Inserts Failed:  + typeof(T).ToString()</exception>
-		public async Task<bool> Inserts(ICollection<T> entities)
+		public virtual async Task<bool> Inserts(ICollection<T> entities)
 		{
 			try
 			{
 				if (entities != null && entities.Count > 0)
 				{
-					ContextSet.AddRange(entities);
+					ContextSet.AddRange(entities, GraphBehavior.IncludeDependents);
 
-					if (await dataContext.SaveChangesAsync() > 0)
+					if (await this.DataContext.SaveChangesAsync() > 0)
 					{
 						return true;
 					}
@@ -326,7 +352,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Inserts Failed: " + typeof(T).ToString(), ex);
+				throw new Exception("Inserts Failed: " + typeof(T).Name, ex);
 			}
 		}
 
@@ -337,20 +363,22 @@ namespace GenericMvcUtilities.Repositories
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentNullException">Null Entity Argument</exception>
 		/// <exception cref="System.Exception">Update Failed: + typeof(T).ToString()</exception>
-		public async Task<bool> Update(T entity)
+		public virtual async Task<bool> Update(T entity)
 		{
 			try
 			{
 				if (entity != null)
 				{
-					if (dataContext.Entry(entity).State == EntityState.Detached)
+					if (this.DataContext.Entry(entity).State == EntityState.Detached)
 					{
-						ContextSet.Attach(entity);
+						ContextSet.Attach(entity, GraphBehavior.IncludeDependents);
 					}
 
-					dataContext.Entry(entity).State = EntityState.Modified;
+					ContextSet.Update(entity, GraphBehavior.IncludeDependents);
 
-					if (await dataContext.SaveChangesAsync() > 0)
+					//dataContext.Entry(entity).State = EntityState.Modified;
+
+					if (await this.DataContext.SaveChangesAsync() > 0)
 					{
 						return true;
 					}
@@ -361,12 +389,12 @@ namespace GenericMvcUtilities.Repositories
 				}
 				else
 				{
-					throw new ArgumentNullException("Null Entity Argument");
+					throw new ArgumentNullException(nameof(entity));
 				}
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Update Failed:" + typeof(T).ToString(), ex);
+				throw new Exception("Update Failed:" + typeof(T).Name, ex);
 			}
 		}
 
@@ -380,25 +408,32 @@ namespace GenericMvcUtilities.Repositories
 		{
 			try
 			{
-				if (dataContext.Entry(entity).State == EntityState.Detached)
+				if (entity != null)
 				{
-					this.ContextSet.Attach(entity);
-				}
+					if (this.DataContext.Entry(entity).State == EntityState.Detached)
+					{
+						this.ContextSet.Attach(entity, GraphBehavior.IncludeDependents);
+					}
 
-				this.ContextSet.Remove(entity);
+					this.ContextSet.Remove(entity);
 
-				if (await this.dataContext.SaveChangesAsync() > 0)
-				{
-					return true;
+					if (await this.DataContext.SaveChangesAsync() > 0)
+					{
+						return true;
+					}
+					else
+					{
+						return false;
+					}
 				}
 				else
 				{
-					return false;
+					throw new ArgumentNullException(nameof(entity));
 				}
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Delete Failed: " + typeof(T).ToString(), ex);
+				throw new Exception("Delete Failed: " + typeof(T).Name, ex);
 			}
 		}
 
@@ -411,15 +446,15 @@ namespace GenericMvcUtilities.Repositories
 		{
 			try
 			{
-				return await this.dataContext.SaveChangesAsync();
+				return await this.DataContext.SaveChangesAsync();
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Save Failed: "+ex.Message, ex);
+				throw new Exception("Save Failed: " + ex.Message, ex);
 			}
 		}
 
-		private bool disposed = false;
+		private bool _disposed = false;
 
 		/// <summary>
 		/// Releases unmanaged and - optionally - managed resources.
@@ -430,19 +465,21 @@ namespace GenericMvcUtilities.Repositories
 		{
 			try
 			{
-				if (!this.disposed)
+				if (!this._disposed)
 				{
 					if (disposing)
 					{
-						this.dataContext.Dispose();
+						this.DataContext.Dispose();
 					}
 				}
 
-				this.disposed = true;
+				this.ContextSet = null;
+
+				this._disposed = true;
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Dispose Failed: " + typeof(T).ToString(), ex);
+				throw new Exception("Dispose Failed: " + typeof(T).Name, ex);
 			}
 		}
 

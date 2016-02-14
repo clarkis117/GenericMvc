@@ -4,25 +4,35 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc;
 using System.Linq.Expressions;
+using GenericMvcUtilities.Models;
 
 namespace GenericMvcUtilities.Controllers
 {
+	/// <summary>
+	/// Base Interface for all Web API nodes
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	public interface IBaseApiController<T> where T : class
 	{
+		//todo: maybe a count method?
 
-		[HttpGet]
-		Task<IEnumerable<T>> GetAll();
-
-		[HttpGet("{id:int}")]
+		//[HttpGet("{id:int}")]
 		Task<T> Get(int? id);
 
-		[HttpPost]
+		//[HttpGet]
+		Task<IEnumerable<T>> GetAll();
+
+		//[HttpPost]
 		Task<IActionResult> Create([FromBody] T item);
 
-		[HttpPut("{id:int}")]
+		//todo: see if this should return IEnumerable<T>
+		//[HttpPost]
+		Task<IActionResult> Creates([FromBody] T[] items);
+
+		//[HttpPut("{id:int}")]
 		Task<IActionResult> Update(int? id, [FromBody] T item);
 
-		[HttpDelete("{id:int}")]
+		//[HttpDelete("{id:int}")]
 		Task<IActionResult> Delete(int? id);
 	}
 }

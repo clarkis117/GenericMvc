@@ -1,53 +1,51 @@
 ﻿{
-  "version": "1.0.0-*",
-  "description": "GenericMvcUtilities Class Library",
-  "authors": [ "clark" ],
-  "tags": [ "" ],
-  "projectUrl": "",
-  "licenseUrl": "",
+	"version": "1.0.0-*",
+	"description": "GenericMvcUtilities Class Library",
+	"authors": [ "clark" ],
+	"tags": [ "" ],
+	"projectUrl": "",
+	"licenseUrl": "",
 
 	"dependencies": {
-		"EntityFramework.Commands": "7.0.0-beta8",
-		"EntityFramework.SqlServer": "7.0.0-beta8",
-		"HtmlAgilityPack": "1.4.9",
-		"Microsoft.AspNet.Authentication.Cookies": "1.0.0-beta8",
-		"Microsoft.AspNet.Authentication.Facebook": "1.0.0-beta8",
-		"Microsoft.AspNet.Authentication.Google": "1.0.0-beta8",
-		"Microsoft.AspNet.Authentication.MicrosoftAccount": "1.0.0-beta8",
-		"Microsoft.AspNet.Authentication.Twitter": "1.0.0-beta8",
-		"Microsoft.AspNet.Authorization": "1.0.0-beta8",
-		"Microsoft.AspNet.Diagnostics": "1.0.0-beta8",
-		"Microsoft.AspNet.Diagnostics.Entity": "7.0.0-beta8",
-		"Microsoft.AspNet.Identity": "3.0.0-beta8",
-		"Microsoft.AspNet.Identity.EntityFramework": "3.0.0-beta8",
-		"Microsoft.AspNet.IISPlatformHandler": "1.0.0-beta8",
-		"Microsoft.AspNet.Mvc": "6.0.0-beta8",
-		"Microsoft.AspNet.Mvc.TagHelpers": "6.0.0-beta8",
-		"Microsoft.AspNet.Server.Kestrel": "1.0.0-beta8",
-		"Microsoft.AspNet.StaticFiles": "1.0.0-beta8",
-		"Microsoft.AspNet.Tooling.Razor": "1.0.0-beta8",
-		"Microsoft.Framework.Configuration.Abstractions": "1.0.0-beta8",
-		"Microsoft.Framework.Configuration.EnvironmentVariables": "1.0.0-beta8",
-		"Microsoft.Framework.Configuration.Json": "1.0.0-beta8",
-		"Microsoft.Framework.Configuration.UserSecrets": "1.0.0-beta8",
-		"Microsoft.Framework.Logging": "1.0.0-beta8",
-		"Microsoft.Framework.Logging.Console": "1.0.0-beta8",
-		"Microsoft.Framework.Logging.Debug": "1.0.0-beta8",
-		"Microsoft.Framework.OptionsModel": "1.0.0-beta8",
-		"Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-beta8",
-		"Rx-Main": "2.2.5"
+		"EntityFramework.Commands": "7.0.0-rc1-final",
+		"EntityFramework.MicrosoftSqlServer": "7.0.0-rc1-final",
+		"Microsoft.AspNet.Authentication.Cookies": "1.0.0-rc1-final",
+		"Microsoft.AspNet.Diagnostics.Entity": "7.0.0-rc1-final",
+		"Microsoft.AspNet.Identity.EntityFramework": "3.0.0-rc1-final",
+		"Microsoft.AspNet.IISPlatformHandler": "1.0.0-rc1-final",
+		"Microsoft.AspNet.Mvc": "6.0.0-rc1-final",
+		"Microsoft.AspNet.Mvc.TagHelpers": "6.0.0-rc1-final",
+		"Microsoft.AspNet.Server.Kestrel": "1.0.0-rc1-final",
+		"Microsoft.AspNet.StaticFiles": "1.0.0-rc1-final",
+		"Microsoft.AspNet.Tooling.Razor": "1.0.0-rc1-final",
+		"Microsoft.Extensions.CodeGenerators.Mvc": "1.0.0-rc1-final",
+		"Microsoft.Extensions.Configuration.FileProviderExtensions": "1.0.0-rc1-final",
+		"Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-final",
+		"Microsoft.Extensions.Configuration.UserSecrets": "1.0.0-rc1-final",
+		"Microsoft.Extensions.Logging": "1.0.0-rc1-final",
+		"Microsoft.Extensions.Logging.Console": "1.0.0-rc1-final",
+		"Microsoft.Extensions.Logging.Debug": "1.0.0-rc1-final",
+		"Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-rc1-final",
+		"Rx-Main": "2.2.5",
+		"Newtonsoft.Json": "7.0.1",
+		"Microsoft.AspNet.WebApi.Client": "5.2.3",
+		"Microsoft.AspNet.TestHost": "1.0.0-rc1-final",
+		"xunit": "2.1.0",
+		"xunit.runner.dnx": "2.1.0-rc1-build204",
+		"System.Net.Http": "4.0.1-rc2-23623"
 	},
 
-  "frameworks": {
-	"dnx451": { },
-	"dnxcore50": {
-	  "dependencies": {
-		"Microsoft.CSharp": "4.0.1-beta-23409",
-		"System.Collections": "4.0.11-beta-23409",
-		"System.Linq": "4.0.1-beta-23409",
-		"System.Runtime": "4.0.21-beta-23409",
-		"System.Threading": "4.0.11-beta-23409"
-	  }
+	"frameworks": {
+		"dnx451": { },
+		"dnxcore50": {
+			"dependencies": {
+				"Microsoft.CSharp": "4.0.1-beta-23516",
+				"System.Collections": "4.0.11-beta-23516",
+				"System.Linq": "4.0.1-beta-23516",
+				"System.Runtime": "4.0.21-beta-23516",
+				"System.Threading": "4.0.11-beta-23516",
+				"xunit.runner.dnx": "2.1.0-rc1-build204"
+			}
+		}
 	}
-  }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Data.Entity;
+using GenericMvcUtilities.Models;
 
 namespace GenericMvcUtilities.Repositories
 {

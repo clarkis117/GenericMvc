@@ -1,17 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24606.1
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F6A7A9AC-111C-455D-999D-D7F3E74001A7}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{76C8C261-C3E5-4708-A352-41C0510CB3A0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2285285B-1A52-43F8-B2E6-73653F079B50}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{299FF47C-9D8E-415A-8301-F4DDA828A2D1}"
 	ProjectSection(SolutionItems) = preProject
 		global.json = global.json
-		NuGet.Config = NuGet.Config
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvcUtilities", "src\GenericMvcUtilities\GenericMvcUtilities.xproj", "{64CC38EF-3BDB-4504-8EDA-E6CF5E773F59}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvcUtilities", "src\GenericMvcUtilities\GenericMvcUtilities.xproj", "{4A5D4291-1E31-4721-956B-681C4CF87B3B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,15 +18,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{64CC38EF-3BDB-4504-8EDA-E6CF5E773F59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{64CC38EF-3BDB-4504-8EDA-E6CF5E773F59}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{64CC38EF-3BDB-4504-8EDA-E6CF5E773F59}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{64CC38EF-3BDB-4504-8EDA-E6CF5E773F59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A5D4291-1E31-4721-956B-681C4CF87B3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A5D4291-1E31-4721-956B-681C4CF87B3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A5D4291-1E31-4721-956B-681C4CF87B3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A5D4291-1E31-4721-956B-681C4CF87B3B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{64CC38EF-3BDB-4504-8EDA-E6CF5E773F59} = {F6A7A9AC-111C-455D-999D-D7F3E74001A7}
+		{4A5D4291-1E31-4721-956B-681C4CF87B3B} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
 	EndGlobalSection
 EndGlobal

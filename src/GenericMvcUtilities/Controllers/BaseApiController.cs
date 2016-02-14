@@ -1,72 +1,117 @@
-﻿using Microsoft.AspNet.Authorization;
+﻿using GenericMvcUtilities.Repositories;
+using Microsoft.AspNet.Authorization;
 using Microsoft.AspNet.Mvc;
-using Microsoft.Framework.Logging;
-using GenericMvcUtilities.Repositories;
+using Microsoft.Extensions.Logging;
+using GenericMvcUtilities.Models;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Data.Entity;
+using Microsoft.Data;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Controllers
 {
-	[Authorize]
 	[Route("api/")]
-	public class BaseApiController<T> : Controller, IBaseApiController<T> where T : class
+	public class BaseApiController<T> : Controller, IBaseApiController<T> where T : class, IModel
 	{
 		protected readonly BaseRepository<T> Repository;
 
 		//Maybe One Day using Logger<T> instead
-		protected readonly ILogger Logger;
+		protected readonly ILogger<T> Logger;
 
-		public BaseApiController(BaseRepository<T> Repo)
+		public BaseApiController(BaseRepository<T> repository, ILogger<T> logger)
 		{
 			try
 			{
-				if (Repo != null)
+				if (repository != null)
 				{
-					//Set repo to repo field
-					this.Repository = Repo;
-					
-					var factory = new LoggerFactory();
+					//Set DI injected repository to repository field
+					this.Repository = repository;
 
-					//Setup Logging for the Controller
-					factory.AddConsole();
-
-					this.Logger = factory.CreateLogger(this.GetType().Name);
+					if (logger != null)
+					{
+						this.Logger = logger;
+					}
+					else
+					{
+						throw new ArgumentNullException(nameof(logger));
+					}
 				}
 				else
 				{
-					throw new ArgumentNullException("Repository argument is null");
+					throw new ArgumentNullException(nameof(repository));
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = this.FormatExceptionMessage("Creation of Controller Failed");
+				string message = this.FormatExceptionMessage("Creation of Controller Failed");
 
-				this.Logger.LogCritical(Message, ex);
+				this.Logger.LogCritical(message, ex);
 
-				throw new Exception(Message, ex);
+				throw new Exception(message, ex);
 			}
 		}
 
+		[NonAction]
 		protected string FormatLogMessage(string message, Microsoft.AspNet.Http.HttpRequest request)
 		{
 			return (message + ": \nHTTP Request: \n" + "Header: " + request.Headers.ToString() + "\nBody: " + request.Body.ToString());
 		}
 
+		//Todo: revamp this hardcore
+		[NonAction]
 		protected string FormatExceptionMessage(string message)
 		{
-			return (this.GetType().Name + ": " + message + ": " + typeof(T).ToString());
+			return (this.GetType().Name + ": " + message + ": " + typeof(T));
+		}
+
+		[NonAction]
+		protected virtual async Task<ICollection<T>> DifferentalExistance(ICollection<T> items)
+		{
+			try
+			{
+				if (items != null && items.Count > 0)
+				{
+					ICollection<T> differental = new List<T>();
+
+					//todo: fix this, test fix
+					foreach (var item in items)
+					{
+						var doesItExist = await this.Repository.ContextSet.AnyAsync(x => x.Id == item.Id);
+
+						if (!doesItExist)
+						{
+							differental.Add(item);
+						}
+					}
+
+					return differental;
+				}
+				else
+				{
+					throw new ArgumentNullException(nameof(items));
+				}
+			}
+			catch (Exception ex)
+			{
+				string Message = "Generating differential based on Database Failed";
+
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
+
+				throw new Exception(this.FormatExceptionMessage(Message), ex);
+			}
 		}
 
 		[AllowAnonymous]
-		[Route("[controller]")]
+		[Route("[controller]/[action]/")]
 		[HttpGet]
 		public virtual async Task<IEnumerable<T>> GetAll()
 		{
 			try
 			{
-				return await Repository.GetAll();
+				return await Repository.ContextSet.ToListAsync();
 			}
 			catch (Exception ex)
 			{
@@ -87,16 +132,26 @@ namespace GenericMvcUtilities.Controllers
 			{
 				if (id != null)
 				{
-					var item = await Repository.Get(Repository.MatchByIdExpression(id));
-
-					if (item != null)
+					if (await Repository.Exists(Repository.MatchByIdExpression(id)))
 					{
-						return item;
+						var item = await Repository.GetCompleteItem(Repository.MatchByIdExpression(id));
+
+						if (item != null)
+						{
+							return item;
+						}
+						else
+						{
+							//Send Http response for not Found
+							HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+
+							return null;
+						}
 					}
 					else
 					{
 						//Send Http response for not Found
-						HttpContext.Response.StatusCode = 404;
+						HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
 						return null;
 					}
@@ -104,7 +159,7 @@ namespace GenericMvcUtilities.Controllers
 				else
 				{
 					//Send Http Bad Request
-					HttpContext.Response.StatusCode = 400;
+					HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
 					return null;
 				}
@@ -112,51 +167,6 @@ namespace GenericMvcUtilities.Controllers
 			catch (Exception ex)
 			{
 				string Message = "Get by Id Failed";
-
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
-
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
-			}
-		}
-
-		/// <summary>
-		/// If an Item already exists in the database, it will be removed from the collection.
-		/// </summary>
-		/// <param name="Items">The items.</param>
-		/// <returns></returns>
-		/// <exception cref="System.ArgumentNullException">Items is null or empty</exception>
-		/// <exception cref="System.Exception"></exception>
-		protected virtual Task<ICollection<T>> DifferentalExistance(ICollection<T> Items)
-		{
-			try
-			{
-				return Task<ICollection<T>>.Run(() =>
-				{
-					if (Items != null && Items.Count > 0)
-					{
-						ConcurrentBag<T> differental = new ConcurrentBag<T>();
-
-						Parallel.ForEach(Items, item =>
-						{
-							var DoesItExist = this.Repository.Exists(x => x.Equals(item));
-
-							if (!DoesItExist.Result)
-							{
-								differental.Add(item);
-							}
-						});
-
-						return differental as ICollection<T>;
-					}
-					else
-					{
-						throw new ArgumentNullException("Items is null or empty");
-					}
-				});
-			}
-			catch (Exception ex)
-			{
-				string Message = "Generating differental based on Database Failed";
 
 				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
 
@@ -185,7 +195,7 @@ namespace GenericMvcUtilities.Controllers
 				{
 					if (ModelState.IsValid)
 					{
-						if (!(await Repository.Exists(x => x.Equals(item))))
+						if (!(await Repository.Exists(Repository.MatchByIdExpression(item.Id))))
 						{
 							//Attempt to Insert Item
 							if ((await Repository.Insert(item)) != false)
@@ -195,14 +205,14 @@ namespace GenericMvcUtilities.Controllers
 							}
 							else
 							{
-								//Send 500 Response
-								throw new Exception("Insert Failed");
+								//Send 500 Response, and throw so the failure is logged
+								throw new Exception("Insert Failed for unknown reasons");
 							}
 						}
 						else
 						{
-							//Send Success response
-							return new NoContentResult();
+							//Send conflict response
+							return new HttpStatusCodeResult((int)HttpStatusCode.Conflict);
 						}
 					}
 					else
@@ -322,14 +332,21 @@ namespace GenericMvcUtilities.Controllers
 							return HttpNotFound();
 						}
 					}
+					else
+					{
+						//send bad request response with model state errors
+						return HttpBadRequest(ModelState);
+					}
 				}
-
-				//Send 400 Response
-				return HttpBadRequest();
+				else
+				{
+					//Send 400 Response
+					return HttpBadRequest();
+				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Updating HTTP Put Body Failed";
+				string Message = "Update - HTTP Put Request Failed";
 
 				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
 
@@ -337,6 +354,7 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
+		//todo: fix design oversight to have whole object deleted
 		[Route("[controller]/[action]/")]
 		[HttpDelete("{id:int}")]
 		public virtual async Task<IActionResult> Delete(int? id)
@@ -346,7 +364,7 @@ namespace GenericMvcUtilities.Controllers
 				if (id != null)
 				{
 					//Get Item, this causes EF to begin tracking it
-					var item = await Repository.Get(Repository.MatchByIdExpression(id));
+					var item = await Repository.GetCompleteItem(Repository.MatchByIdExpression(id));
 
 					if (item != null)
 					{
@@ -377,11 +395,11 @@ namespace GenericMvcUtilities.Controllers
 			}
 			catch (Exception ex)
 			{
-				string Message = "Deleting Item Failed";
+				string message = "Deleting Item Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
+				this.Logger.LogError(this.FormatLogMessage(message, this.Request));
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				throw new Exception(this.FormatExceptionMessage(message), ex);
 			}
 		}
 	}
