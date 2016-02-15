@@ -24,7 +24,7 @@ namespace GenericMvcUtilities.Client
 		//param methods
 		Task<bool> Register(IRegistrationModel model);
 
-		Task<string> Login(string model);
+		Task<string> Login(ILoginModel model);
 
 		//State machine methods
 		Task Register();

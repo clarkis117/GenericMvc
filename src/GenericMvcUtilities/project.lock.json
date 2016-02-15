@@ -1317,115 +1317,6 @@
           "lib/net451/Microsoft.Extensions.Caching.Memory.dll": {}
         }
       },
-      "Microsoft.Extensions.CodeGeneration/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Core/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.EntityFramework/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "EntityFramework.Core": "7.0.0-rc1-final",
-          "Microsoft.AspNet.Hosting": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core",
-          "System.Text.Encoding"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Templating/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.Razor": "4.0.0-rc1-final",
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core",
-          "System.IO",
-          "System.Runtime",
-          "System.Text.Encoding",
-          "System.Threading.Tasks"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGenerators.Mvc/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        }
-      },
       "Microsoft.Extensions.Configuration/1.0.0-rc1-final": {
         "type": "package",
         "dependencies": {
@@ -1879,27 +1770,6 @@
           "lib/net451/Microsoft.Net.Http.Headers.dll": {}
         }
       },
-      "Microsoft.VisualStudio.Web.BrowserLink.Loader/14.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.FileProviders.Physical": "1.0.0-rc1-final",
-          "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.AspNet.PageExecutionInstrumentation.Interfaces": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        }
-      },
       "Newtonsoft.Json/7.0.1": {
         "type": "package",
         "compile": {
@@ -1916,62 +1786,6 @@
         },
         "runtime": {
           "lib/net45/Remotion.Linq.dll": {}
-        }
-      },
-      "Rx-Core/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/net45/System.Reactive.Core.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.Core.dll": {}
-        }
-      },
-      "Rx-Interfaces/2.2.5": {
-        "type": "package",
-        "compile": {
-          "lib/net45/System.Reactive.Interfaces.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.Interfaces.dll": {}
-        }
-      },
-      "Rx-Linq/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/net45/System.Reactive.Linq.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.Linq.dll": {}
-        }
-      },
-      "Rx-Main/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5",
-          "Rx-Linq": "2.2.5",
-          "Rx-PlatformServices": "2.2.5"
-        }
-      },
-      "Rx-PlatformServices/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/net45/System.Reactive.PlatformServices.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.PlatformServices.dll": {}
         }
       },
       "System.Collections/4.0.0": {
@@ -2054,18 +1868,6 @@
       },
       "System.Linq/4.0.0": {
         "type": "package",
-        "compile": {
-          "ref/net45/_._": {}
-        },
-        "runtime": {
-          "lib/net45/_._": {}
-        }
-      },
-      "System.Net.Http/4.0.1-rc2-23623": {
-        "type": "package",
-        "frameworkAssemblies": [
-          "System.Net.Http"
-        ],
         "compile": {
           "ref/net45/_._": {}
         },
@@ -3462,90 +3264,6 @@
           "lib/dotnet5.4/Microsoft.Extensions.Caching.Memory.dll": {}
         }
       },
-      "Microsoft.Extensions.CodeGeneration/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final",
-          "System.Console": "4.0.0-beta-23516"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Core/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6",
-          "System.Console": "4.0.0-beta-23516",
-          "System.Diagnostics.Process": "4.0.0-beta-23409"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.EntityFramework/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "EntityFramework.Core": "7.0.0-rc1-final",
-          "Microsoft.AspNet.Hosting": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "System.Runtime": "4.0.21-beta-23516",
-          "System.Text.Encoding": "4.0.11-beta-23516"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Templating/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.Razor": "4.0.0-rc1-final",
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final",
-          "System.Collections.Concurrent": "4.0.11-beta-23516",
-          "System.Dynamic.Runtime": "4.0.11-beta-23516",
-          "System.IO": "4.0.11-beta-23516",
-          "System.Reflection.TypeExtensions": "4.0.1-beta-23409"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGenerators.Mvc/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6",
-          "System.Runtime": "4.0.21-beta-23516"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        }
-      },
       "Microsoft.Extensions.Configuration/1.0.0-rc1-final": {
         "type": "package",
         "dependencies": {
@@ -3982,27 +3700,6 @@
           "lib/dotnet5.4/Microsoft.Net.Http.Headers.dll": {}
         }
       },
-      "Microsoft.VisualStudio.Web.BrowserLink.Loader/14.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.FileProviders.Physical": "1.0.0-rc1-final",
-          "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.AspNet.PageExecutionInstrumentation.Interfaces": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final",
-          "Microsoft.Win32.Registry": "4.0.0-beta-23516",
-          "System.Collections": "4.0.10",
-          "System.Net.Sockets": "4.0.10-beta-23123",
-          "System.Reflection.Extensions": "4.0.0",
-          "System.Runtime.InteropServices": "4.0.20",
-          "System.Threading": "4.0.10"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        }
-      },
       "Microsoft.Win32.Primitives/4.0.0": {
         "type": "package",
         "dependencies": {
@@ -4050,62 +3747,6 @@
         },
         "runtime": {
           "lib/portable-net45+win+wpa81+wp80/Remotion.Linq.dll": {}
-        }
-      },
-      "Rx-Core/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Core.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Core.dll": {}
-        }
-      },
-      "Rx-Interfaces/2.2.5": {
-        "type": "package",
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Interfaces.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Interfaces.dll": {}
-        }
-      },
-      "Rx-Linq/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Linq.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Linq.dll": {}
-        }
-      },
-      "Rx-Main/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5",
-          "Rx-Linq": "2.2.5",
-          "Rx-PlatformServices": "2.2.5"
-        }
-      },
-      "Rx-PlatformServices/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.PlatformServices.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.PlatformServices.dll": {}
         }
       },
       "System.AppContext/4.0.0": {
@@ -4553,7 +4194,7 @@
           "lib/dotnet5.4/System.Linq.Queryable.dll": {}
         }
       },
-      "System.Net.Http/4.0.1-rc2-23623": {
+      "System.Net.Http/4.0.1-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.IO": "4.0.0",
@@ -6617,115 +6258,6 @@
           "lib/net451/Microsoft.Extensions.Caching.Memory.dll": {}
         }
       },
-      "Microsoft.Extensions.CodeGeneration/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Core/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.EntityFramework/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "EntityFramework.Core": "7.0.0-rc1-final",
-          "Microsoft.AspNet.Hosting": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core",
-          "System.Text.Encoding"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Templating/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.Razor": "4.0.0-rc1-final",
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core",
-          "System.IO",
-          "System.Runtime",
-          "System.Text.Encoding",
-          "System.Threading.Tasks"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGenerators.Mvc/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        }
-      },
       "Microsoft.Extensions.Configuration/1.0.0-rc1-final": {
         "type": "package",
         "dependencies": {
@@ -7179,27 +6711,6 @@
           "lib/net451/Microsoft.Net.Http.Headers.dll": {}
         }
       },
-      "Microsoft.VisualStudio.Web.BrowserLink.Loader/14.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.FileProviders.Physical": "1.0.0-rc1-final",
-          "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.AspNet.PageExecutionInstrumentation.Interfaces": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        }
-      },
       "Newtonsoft.Json/7.0.1": {
         "type": "package",
         "compile": {
@@ -7216,68 +6727,6 @@
         },
         "runtime": {
           "lib/net45/Remotion.Linq.dll": {}
-        }
-      },
-      "runtime.win7.System.Net.Http/4.0.1-rc2-23623": {
-        "type": "package",
-        "compile": {
-          "ref/dotnet/_._": {}
-        }
-      },
-      "Rx-Core/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/net45/System.Reactive.Core.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.Core.dll": {}
-        }
-      },
-      "Rx-Interfaces/2.2.5": {
-        "type": "package",
-        "compile": {
-          "lib/net45/System.Reactive.Interfaces.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.Interfaces.dll": {}
-        }
-      },
-      "Rx-Linq/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/net45/System.Reactive.Linq.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.Linq.dll": {}
-        }
-      },
-      "Rx-Main/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5",
-          "Rx-Linq": "2.2.5",
-          "Rx-PlatformServices": "2.2.5"
-        }
-      },
-      "Rx-PlatformServices/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/net45/System.Reactive.PlatformServices.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.PlatformServices.dll": {}
         }
       },
       "System.Collections/4.0.0": {
@@ -7360,18 +6809,6 @@
       },
       "System.Linq/4.0.0": {
         "type": "package",
-        "compile": {
-          "ref/net45/_._": {}
-        },
-        "runtime": {
-          "lib/net45/_._": {}
-        }
-      },
-      "System.Net.Http/4.0.1-rc2-23623": {
-        "type": "package",
-        "frameworkAssemblies": [
-          "System.Net.Http"
-        ],
         "compile": {
           "ref/net45/_._": {}
         },
@@ -8931,115 +8368,6 @@
           "lib/net451/Microsoft.Extensions.Caching.Memory.dll": {}
         }
       },
-      "Microsoft.Extensions.CodeGeneration/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Core/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.EntityFramework/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "EntityFramework.Core": "7.0.0-rc1-final",
-          "Microsoft.AspNet.Hosting": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core",
-          "System.Text.Encoding"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Templating/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.Razor": "4.0.0-rc1-final",
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core",
-          "System.IO",
-          "System.Runtime",
-          "System.Text.Encoding",
-          "System.Threading.Tasks"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGenerators.Mvc/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        }
-      },
       "Microsoft.Extensions.Configuration/1.0.0-rc1-final": {
         "type": "package",
         "dependencies": {
@@ -9493,27 +8821,6 @@
           "lib/net451/Microsoft.Net.Http.Headers.dll": {}
         }
       },
-      "Microsoft.VisualStudio.Web.BrowserLink.Loader/14.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.FileProviders.Physical": "1.0.0-rc1-final",
-          "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.AspNet.PageExecutionInstrumentation.Interfaces": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final"
-        },
-        "frameworkAssemblies": [
-          "Microsoft.CSharp",
-          "mscorlib",
-          "System",
-          "System.Core"
-        ],
-        "compile": {
-          "lib/dnx451/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        },
-        "runtime": {
-          "lib/dnx451/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        }
-      },
       "Newtonsoft.Json/7.0.1": {
         "type": "package",
         "compile": {
@@ -9530,68 +8837,6 @@
         },
         "runtime": {
           "lib/net45/Remotion.Linq.dll": {}
-        }
-      },
-      "runtime.win7.System.Net.Http/4.0.1-rc2-23623": {
-        "type": "package",
-        "compile": {
-          "ref/dotnet/_._": {}
-        }
-      },
-      "Rx-Core/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/net45/System.Reactive.Core.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.Core.dll": {}
-        }
-      },
-      "Rx-Interfaces/2.2.5": {
-        "type": "package",
-        "compile": {
-          "lib/net45/System.Reactive.Interfaces.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.Interfaces.dll": {}
-        }
-      },
-      "Rx-Linq/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/net45/System.Reactive.Linq.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.Linq.dll": {}
-        }
-      },
-      "Rx-Main/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5",
-          "Rx-Linq": "2.2.5",
-          "Rx-PlatformServices": "2.2.5"
-        }
-      },
-      "Rx-PlatformServices/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/net45/System.Reactive.PlatformServices.dll": {}
-        },
-        "runtime": {
-          "lib/net45/System.Reactive.PlatformServices.dll": {}
         }
       },
       "System.Collections/4.0.0": {
@@ -9674,18 +8919,6 @@
       },
       "System.Linq/4.0.0": {
         "type": "package",
-        "compile": {
-          "ref/net45/_._": {}
-        },
-        "runtime": {
-          "lib/net45/_._": {}
-        }
-      },
-      "System.Net.Http/4.0.1-rc2-23623": {
-        "type": "package",
-        "frameworkAssemblies": [
-          "System.Net.Http"
-        ],
         "compile": {
           "ref/net45/_._": {}
         },
@@ -11085,90 +10318,6 @@
           "lib/dotnet5.4/Microsoft.Extensions.Caching.Memory.dll": {}
         }
       },
-      "Microsoft.Extensions.CodeGeneration/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final",
-          "System.Console": "4.0.0-beta-23516"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Core/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6",
-          "System.Console": "4.0.0-beta-23516",
-          "System.Diagnostics.Process": "4.0.0-beta-23409"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.EntityFramework/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "EntityFramework.Core": "7.0.0-rc1-final",
-          "Microsoft.AspNet.Hosting": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "System.Runtime": "4.0.21-beta-23516",
-          "System.Text.Encoding": "4.0.11-beta-23516"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Templating/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.Razor": "4.0.0-rc1-final",
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final",
-          "System.Collections.Concurrent": "4.0.11-beta-23516",
-          "System.Dynamic.Runtime": "4.0.11-beta-23516",
-          "System.IO": "4.0.11-beta-23516",
-          "System.Reflection.TypeExtensions": "4.0.1-beta-23409"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGenerators.Mvc/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6",
-          "System.Runtime": "4.0.21-beta-23516"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        }
-      },
       "Microsoft.Extensions.Configuration/1.0.0-rc1-final": {
         "type": "package",
         "dependencies": {
@@ -11605,27 +10754,6 @@
           "lib/dotnet5.4/Microsoft.Net.Http.Headers.dll": {}
         }
       },
-      "Microsoft.VisualStudio.Web.BrowserLink.Loader/14.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.FileProviders.Physical": "1.0.0-rc1-final",
-          "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.AspNet.PageExecutionInstrumentation.Interfaces": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final",
-          "Microsoft.Win32.Registry": "4.0.0-beta-23516",
-          "System.Collections": "4.0.10",
-          "System.Net.Sockets": "4.0.10-beta-23123",
-          "System.Reflection.Extensions": "4.0.0",
-          "System.Runtime.InteropServices": "4.0.20",
-          "System.Threading": "4.0.10"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        }
-      },
       "Microsoft.Win32.Primitives/4.0.0": {
         "type": "package",
         "dependencies": {
@@ -11797,11 +10925,11 @@
           "runtimes/win7/lib/DNXCore50/System.Diagnostics.Debug.dll": {}
         }
       },
-      "runtime.win7.System.Diagnostics.Process/4.1.0-beta-23409": {
+      "runtime.win7.System.Diagnostics.Process/4.1.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "Microsoft.Win32.Primitives": "4.0.0",
-          "Microsoft.Win32.Registry": "4.0.0-beta-23409",
+          "Microsoft.Win32.Registry": "4.0.0-beta-23516",
           "System.Collections": "4.0.10",
           "System.Diagnostics.Debug": "4.0.10",
           "System.Globalization": "4.0.10",
@@ -11817,14 +10945,14 @@
           "System.Text.Encoding.Extensions": "4.0.10",
           "System.Threading": "4.0.10",
           "System.Threading.Tasks": "4.0.10",
-          "System.Threading.Thread": "4.0.0-beta-23409",
-          "System.Threading.ThreadPool": "4.0.10-beta-23409"
+          "System.Threading.Thread": "4.0.0-beta-23516",
+          "System.Threading.ThreadPool": "4.0.10-beta-23516"
         },
         "compile": {
           "ref/dotnet/_._": {}
         },
         "runtime": {
-          "runtimes/win7/lib/dotnet/System.Diagnostics.Process.dll": {}
+          "runtimes/win7/lib/dotnet5.5/System.Diagnostics.Process.dll": {}
         }
       },
       "runtime.win7.System.Diagnostics.TraceSource/4.0.0-beta-23516": {
@@ -11905,7 +11033,7 @@
           "runtimes/win7/lib/dotnet5.4/System.IO.FileSystem.Watcher.dll": {}
         }
       },
-      "runtime.win7.System.Net.Http/4.0.1-rc2-23623": {
+      "runtime.win7.System.Net.Http/4.0.1-beta-23516": {
         "type": "package",
         "dependencies": {
           "Microsoft.Win32.Primitives": "4.0.0",
@@ -11920,7 +11048,7 @@
           "System.Runtime.Extensions": "4.0.10",
           "System.Runtime.Handles": "4.0.0",
           "System.Runtime.InteropServices": "4.0.20",
-          "System.Security.Cryptography.X509Certificates": "4.0.0-rc2-23623",
+          "System.Security.Cryptography.X509Certificates": "4.0.0-beta-23516",
           "System.Text.Encoding": "4.0.10",
           "System.Threading": "4.0.0",
           "System.Threading.Tasks": "4.0.10"
@@ -12057,62 +11185,6 @@
         "type": "package",
         "native": {
           "runtimes/win7-x86/native/sni.dll": {}
-        }
-      },
-      "Rx-Core/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Core.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Core.dll": {}
-        }
-      },
-      "Rx-Interfaces/2.2.5": {
-        "type": "package",
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Interfaces.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Interfaces.dll": {}
-        }
-      },
-      "Rx-Linq/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Linq.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Linq.dll": {}
-        }
-      },
-      "Rx-Main/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5",
-          "Rx-Linq": "2.2.5",
-          "Rx-PlatformServices": "2.2.5"
-        }
-      },
-      "Rx-PlatformServices/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.PlatformServices.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.PlatformServices.dll": {}
         }
       },
       "System.AppContext/4.0.0": {
@@ -12529,6 +11601,12 @@
           "lib/dotnet/System.IO.Compression.dll": {}
         }
       },
+      "System.IO.Compression.clrcompression-x86/4.0.0": {
+        "type": "package",
+        "native": {
+          "runtimes/win7-x86/native/clrcompression.dll": {}
+        }
+      },
       "System.IO.FileSystem/4.0.1-beta-23516": {
         "type": "package",
         "dependencies": {
@@ -12608,7 +11686,7 @@
           "lib/dotnet5.4/System.Linq.Queryable.dll": {}
         }
       },
-      "System.Net.Http/4.0.1-rc2-23623": {
+      "System.Net.Http/4.0.1-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.IO": "4.0.0",
@@ -13014,15 +12092,15 @@
           "lib/dotnet5.4/System.Security.Claims.dll": {}
         }
       },
-      "System.Security.Cryptography.Algorithms/4.0.0-rc2-23623": {
+      "System.Security.Cryptography.Algorithms/4.0.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.IO": "4.0.0",
           "System.Runtime": "4.0.0",
-          "System.Security.Cryptography.Primitives": "4.0.0-rc2-23623"
+          "System.Security.Cryptography.Primitives": "4.0.0-beta-23516"
         },
         "compile": {
-          "ref/dotnet5.4/System.Security.Cryptography.Algorithms.dll": {}
+          "ref/dotnet5.1/System.Security.Cryptography.Algorithms.dll": {}
         }
       },
       "System.Security.Cryptography.Cng/4.0.0-beta-23516": {
@@ -13068,16 +12146,16 @@
           "lib/DNXCore50/System.Security.Cryptography.Csp.dll": {}
         }
       },
-      "System.Security.Cryptography.Encoding/4.0.0-rc2-23623": {
+      "System.Security.Cryptography.Encoding/4.0.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.Runtime": "4.0.0"
         },
         "compile": {
-          "ref/dotnet5.4/System.Security.Cryptography.Encoding.dll": {}
+          "ref/dotnet5.1/System.Security.Cryptography.Encoding.dll": {}
         }
       },
-      "System.Security.Cryptography.Primitives/4.0.0-rc2-23623": {
+      "System.Security.Cryptography.Primitives/4.0.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.Diagnostics.Debug": "4.0.0",
@@ -13089,19 +12167,19 @@
           "System.Threading.Tasks": "4.0.0"
         },
         "compile": {
-          "ref/dotnet5.4/System.Security.Cryptography.Primitives.dll": {}
+          "ref/dotnet5.1/System.Security.Cryptography.Primitives.dll": {}
         },
         "runtime": {
           "lib/dotnet5.4/System.Security.Cryptography.Primitives.dll": {}
         }
       },
-      "System.Security.Cryptography.X509Certificates/4.0.0-rc2-23623": {
+      "System.Security.Cryptography.X509Certificates/4.0.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.Runtime": "4.0.0",
           "System.Runtime.Handles": "4.0.0",
-          "System.Security.Cryptography.Algorithms": "4.0.0-rc2-23623",
-          "System.Security.Cryptography.Encoding": "4.0.0-rc2-23623"
+          "System.Security.Cryptography.Algorithms": "4.0.0-beta-23516",
+          "System.Security.Cryptography.Encoding": "4.0.0-beta-23516"
         },
         "compile": {
           "ref/dotnet5.4/System.Security.Cryptography.X509Certificates.dll": {}
@@ -14654,90 +13732,6 @@
           "lib/dotnet5.4/Microsoft.Extensions.Caching.Memory.dll": {}
         }
       },
-      "Microsoft.Extensions.CodeGeneration/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final",
-          "System.Console": "4.0.0-beta-23516"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Core/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Microsoft.Extensions.DependencyInjection": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6",
-          "System.Console": "4.0.0-beta-23516",
-          "System.Diagnostics.Process": "4.0.0-beta-23409"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Core.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.EntityFramework/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "EntityFramework.Core": "7.0.0-rc1-final",
-          "Microsoft.AspNet.Hosting": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Core": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "System.Runtime": "4.0.21-beta-23516",
-          "System.Text.Encoding": "4.0.11-beta-23516"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.EntityFramework.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGeneration.Templating/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.Razor": "4.0.0-rc1-final",
-          "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final",
-          "System.Collections.Concurrent": "4.0.11-beta-23516",
-          "System.Dynamic.Runtime": "4.0.11-beta-23516",
-          "System.IO": "4.0.11-beta-23516",
-          "System.Reflection.TypeExtensions": "4.0.1-beta-23409"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Templating.dll": {}
-        }
-      },
-      "Microsoft.Extensions.CodeGenerators.Mvc/1.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.CodeGeneration": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.EntityFramework": "1.0.0-rc1-final",
-          "Microsoft.Extensions.CodeGeneration.Templating": "1.0.0-rc1-final",
-          "Newtonsoft.Json": "6.0.6",
-          "System.Runtime": "4.0.21-beta-23516"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.Extensions.CodeGenerators.Mvc.dll": {}
-        }
-      },
       "Microsoft.Extensions.Configuration/1.0.0-rc1-final": {
         "type": "package",
         "dependencies": {
@@ -15174,27 +14168,6 @@
           "lib/dotnet5.4/Microsoft.Net.Http.Headers.dll": {}
         }
       },
-      "Microsoft.VisualStudio.Web.BrowserLink.Loader/14.0.0-rc1-final": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNet.FileProviders.Physical": "1.0.0-rc1-final",
-          "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
-          "Microsoft.AspNet.PageExecutionInstrumentation.Interfaces": "1.0.0-rc1-final",
-          "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final",
-          "Microsoft.Win32.Registry": "4.0.0-beta-23516",
-          "System.Collections": "4.0.10",
-          "System.Net.Sockets": "4.0.10-beta-23123",
-          "System.Reflection.Extensions": "4.0.0",
-          "System.Runtime.InteropServices": "4.0.20",
-          "System.Threading": "4.0.10"
-        },
-        "compile": {
-          "lib/dnxcore50/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        },
-        "runtime": {
-          "lib/dnxcore50/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll": {}
-        }
-      },
       "Microsoft.Win32.Primitives/4.0.0": {
         "type": "package",
         "dependencies": {
@@ -15366,11 +14339,11 @@
           "runtimes/win7/lib/DNXCore50/System.Diagnostics.Debug.dll": {}
         }
       },
-      "runtime.win7.System.Diagnostics.Process/4.1.0-beta-23409": {
+      "runtime.win7.System.Diagnostics.Process/4.1.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "Microsoft.Win32.Primitives": "4.0.0",
-          "Microsoft.Win32.Registry": "4.0.0-beta-23409",
+          "Microsoft.Win32.Registry": "4.0.0-beta-23516",
           "System.Collections": "4.0.10",
           "System.Diagnostics.Debug": "4.0.10",
           "System.Globalization": "4.0.10",
@@ -15386,14 +14359,14 @@
           "System.Text.Encoding.Extensions": "4.0.10",
           "System.Threading": "4.0.10",
           "System.Threading.Tasks": "4.0.10",
-          "System.Threading.Thread": "4.0.0-beta-23409",
-          "System.Threading.ThreadPool": "4.0.10-beta-23409"
+          "System.Threading.Thread": "4.0.0-beta-23516",
+          "System.Threading.ThreadPool": "4.0.10-beta-23516"
         },
         "compile": {
           "ref/dotnet/_._": {}
         },
         "runtime": {
-          "runtimes/win7/lib/dotnet/System.Diagnostics.Process.dll": {}
+          "runtimes/win7/lib/dotnet5.5/System.Diagnostics.Process.dll": {}
         }
       },
       "runtime.win7.System.Diagnostics.TraceSource/4.0.0-beta-23516": {
@@ -15474,7 +14447,7 @@
           "runtimes/win7/lib/dotnet5.4/System.IO.FileSystem.Watcher.dll": {}
         }
       },
-      "runtime.win7.System.Net.Http/4.0.1-rc2-23623": {
+      "runtime.win7.System.Net.Http/4.0.1-beta-23516": {
         "type": "package",
         "dependencies": {
           "Microsoft.Win32.Primitives": "4.0.0",
@@ -15489,7 +14462,7 @@
           "System.Runtime.Extensions": "4.0.10",
           "System.Runtime.Handles": "4.0.0",
           "System.Runtime.InteropServices": "4.0.20",
-          "System.Security.Cryptography.X509Certificates": "4.0.0-rc2-23623",
+          "System.Security.Cryptography.X509Certificates": "4.0.0-beta-23516",
           "System.Text.Encoding": "4.0.10",
           "System.Threading": "4.0.0",
           "System.Threading.Tasks": "4.0.10"
@@ -15626,62 +14599,6 @@
         "type": "package",
         "native": {
           "runtimes/win7-x64/native/sni.dll": {}
-        }
-      },
-      "Rx-Core/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Core.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Core.dll": {}
-        }
-      },
-      "Rx-Interfaces/2.2.5": {
-        "type": "package",
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Interfaces.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Interfaces.dll": {}
-        }
-      },
-      "Rx-Linq/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Linq.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Linq.dll": {}
-        }
-      },
-      "Rx-Main/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5",
-          "Rx-Linq": "2.2.5",
-          "Rx-PlatformServices": "2.2.5"
-        }
-      },
-      "Rx-PlatformServices/2.2.5": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.2.5",
-          "Rx-Interfaces": "2.2.5"
-        },
-        "compile": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.PlatformServices.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.PlatformServices.dll": {}
         }
       },
       "System.AppContext/4.0.0": {
@@ -16098,6 +15015,12 @@
           "lib/dotnet/System.IO.Compression.dll": {}
         }
       },
+      "System.IO.Compression.clrcompression-x64/4.0.0": {
+        "type": "package",
+        "native": {
+          "runtimes/win7-x64/native/clrcompression.dll": {}
+        }
+      },
       "System.IO.FileSystem/4.0.1-beta-23516": {
         "type": "package",
         "dependencies": {
@@ -16177,7 +15100,7 @@
           "lib/dotnet5.4/System.Linq.Queryable.dll": {}
         }
       },
-      "System.Net.Http/4.0.1-rc2-23623": {
+      "System.Net.Http/4.0.1-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.IO": "4.0.0",
@@ -16583,15 +15506,15 @@
           "lib/dotnet5.4/System.Security.Claims.dll": {}
         }
       },
-      "System.Security.Cryptography.Algorithms/4.0.0-rc2-23623": {
+      "System.Security.Cryptography.Algorithms/4.0.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.IO": "4.0.0",
           "System.Runtime": "4.0.0",
-          "System.Security.Cryptography.Primitives": "4.0.0-rc2-23623"
+          "System.Security.Cryptography.Primitives": "4.0.0-beta-23516"
         },
         "compile": {
-          "ref/dotnet5.4/System.Security.Cryptography.Algorithms.dll": {}
+          "ref/dotnet5.1/System.Security.Cryptography.Algorithms.dll": {}
         }
       },
       "System.Security.Cryptography.Cng/4.0.0-beta-23516": {
@@ -16637,16 +15560,16 @@
           "lib/DNXCore50/System.Security.Cryptography.Csp.dll": {}
         }
       },
-      "System.Security.Cryptography.Encoding/4.0.0-rc2-23623": {
+      "System.Security.Cryptography.Encoding/4.0.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.Runtime": "4.0.0"
         },
         "compile": {
-          "ref/dotnet5.4/System.Security.Cryptography.Encoding.dll": {}
+          "ref/dotnet5.1/System.Security.Cryptography.Encoding.dll": {}
         }
       },
-      "System.Security.Cryptography.Primitives/4.0.0-rc2-23623": {
+      "System.Security.Cryptography.Primitives/4.0.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.Diagnostics.Debug": "4.0.0",
@@ -16658,19 +15581,19 @@
           "System.Threading.Tasks": "4.0.0"
         },
         "compile": {
-          "ref/dotnet5.4/System.Security.Cryptography.Primitives.dll": {}
+          "ref/dotnet5.1/System.Security.Cryptography.Primitives.dll": {}
         },
         "runtime": {
           "lib/dotnet5.4/System.Security.Cryptography.Primitives.dll": {}
         }
       },
-      "System.Security.Cryptography.X509Certificates/4.0.0-rc2-23623": {
+      "System.Security.Cryptography.X509Certificates/4.0.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.Runtime": "4.0.0",
           "System.Runtime.Handles": "4.0.0",
-          "System.Security.Cryptography.Algorithms": "4.0.0-rc2-23623",
-          "System.Security.Cryptography.Encoding": "4.0.0-rc2-23623"
+          "System.Security.Cryptography.Algorithms": "4.0.0-beta-23516",
+          "System.Security.Cryptography.Encoding": "4.0.0-beta-23516"
         },
         "compile": {
           "ref/dotnet5.4/System.Security.Cryptography.X509Certificates.dll": {}
@@ -18210,108 +17133,6 @@
         "Microsoft.Extensions.Caching.Memory.nuspec"
       ]
     },
-    "Microsoft.Extensions.CodeGeneration/1.0.0-rc1-final": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "Mkld1xqSkU1CuMtMlbKMPwzoXMXBzC/SdOiRLutd632mGrQCDwhBgrxiBDfFDD63OxWt24TjMZkqlxmRRTm7zQ==",
-      "files": [
-        "lib/dnx451/Microsoft.Extensions.CodeGeneration.dll",
-        "lib/dnx451/Microsoft.Extensions.CodeGeneration.xml",
-        "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.dll",
-        "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.xml",
-        "Microsoft.Extensions.CodeGeneration.1.0.0-rc1-final.nupkg",
-        "Microsoft.Extensions.CodeGeneration.1.0.0-rc1-final.nupkg.sha512",
-        "Microsoft.Extensions.CodeGeneration.nuspec"
-      ]
-    },
-    "Microsoft.Extensions.CodeGeneration.Core/1.0.0-rc1-final": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "uQe19xMM4ymoC9uU/rLZTkbSH8n/CVKEjw4jbLfoFq179+LH4IxDRqPqidEMQUF6ON4jYVwhexuAMPJdQ5ewjQ==",
-      "files": [
-        "lib/dnx451/Microsoft.Extensions.CodeGeneration.Core.dll",
-        "lib/dnx451/Microsoft.Extensions.CodeGeneration.Core.xml",
-        "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Core.dll",
-        "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Core.xml",
-        "Microsoft.Extensions.CodeGeneration.Core.1.0.0-rc1-final.nupkg",
-        "Microsoft.Extensions.CodeGeneration.Core.1.0.0-rc1-final.nupkg.sha512",
-        "Microsoft.Extensions.CodeGeneration.Core.nuspec"
-      ]
-    },
-    "Microsoft.Extensions.CodeGeneration.EntityFramework/1.0.0-rc1-final": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "Bs5bPxbPlTYAB5d1+bPjnAZqQyQMueg0orED8boIlwb66he5pFO7LuQ3Q+BNTUB4x3M1q1U7L1L469tllVtGZg==",
-      "files": [
-        "lib/dnx451/Microsoft.Extensions.CodeGeneration.EntityFramework.dll",
-        "lib/dnx451/Microsoft.Extensions.CodeGeneration.EntityFramework.xml",
-        "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.EntityFramework.dll",
-        "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.EntityFramework.xml",
-        "Microsoft.Extensions.CodeGeneration.EntityFramework.1.0.0-rc1-final.nupkg",
-        "Microsoft.Extensions.CodeGeneration.EntityFramework.1.0.0-rc1-final.nupkg.sha512",
-        "Microsoft.Extensions.CodeGeneration.EntityFramework.nuspec",
-        "Templates/DbContext/NewLocalDbContext.cshtml"
-      ]
-    },
-    "Microsoft.Extensions.CodeGeneration.Templating/1.0.0-rc1-final": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "d20Suo15M+sNS5QBYMfJpBgSUFclVSeIU06Y/snnmKdNjAiQfbKkW0bG8ryBw8zn29KXHcK39DwUpkrFvphQIg==",
-      "files": [
-        "lib/dnx451/Microsoft.Extensions.CodeGeneration.Templating.dll",
-        "lib/dnx451/Microsoft.Extensions.CodeGeneration.Templating.xml",
-        "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Templating.dll",
-        "lib/dnxcore50/Microsoft.Extensions.CodeGeneration.Templating.xml",
-        "Microsoft.Extensions.CodeGeneration.Templating.1.0.0-rc1-final.nupkg",
-        "Microsoft.Extensions.CodeGeneration.Templating.1.0.0-rc1-final.nupkg.sha512",
-        "Microsoft.Extensions.CodeGeneration.Templating.nuspec"
-      ]
-    },
-    "Microsoft.Extensions.CodeGenerators.Mvc/1.0.0-rc1-final": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "rkec5T1UW17vRb6rPWEDOq4WHj7+mu8IKWuea9I05YKDACo/EBgDhqp4aoZrOsNzoEH6k+NlL0FRa3o5s9vglA==",
-      "files": [
-        "lib/dnx451/Microsoft.Extensions.CodeGenerators.Mvc.dll",
-        "lib/dnx451/Microsoft.Extensions.CodeGenerators.Mvc.xml",
-        "lib/dnxcore50/Microsoft.Extensions.CodeGenerators.Mvc.dll",
-        "lib/dnxcore50/Microsoft.Extensions.CodeGenerators.Mvc.xml",
-        "Microsoft.Extensions.CodeGenerators.Mvc.1.0.0-rc1-final.nupkg",
-        "Microsoft.Extensions.CodeGenerators.Mvc.1.0.0-rc1-final.nupkg.sha512",
-        "Microsoft.Extensions.CodeGenerators.Mvc.nuspec",
-        "Templates/ControllerGenerator/ApiControllerWithContext.cshtml",
-        "Templates/ControllerGenerator/EmptyController.cshtml",
-        "Templates/ControllerGenerator/MvcControllerWithContext.cshtml",
-        "Templates/MvcLayout/_Layout.cshtml",
-        "Templates/MvcLayout/Error.cshtml",
-        "Templates/Startup/ReadMe.cshtml",
-        "Templates/Startup/Startup.cshtml",
-        "Templates/StaticFiles/Content/bootstrap.css",
-        "Templates/StaticFiles/Content/bootstrap.min.css",
-        "Templates/StaticFiles/Content/Scripts/_references.js",
-        "Templates/StaticFiles/Content/Scripts/bootstrap.js",
-        "Templates/StaticFiles/Content/Scripts/bootstrap.min.js",
-        "Templates/StaticFiles/Content/Scripts/jquery.validate.js",
-        "Templates/StaticFiles/Content/Scripts/jquery.validate.min.js",
-        "Templates/StaticFiles/Content/Scripts/jquery.validate.unobtrusive.js",
-        "Templates/StaticFiles/Content/Scripts/jquery.validate.unobtrusive.min.js",
-        "Templates/StaticFiles/Content/Scripts/jquery.validate-vsdoc.js",
-        "Templates/StaticFiles/Content/Scripts/jquery-1.10.2.intellisense.js",
-        "Templates/StaticFiles/Content/Scripts/jquery-1.10.2.js",
-        "Templates/StaticFiles/Content/Scripts/jquery-1.10.2.min.js",
-        "Templates/StaticFiles/Content/Scripts/jquery-1.10.2.min.map",
-        "Templates/StaticFiles/Content/Scripts/modernizr-2.6.2.js",
-        "Templates/StaticFiles/Content/Scripts/respond.js",
-        "Templates/StaticFiles/Content/Scripts/respond.min.js",
-        "Templates/StaticFiles/Content/Site.css",
-        "Templates/ViewGenerator/Create.cshtml",
-        "Templates/ViewGenerator/Delete.cshtml",
-        "Templates/ViewGenerator/Details.cshtml",
-        "Templates/ViewGenerator/Edit.cshtml",
-        "Templates/ViewGenerator/List.cshtml",
-        "THIRDPARTYNOTICE ASP.NET_Preview.rtf"
-      ]
-    },
     "Microsoft.Extensions.Configuration/1.0.0-rc1-final": {
       "type": "package",
       "serviceable": true,
@@ -18772,19 +17593,6 @@
         "Microsoft.Net.Http.Headers.nuspec"
       ]
     },
-    "Microsoft.VisualStudio.Web.BrowserLink.Loader/14.0.0-rc1-final": {
-      "type": "package",
-      "sha512": "L8QBjp1tfPA3j+r9eKtMlebX/k+7pIGxeHZ/ZjkNgt8RLVEOyw9HPMs2Wetav0P3gCIM7YIfIzXV22c19yI83Q==",
-      "files": [
-        "lib/dnx451/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll",
-        "lib/dnx451/Microsoft.VisualStudio.Web.BrowserLink.Loader.xml",
-        "lib/dnxcore50/Microsoft.VisualStudio.Web.BrowserLink.Loader.dll",
-        "lib/dnxcore50/Microsoft.VisualStudio.Web.BrowserLink.Loader.xml",
-        "Microsoft.VisualStudio.Web.BrowserLink.Loader.14.0.0-rc1-final.nupkg",
-        "Microsoft.VisualStudio.Web.BrowserLink.Loader.14.0.0-rc1-final.nupkg.sha512",
-        "Microsoft.VisualStudio.Web.BrowserLink.Loader.nuspec"
-      ]
-    },
     "Microsoft.Win32.Primitives/4.0.0": {
       "type": "package",
       "serviceable": true,
@@ -18961,29 +17769,21 @@
         "runtimes/win8-aot/lib/netcore50/System.Diagnostics.Debug.dll"
       ]
     },
-    "runtime.win7.System.Diagnostics.Process/4.1.0-beta-23409": {
+    "runtime.win7.System.Diagnostics.Process/4.1.0-beta-23516": {
       "type": "package",
       "serviceable": true,
-      "sha512": "WQ9fNSFkKk/aaKiVS9YA0b1W6CpXt60zvUY2HdmY5N9Js6h/mxhXavxCowYR9qVW95gqA42zcxb3FElWsCqqEw==",
+      "sha512": "qCCXX+OG6430kLtN/wyjeLTTiJvOIKB2G+qBvhSqVLWe5ZTiEiSnweKUzdi7raXL0te0WfPE5tf8FuKcEKPnIA==",
       "files": [
-        "lib/win8/_._",
-        "lib/wp8/_._",
-        "lib/wpa81/_._",
         "ref/dotnet/_._",
-        "runtime.win7.System.Diagnostics.Process.4.1.0-beta-23409.nupkg",
-        "runtime.win7.System.Diagnostics.Process.4.1.0-beta-23409.nupkg.sha512",
+        "runtime.win7.System.Diagnostics.Process.4.1.0-beta-23516.nupkg",
+        "runtime.win7.System.Diagnostics.Process.4.1.0-beta-23516.nupkg.sha512",
         "runtime.win7.System.Diagnostics.Process.nuspec",
-        "runtimes/win7/lib/dotnet/de/System.Diagnostics.Process.xml",
-        "runtimes/win7/lib/dotnet/es/System.Diagnostics.Process.xml",
-        "runtimes/win7/lib/dotnet/fr/System.Diagnostics.Process.xml",
-        "runtimes/win7/lib/dotnet/it/System.Diagnostics.Process.xml",
-        "runtimes/win7/lib/dotnet/ja/System.Diagnostics.Process.xml",
-        "runtimes/win7/lib/dotnet/ko/System.Diagnostics.Process.xml",
-        "runtimes/win7/lib/dotnet/ru/System.Diagnostics.Process.xml",
-        "runtimes/win7/lib/dotnet/System.Diagnostics.Process.dll",
-        "runtimes/win7/lib/dotnet/System.Diagnostics.Process.xml",
-        "runtimes/win7/lib/dotnet/zh-hans/System.Diagnostics.Process.xml",
-        "runtimes/win7/lib/dotnet/zh-hant/System.Diagnostics.Process.xml"
+        "runtimes/win7/lib/dotnet5.5/System.Diagnostics.Process.dll",
+        "runtimes/win7/lib/net/_._",
+        "runtimes/win7/lib/netcore50/_._",
+        "runtimes/win7/lib/win8/_._",
+        "runtimes/win7/lib/wp8/_._",
+        "runtimes/win7/lib/wpa81/_._"
       ]
     },
     "runtime.win7.System.Diagnostics.TraceSource/4.0.0-beta-23516": {
@@ -19050,14 +17850,14 @@
         "runtimes/win7/lib/wpa81/_._"
       ]
     },
-    "runtime.win7.System.Net.Http/4.0.1-rc2-23623": {
+    "runtime.win7.System.Net.Http/4.0.1-beta-23516": {
       "type": "package",
       "serviceable": true,
-      "sha512": "QBYWqZa+wdhh6suJlc6+2VW85x7gpJkErHIAd7FPSgxLW1p3D3Xb/IaJS9UfNIdhP+Z8QfW4sE0yMYSt4Fo1BQ==",
+      "sha512": "bCVvitLtx/FGp/F14Yvq6Zkb05n6dwRleYNCSAnnX8YpNTKuKYpBJhEpMBUaOjalsM4lqMfE/kd99LtbZRHaiw==",
       "files": [
         "ref/dotnet/_._",
-        "runtime.win7.System.Net.Http.4.0.1-rc2-23623.nupkg",
-        "runtime.win7.System.Net.Http.4.0.1-rc2-23623.nupkg.sha512",
+        "runtime.win7.System.Net.Http.4.0.1-beta-23516.nupkg",
+        "runtime.win7.System.Net.Http.4.0.1-beta-23516.nupkg.sha512",
         "runtime.win7.System.Net.Http.nuspec",
         "runtimes/win7/lib/DNXCore50/System.Net.Http.dll",
         "runtimes/win7/lib/netcore50/System.Net.Http.dll"
@@ -19190,131 +17990,6 @@
         "runtime.win7-x86.System.Data.SqlClient.sni.4.0.0-beta-23516.nupkg.sha512",
         "runtime.win7-x86.System.Data.SqlClient.sni.nuspec",
         "runtimes/win7-x86/native/sni.dll"
-      ]
-    },
-    "Rx-Core/2.2.5": {
-      "type": "package",
-      "sha512": "DfWVTfW6tvRkkqpnRHKxPIvaRZyDJGADuqrE6J2nwejOQbLRWi0rNUwXkViDWz++25BGDy3iRE5OE6Dv8mJxYQ==",
-      "files": [
-        "lib/net40/System.Reactive.Core.dll",
-        "lib/net40/System.Reactive.Core.XML",
-        "lib/net45/System.Reactive.Core.dll",
-        "lib/net45/System.Reactive.Core.XML",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Core.dll",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Core.XML",
-        "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Core.dll",
-        "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Core.XML",
-        "lib/portable-win81+wpa81/System.Reactive.Core.dll",
-        "lib/portable-win81+wpa81/System.Reactive.Core.XML",
-        "lib/portable-windows8+net45+wp8/System.Reactive.Core.dll",
-        "lib/portable-windows8+net45+wp8/System.Reactive.Core.XML",
-        "lib/sl5/System.Reactive.Core.dll",
-        "lib/sl5/System.Reactive.Core.XML",
-        "lib/windows8/System.Reactive.Core.dll",
-        "lib/windows8/System.Reactive.Core.XML",
-        "lib/windowsphone71/System.Reactive.Core.dll",
-        "lib/windowsphone71/System.Reactive.Core.XML",
-        "lib/windowsphone8/System.Reactive.Core.dll",
-        "lib/windowsphone8/System.Reactive.Core.XML",
-        "Rx-Core.2.2.5.nupkg",
-        "Rx-Core.2.2.5.nupkg.sha512",
-        "Rx-Core.nuspec"
-      ]
-    },
-    "Rx-Interfaces/2.2.5": {
-      "type": "package",
-      "sha512": "FKtG2QfMIeUcfB7r3a89VoAiszX3DTvYETkpC6U0FzWpxRK/mcHyzYOsniDfag+NsDG0P1k1c8yNSefXKp3t2A==",
-      "files": [
-        "lib/net40/System.Reactive.Interfaces.dll",
-        "lib/net40/System.Reactive.Interfaces.XML",
-        "lib/net45/System.Reactive.Interfaces.dll",
-        "lib/net45/System.Reactive.Interfaces.XML",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Interfaces.dll",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Interfaces.XML",
-        "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Interfaces.dll",
-        "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Interfaces.XML",
-        "lib/portable-win81+wpa81/System.Reactive.Interfaces.dll",
-        "lib/portable-win81+wpa81/System.Reactive.Interfaces.XML",
-        "lib/portable-windows8+net45+wp8/System.Reactive.Interfaces.dll",
-        "lib/portable-windows8+net45+wp8/System.Reactive.Interfaces.XML",
-        "lib/sl5/System.Reactive.Interfaces.dll",
-        "lib/sl5/System.Reactive.Interfaces.XML",
-        "lib/windows8/System.Reactive.Interfaces.dll",
-        "lib/windows8/System.Reactive.Interfaces.XML",
-        "lib/windowsphone71/System.Reactive.Interfaces.dll",
-        "lib/windowsphone71/System.Reactive.Interfaces.XML",
-        "lib/windowsphone8/System.Reactive.Interfaces.dll",
-        "lib/windowsphone8/System.Reactive.Interfaces.XML",
-        "Rx-Interfaces.2.2.5.nupkg",
-        "Rx-Interfaces.2.2.5.nupkg.sha512",
-        "Rx-Interfaces.nuspec"
-      ]
-    },
-    "Rx-Linq/2.2.5": {
-      "type": "package",
-      "sha512": "UTeCIu3cWPExxmTzdiVq7SalqTBhUaomBTaAC9LpYPoAopjlFwA3hjVWXoLkGlDc/44wqJemJuEwFP00KphiFg==",
-      "files": [
-        "lib/net40/System.Reactive.Linq.dll",
-        "lib/net40/System.Reactive.Linq.XML",
-        "lib/net45/System.Reactive.Linq.dll",
-        "lib/net45/System.Reactive.Linq.XML",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Linq.dll",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Linq.XML",
-        "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Linq.dll",
-        "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.Linq.XML",
-        "lib/portable-win81+wpa81/System.Reactive.Linq.dll",
-        "lib/portable-win81+wpa81/System.Reactive.Linq.XML",
-        "lib/portable-windows8+net45+wp8/System.Reactive.Linq.dll",
-        "lib/portable-windows8+net45+wp8/System.Reactive.Linq.XML",
-        "lib/sl5/System.Reactive.Linq.dll",
-        "lib/sl5/System.Reactive.Linq.XML",
-        "lib/windows8/System.Reactive.Linq.dll",
-        "lib/windows8/System.Reactive.Linq.XML",
-        "lib/windowsphone71/System.Reactive.Linq.dll",
-        "lib/windowsphone71/System.Reactive.Linq.XML",
-        "lib/windowsphone8/System.Reactive.Linq.dll",
-        "lib/windowsphone8/System.Reactive.Linq.XML",
-        "Rx-Linq.2.2.5.nupkg",
-        "Rx-Linq.2.2.5.nupkg.sha512",
-        "Rx-Linq.nuspec"
-      ]
-    },
-    "Rx-Main/2.2.5": {
-      "type": "package",
-      "sha512": "qdQ6qENEiLsp/LRdzZlLlodihWN8VDjwNfWa8c2ELjEHZgTdKzt1V4i61gkHVtFKZXe8Px6KupbMP3pZ+1tusQ==",
-      "files": [
-        "Rx-Main.2.2.5.nupkg",
-        "Rx-Main.2.2.5.nupkg.sha512",
-        "Rx-Main.nuspec"
-      ]
-    },
-    "Rx-PlatformServices/2.2.5": {
-      "type": "package",
-      "sha512": "pMnNEvJVjT+wuDib+W/bi5hhIYcre7dW5yxvKrJxnR4iKJ1VLA/dY2FTtjDriHGx7OeGn12lQewXlH2oHiWFPA==",
-      "files": [
-        "lib/net40/System.Reactive.PlatformServices.dll",
-        "lib/net40/System.Reactive.PlatformServices.XML",
-        "lib/net45/System.Reactive.PlatformServices.dll",
-        "lib/net45/System.Reactive.PlatformServices.XML",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.PlatformServices.dll",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.PlatformServices.XML",
-        "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.PlatformServices.dll",
-        "lib/portable-net45+winrt45+wp8+wpa81/System.Reactive.PlatformServices.XML",
-        "lib/portable-win81+wpa81/System.Reactive.PlatformServices.dll",
-        "lib/portable-win81+wpa81/System.Reactive.PlatformServices.XML",
-        "lib/portable-windows8+net45+wp8/System.Reactive.PlatformServices.dll",
-        "lib/portable-windows8+net45+wp8/System.Reactive.PlatformServices.XML",
-        "lib/sl5/System.Reactive.PlatformServices.dll",
-        "lib/sl5/System.Reactive.PlatformServices.XML",
-        "lib/windows8/System.Reactive.PlatformServices.dll",
-        "lib/windows8/System.Reactive.PlatformServices.XML",
-        "lib/windowsphone71/System.Reactive.PlatformServices.dll",
-        "lib/windowsphone71/System.Reactive.PlatformServices.XML",
-        "lib/windowsphone8/System.Reactive.PlatformServices.dll",
-        "lib/windowsphone8/System.Reactive.PlatformServices.XML",
-        "Rx-PlatformServices.2.2.5.nupkg",
-        "Rx-PlatformServices.2.2.5.nupkg.sha512",
-        "Rx-PlatformServices.nuspec"
       ]
     },
     "System.AppContext/4.0.0": {
@@ -20711,6 +19386,28 @@
         "System.IO.Compression.nuspec"
       ]
     },
+    "System.IO.Compression.clrcompression-x64/4.0.0": {
+      "type": "package",
+      "sha512": "Lqr+URMwKzf+8HJF6YrqEqzKzDzFJTE4OekaxqdIns71r8Ufbd8SbZa0LKl9q+7nu6Em4SkIEXVMB7plSXekOw==",
+      "files": [
+        "runtimes/win10-x64/native/ClrCompression.dll",
+        "runtimes/win7-x64/native/clrcompression.dll",
+        "System.IO.Compression.clrcompression-x64.4.0.0.nupkg",
+        "System.IO.Compression.clrcompression-x64.4.0.0.nupkg.sha512",
+        "System.IO.Compression.clrcompression-x64.nuspec"
+      ]
+    },
+    "System.IO.Compression.clrcompression-x86/4.0.0": {
+      "type": "package",
+      "sha512": "GmevpuaMRzYDXHu+xuV10fxTO8DsP7OKweWxYtkaxwVnDSj9X6RBupSiXdiveq9yj/xjZ1NbG+oRRRb99kj+VQ==",
+      "files": [
+        "runtimes/win10-x86/native/ClrCompression.dll",
+        "runtimes/win7-x86/native/clrcompression.dll",
+        "System.IO.Compression.clrcompression-x86.4.0.0.nupkg",
+        "System.IO.Compression.clrcompression-x86.4.0.0.nupkg.sha512",
+        "System.IO.Compression.clrcompression-x86.nuspec"
+      ]
+    },
     "System.IO.FileSystem/4.0.1-beta-23516": {
       "type": "package",
       "serviceable": true,
@@ -20984,10 +19681,10 @@
         "System.Linq.Queryable.nuspec"
       ]
     },
-    "System.Net.Http/4.0.1-rc2-23623": {
+    "System.Net.Http/4.0.1-beta-23516": {
       "type": "package",
       "serviceable": true,
-      "sha512": "ESYPUOJaLyJ8Mc5Z44P1uVKu5NKp32Gs/PnCjVCTQcZsY55b5KqY/hfycVaqBR2VztZWWGaoKcla7tFk0ibKnA==",
+      "sha512": "WbmX0jo84S72GVhRbKtBBUkx2dQ1hzb4TRSLfaiktRh7QKnSP9ctzTxBvXghWQ6GnswBzTHnuc69msImZH5b6A==",
       "files": [
         "lib/net45/_._",
         "lib/win8/_._",
@@ -21018,8 +19715,8 @@
         "ref/win8/_._",
         "ref/wpa81/_._",
         "runtime.json",
-        "System.Net.Http.4.0.1-rc2-23623.nupkg",
-        "System.Net.Http.4.0.1-rc2-23623.nupkg.sha512",
+        "System.Net.Http.4.0.1-beta-23516.nupkg",
+        "System.Net.Http.4.0.1-beta-23516.nupkg.sha512",
         "System.Net.Http.nuspec"
       ]
     },
@@ -22323,28 +21020,6 @@
         "System.Security.Cryptography.Algorithms.nuspec"
       ]
     },
-    "System.Security.Cryptography.Algorithms/4.0.0-rc2-23623": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "R2qasrxO8oRMTrAwF4NnTpoQl6IssaCp/wCjh/4YQ2Nh5paXN1Zb6Q8iVeN3olzfRE7e8OBiu3zSIsdBORrhIg==",
-      "files": [
-        "lib/MonoAndroid10/_._",
-        "lib/MonoTouch10/_._",
-        "lib/net46/System.Security.Cryptography.Algorithms.dll",
-        "lib/xamarinios10/_._",
-        "lib/xamarinmac20/_._",
-        "ref/dotnet5.4/System.Security.Cryptography.Algorithms.dll",
-        "ref/MonoAndroid10/_._",
-        "ref/MonoTouch10/_._",
-        "ref/net46/System.Security.Cryptography.Algorithms.dll",
-        "ref/xamarinios10/_._",
-        "ref/xamarinmac20/_._",
-        "runtime.json",
-        "System.Security.Cryptography.Algorithms.4.0.0-rc2-23623.nupkg",
-        "System.Security.Cryptography.Algorithms.4.0.0-rc2-23623.nupkg.sha512",
-        "System.Security.Cryptography.Algorithms.nuspec"
-      ]
-    },
     "System.Security.Cryptography.Cng/4.0.0-beta-23516": {
       "type": "package",
       "serviceable": true,
@@ -22413,38 +21088,6 @@
         "System.Security.Cryptography.Encoding.nuspec"
       ]
     },
-    "System.Security.Cryptography.Encoding/4.0.0-rc2-23623": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "Tn9/EkIAeebS1fW6eMm7YLtKzgQXVy8nTFxZRuu9h/3+7ZIgdinZe0B0KSgRN+p9pthJ2YDtf98w2gAvxtsFEg==",
-      "files": [
-        "lib/MonoAndroid10/_._",
-        "lib/MonoTouch10/_._",
-        "lib/net46/System.Security.Cryptography.Encoding.dll",
-        "lib/xamarinios10/_._",
-        "lib/xamarinmac20/_._",
-        "ref/dotnet5.4/de/System.Security.Cryptography.Encoding.xml",
-        "ref/dotnet5.4/es/System.Security.Cryptography.Encoding.xml",
-        "ref/dotnet5.4/fr/System.Security.Cryptography.Encoding.xml",
-        "ref/dotnet5.4/it/System.Security.Cryptography.Encoding.xml",
-        "ref/dotnet5.4/ja/System.Security.Cryptography.Encoding.xml",
-        "ref/dotnet5.4/ko/System.Security.Cryptography.Encoding.xml",
-        "ref/dotnet5.4/ru/System.Security.Cryptography.Encoding.xml",
-        "ref/dotnet5.4/System.Security.Cryptography.Encoding.dll",
-        "ref/dotnet5.4/System.Security.Cryptography.Encoding.xml",
-        "ref/dotnet5.4/zh-hans/System.Security.Cryptography.Encoding.xml",
-        "ref/dotnet5.4/zh-hant/System.Security.Cryptography.Encoding.xml",
-        "ref/MonoAndroid10/_._",
-        "ref/MonoTouch10/_._",
-        "ref/net46/System.Security.Cryptography.Encoding.dll",
-        "ref/xamarinios10/_._",
-        "ref/xamarinmac20/_._",
-        "runtime.json",
-        "System.Security.Cryptography.Encoding.4.0.0-rc2-23623.nupkg",
-        "System.Security.Cryptography.Encoding.4.0.0-rc2-23623.nupkg.sha512",
-        "System.Security.Cryptography.Encoding.nuspec"
-      ]
-    },
     "System.Security.Cryptography.Primitives/4.0.0-beta-23516": {
       "type": "package",
       "serviceable": true,
@@ -22464,28 +21107,6 @@
         "ref/xamarinmac20/_._",
         "System.Security.Cryptography.Primitives.4.0.0-beta-23516.nupkg",
         "System.Security.Cryptography.Primitives.4.0.0-beta-23516.nupkg.sha512",
-        "System.Security.Cryptography.Primitives.nuspec"
-      ]
-    },
-    "System.Security.Cryptography.Primitives/4.0.0-rc2-23623": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "TP1BdBI0IA/6Pcex5SqCKmifK2qATSjY604rxtWt/cQSRAAZdprhugeEHuYr3SxgYuv1uGT4SbcTm7q2O0gcMQ==",
-      "files": [
-        "lib/dotnet5.4/System.Security.Cryptography.Primitives.dll",
-        "lib/MonoAndroid10/_._",
-        "lib/MonoTouch10/_._",
-        "lib/net46/System.Security.Cryptography.Primitives.dll",
-        "lib/xamarinios10/_._",
-        "lib/xamarinmac20/_._",
-        "ref/dotnet5.4/System.Security.Cryptography.Primitives.dll",
-        "ref/MonoAndroid10/_._",
-        "ref/MonoTouch10/_._",
-        "ref/net46/System.Security.Cryptography.Primitives.dll",
-        "ref/xamarinios10/_._",
-        "ref/xamarinmac20/_._",
-        "System.Security.Cryptography.Primitives.4.0.0-rc2-23623.nupkg",
-        "System.Security.Cryptography.Primitives.4.0.0-rc2-23623.nupkg.sha512",
         "System.Security.Cryptography.Primitives.nuspec"
       ]
     },
@@ -22518,38 +21139,6 @@
         "runtime.json",
         "System.Security.Cryptography.X509Certificates.4.0.0-beta-23516.nupkg",
         "System.Security.Cryptography.X509Certificates.4.0.0-beta-23516.nupkg.sha512",
-        "System.Security.Cryptography.X509Certificates.nuspec"
-      ]
-    },
-    "System.Security.Cryptography.X509Certificates/4.0.0-rc2-23623": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "yOX745z7HzylFkNXmW4RJPIpr28WSh1NQffLi7GyfkUh+srEvRawldkimGfdZTv9BZkivvsZI6wn1Yyy8dk6eg==",
-      "files": [
-        "lib/MonoAndroid10/_._",
-        "lib/MonoTouch10/_._",
-        "lib/net46/System.Security.Cryptography.X509Certificates.dll",
-        "lib/xamarinios10/_._",
-        "lib/xamarinmac20/_._",
-        "ref/dotnet5.4/de/System.Security.Cryptography.X509Certificates.xml",
-        "ref/dotnet5.4/es/System.Security.Cryptography.X509Certificates.xml",
-        "ref/dotnet5.4/fr/System.Security.Cryptography.X509Certificates.xml",
-        "ref/dotnet5.4/it/System.Security.Cryptography.X509Certificates.xml",
-        "ref/dotnet5.4/ja/System.Security.Cryptography.X509Certificates.xml",
-        "ref/dotnet5.4/ko/System.Security.Cryptography.X509Certificates.xml",
-        "ref/dotnet5.4/ru/System.Security.Cryptography.X509Certificates.xml",
-        "ref/dotnet5.4/System.Security.Cryptography.X509Certificates.dll",
-        "ref/dotnet5.4/System.Security.Cryptography.X509Certificates.xml",
-        "ref/dotnet5.4/zh-hans/System.Security.Cryptography.X509Certificates.xml",
-        "ref/dotnet5.4/zh-hant/System.Security.Cryptography.X509Certificates.xml",
-        "ref/MonoAndroid10/_._",
-        "ref/MonoTouch10/_._",
-        "ref/net46/System.Security.Cryptography.X509Certificates.dll",
-        "ref/xamarinios10/_._",
-        "ref/xamarinmac20/_._",
-        "runtime.json",
-        "System.Security.Cryptography.X509Certificates.4.0.0-rc2-23623.nupkg",
-        "System.Security.Cryptography.X509Certificates.4.0.0-rc2-23623.nupkg.sha512",
         "System.Security.Cryptography.X509Certificates.nuspec"
       ]
     },
@@ -23540,30 +22129,19 @@
       "Microsoft.AspNet.Server.Kestrel >= 1.0.0-rc1-final",
       "Microsoft.AspNet.StaticFiles >= 1.0.0-rc1-final",
       "Microsoft.AspNet.Tooling.Razor >= 1.0.0-rc1-final",
-      "Microsoft.Extensions.CodeGenerators.Mvc >= 1.0.0-rc1-final",
       "Microsoft.Extensions.Configuration.FileProviderExtensions >= 1.0.0-rc1-final",
       "Microsoft.Extensions.Configuration.Json >= 1.0.0-rc1-final",
       "Microsoft.Extensions.Configuration.UserSecrets >= 1.0.0-rc1-final",
       "Microsoft.Extensions.Logging >= 1.0.0-rc1-final",
       "Microsoft.Extensions.Logging.Console >= 1.0.0-rc1-final",
       "Microsoft.Extensions.Logging.Debug >= 1.0.0-rc1-final",
-      "Microsoft.VisualStudio.Web.BrowserLink.Loader >= 14.0.0-rc1-final",
-      "Rx-Main >= 2.2.5",
       "Newtonsoft.Json >= 7.0.1",
       "Microsoft.AspNet.WebApi.Client >= 5.2.3",
       "Microsoft.AspNet.TestHost >= 1.0.0-rc1-final",
       "xunit >= 2.1.0",
-      "xunit.runner.dnx >= 2.1.0-rc1-build204",
-      "System.Net.Http >= 4.0.1-rc2-23623"
+      "xunit.runner.dnx >= 2.1.0-rc1-build204"
     ],
     "DNX,Version=v4.5.1": [],
-    "DNXCore,Version=v5.0": [
-      "Microsoft.CSharp >= 4.0.1-beta-23516",
-      "System.Collections >= 4.0.11-beta-23516",
-      "System.Linq >= 4.0.1-beta-23516",
-      "System.Runtime >= 4.0.21-beta-23516",
-      "System.Threading >= 4.0.11-beta-23516",
-      "xunit.runner.dnx >= 2.1.0-rc1-build204"
-    ]
+    "DNXCore,Version=v5.0": []
   }
 }

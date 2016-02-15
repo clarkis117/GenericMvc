@@ -19,6 +19,6 @@ namespace GenericMvcUtilities.Tests
 
 		LoggerFactory LogFactory { get; }
 
-		string Credentials { get; }
+		string AuthCookie { get; }
 	}
 }

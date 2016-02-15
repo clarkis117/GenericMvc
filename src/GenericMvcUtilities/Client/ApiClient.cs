@@ -54,8 +54,6 @@ namespace GenericMvcUtilities.Client
 
 		#endregion Properties
 
-
-
 		public ApiClient(HttpClient fixtureClient, string authCookie, IList<JsonConverter> converters)
 		{
 			try

@@ -15,7 +15,7 @@ namespace GenericMvcUtilities.Client
 	{
 		private readonly HttpClient _client;
 
-		private readonly string _credentials;
+		private readonly ILoginModel _credentials;
 
 		public IEnumerable<string> Cookies { get; set; }
 
@@ -23,13 +23,13 @@ namespace GenericMvcUtilities.Client
 
 		public string ApiPath => "/account/api/";
 
-		public string RegisterRoute => "register";
+		public string RegisterRoute => ApiPath + "register";
 
-		public string LoginRoute => "login";
+		public string LoginRoute => ApiPath + "login";
 
-		public string LogOffRoute => "logoff";
+		public string LogOffRoute => ApiPath + "logoff";
 
-		public AuthClient(HttpClient client, string loginInfo)
+		public AuthClient(HttpClient client, ILoginModel loginInfo)
 		{
 			if (client != null)
 			{
@@ -75,21 +75,21 @@ namespace GenericMvcUtilities.Client
 			return concatCookies.ToString();
 		}
 
-		public static string GetLoginInfoFromFile(string filepath)
+		public static ILoginModel GetLoginInfoFromFile(string filepath)
 		{
-			string valid;
+			ILoginModel valid;
 
 			using (var reader = new StreamReader(System.IO.File.OpenRead(filepath)))
 			{
 				var serial = new JsonSerializer();
 
-				valid = (string)serial.Deserialize(reader, typeof(LoginModel));
+				valid = (ILoginModel)serial.Deserialize(reader, typeof(LoginModel));
 			}
 
 			return valid;
 		}
 
-		public async Task<string> Login(string model)
+		public async Task<string> Login(ILoginModel model)
 		{
 			if (model != null)
 			{
@@ -116,9 +116,7 @@ namespace GenericMvcUtilities.Client
 
 		public async Task<string> Login()
 		{
-			var loginModel = (string)JsonConvert.DeserializeObject(this._credentials);
-
-			return await this.Login(loginModel);
+			return await this.Login(this._credentials);
 		}
 
 		public Task<bool> Register(IRegistrationModel model)

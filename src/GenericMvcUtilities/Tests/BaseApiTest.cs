@@ -68,7 +68,7 @@ namespace GenericMvcUtilities.Tests
 				this.Converters = converters;
 
 				//get the client
-				this._client = new ApiClient<T>(fixture.TestServer.CreateClient(), fixture.Credentials, converters);
+				this._client = new ApiClient<T>(fixture.TestServer.CreateClient(), fixture.AuthCookie, converters);
 
 				//setup serialized test data
 				this.SerializedTestData = this.GetTestData(this.TestDataPath).Result;
@@ -505,9 +505,9 @@ namespace GenericMvcUtilities.Tests
 				Assert.NotEmpty(items);
 
 				//Check data
-				foreach (var Id in this.WhiteListedTestDataIds)
+				foreach (var id in this.WhiteListedTestDataIds)
 				{
-					Assert.True(items.Any(x => x.Id == Id));
+					Assert.True(items.Any(x => x.Id == id));
 				}
 			}
 			catch (Exception ex) when (ex.GetType() != typeof(Xunit.Sdk.XunitException))

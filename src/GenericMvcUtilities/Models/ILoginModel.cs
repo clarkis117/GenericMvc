@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace GenericMvcUtilities.Models
 {
 
-	public class LoginModel : @string
+	public class LoginModel : ILoginModel
 	{
 		[Required]
 		[EmailAddress]
@@ -21,7 +21,7 @@ namespace GenericMvcUtilities.Models
 		public bool RememberMe { get; set; }
 	}
 
-	public interface @string
+	public interface ILoginModel
 	{
 		string Email { get; set; }
 
