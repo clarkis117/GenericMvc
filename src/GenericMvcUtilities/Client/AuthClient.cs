@@ -21,11 +21,11 @@ namespace GenericMvcUtilities.Client
 
 		public string AuthCookie { get; set; }
 
-		public string ApiPath => "/account/api/";
+		public string ApiPath => "/account/";
 
 		public string RegisterRoute => ApiPath + "register";
 
-		public string LoginRoute => ApiPath + "login";
+		public string LoginRoute => ApiPath + "loginapi";
 
 		public string LogOffRoute => ApiPath + "logoff";
 
