@@ -7,29 +7,42 @@ using GenericMvcUtilities.Models;
 using GenericMvcUtilities.Repositories;
 using GenericMvcUtilities.ViewModels;
 using Microsoft.AspNet.Authorization;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace GenericMvcUtilities.UserManager
 {
+	/// <summary>
+	/// see this blog post about the redirect design used in this controller: http://www.aspnetmvcninja.com/controllers/why-you-should-use-post-redirect-get
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <typeparam name="X"></typeparam>
+	/// <seealso cref="Microsoft.AspNet.Mvc.Controller" />
 	[Authorize(Roles = RoleHelper.UserAdmin)]
-	public class UserManagerController<T>: Controller where T : class
+	public class UserManagerController<T, X> : Controller
+		where T : IdentityUser
+		where X : PendingUser
 	{
-		protected readonly BaseRepository<T> Repository;
+		protected readonly BaseRepository<T> UserRepository;
+
+		protected readonly BaseRepository<X> PendingUserRepository;
 
 		//Maybe One Day using Logger<T> instead
 		protected readonly ILogger<T> Logger;
 
-		public ControllerViewData ControllerViewModel { get; set; }
+		public ControllerViewData ControllerViewModel { get; }
 
-		public UserManagerController(BaseRepository<T> repository, ILogger<T> logger)
+		public UserManagerController( BaseRepository<T> userRepository, BaseRepository<X> pendingUserRepository, ILogger<T> logger)
 		{
 			try
 			{
-				if (repository != null)
+				if (userRepository != null)
 				{
 					//Set repo to repo field
-					this.Repository = repository;
+					this.UserRepository = userRepository;
+
+					this.PendingUserRepository = pendingUserRepository;
 
 					this.Logger = logger;
 
@@ -41,7 +54,7 @@ namespace GenericMvcUtilities.UserManager
 				}
 				else
 				{
-					throw new ArgumentNullException(nameof(repository));
+					throw new ArgumentNullException(nameof(userRepository));
 				}
 			}
 			catch (Exception ex)
@@ -93,7 +106,7 @@ namespace GenericMvcUtilities.UserManager
 					this.ControllerViewModel,
 					this.ActionContext.RouteData.Values["action"].ToString(),
 					instructions,
-					await Repository.GetAll());
+					await UserRepository.GetAll());
 
 				actionViewModels.Add(actionViewModel);
 
@@ -111,16 +124,16 @@ namespace GenericMvcUtilities.UserManager
 		}
 
 		[Route("[controller]/[action]/")]
-		[HttpGet("{id:int}")]
-		public async Task<IActionResult> Details(int? id)
+		[HttpGet("{id:Guid}")]
+		public async Task<IActionResult> Details(Guid? id)
 		{
-			string instructions = "All " + this.ControllerViewModel.ControllerName + "s in the Database";
+			var instructions = "All " + this.ControllerViewModel.ControllerName + "s in the Database";
 
 			try
 			{
 				if (id != null)
 				{
-					var item = await Repository.GetCompleteItem(Repository.MatchByIdExpression(id));
+					var item = await UserRepository.GetCompleteItem(UserRepository.IsMatchedExpression("Id", id));
 
 					if (item != null)
 					{
@@ -147,14 +160,14 @@ namespace GenericMvcUtilities.UserManager
 		}
 
 		[Route("[controller]/[action]/")]
-		[HttpGet("{id:int}")]
-		public async Task<IActionResult> Edit(int? id)
+		[HttpGet("{id:Guid}")]
+		public async Task<IActionResult> Edit(Guid? id)
 		{
 			try
 			{
 				if (id != null)
 				{
-					var item = await Repository.Get(Repository.MatchByIdExpression(id));
+					var item = await UserRepository.Get(UserRepository.IsMatchedExpression("Id", id));
 
 					if (item != null)
 					{
@@ -192,7 +205,7 @@ namespace GenericMvcUtilities.UserManager
 			{
 				if (ModelState.IsValid)
 				{
-					await Repository.Update(item);
+					await UserRepository.Update(item);
 
 					return RedirectToAction("Index");
 				}
@@ -210,18 +223,18 @@ namespace GenericMvcUtilities.UserManager
 		}
 
 		[Route("[controller]/[action]/")]
-		[HttpDelete("{id:int}")]
-		public async Task<IActionResult> Delete(int? id)
+		[HttpDelete("{id:Guid}")]
+		public async Task<IActionResult> Delete(Guid? id)
 		{
 			try
 			{
 				if (id != null)
 				{
-					var item = await Repository.Get(Repository.MatchByIdExpression(id));
+					var item = await UserRepository.Get(UserRepository.IsMatchedExpression("Id", id));
 
 					if (item != null)
 					{
-						var result = await Repository.Delete(item);
+						var result = await UserRepository.Delete(item);
 
 						if (result != false)
 						{
@@ -252,29 +265,77 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
-		public IActionResult PendingUserIndex()
+		[HttpGet]
+		public async Task<IActionResult> PendingUserIndex()
 		{
 			//Serve index view with all pending users loaded 
 			return null;
 		}
 
-		public IActionResult DetailedPendingUser(int? id)
+		[HttpGet]
+		public async Task<IActionResult> DetailedPendingUser(Guid? id)
 		{
+			//Serve the detailed view of the user
 			return null;
 		}
 
-		public IActionResult AproveUser(int? id)
+		[HttpPost]
+		public async Task<IActionResult> DetailedPendingUser(Guid? id)
+		{
+			//Serve the detailed view of the user
+			return null;
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> AproveUser(Guid? id)
 		{
 			//create user account
 			//send email stating request approved
 			return null;
 		}
 
-		public IActionResult DenyUser(int? id)
+		[HttpPost]
+		public async Task<IActionResult> DenyUser(Guid? id)
 		{
 			//delete user account request
 			//send email stating request denied
-			return null;
+			try
+			{
+				if (id != null)
+				{
+					var item = await UserRepository.Get(UserRepository.IsMatchedExpression("Id", id));
+
+					if (item != null)
+					{
+						var result = await UserRepository.Delete(item);
+
+						if (result != false)
+						{
+							return RedirectToAction(nameof(this.PendingUserIndex));
+						}
+						else
+						{
+							return HttpBadRequest();
+						}
+					}
+					else
+					{
+						return HttpNotFound();
+					}
+				}
+				else
+				{
+					return HttpBadRequest();
+				}
+			}
+			catch (Exception ex)
+			{
+				string Message = "Delete by Id Failed";
+
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+
+				throw new Exception(this.FormatExceptionMessage(Message), ex);
+			}
 		}
 	}
 }
