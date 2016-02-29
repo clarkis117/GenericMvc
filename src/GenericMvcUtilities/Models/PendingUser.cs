@@ -10,10 +10,10 @@ namespace GenericMvcUtilities.Models
 	/// <summary>
 	/// Class for approving users before they can register their account
 	/// </summary>
-	public class PendingUser
+	public class PendingUser<TKey> where TKey : IEquatable<TKey>
 	{
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-		public Guid Id { get; set; }
+		public TKey Id { get; set; }
 
 		[Required]
 		public string FirstName { get; set; }

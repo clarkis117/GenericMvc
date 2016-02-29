@@ -7,6 +7,7 @@ using GenericMvcUtilities.Models;
 using GenericMvcUtilities.Repositories;
 using GenericMvcUtilities.ViewModels;
 using Microsoft.AspNet.Authorization;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Extensions.Logging;
@@ -16,41 +17,52 @@ namespace GenericMvcUtilities.UserManager
 	/// <summary>
 	/// see this blog post about the redirect design used in this controller: http://www.aspnetmvcninja.com/controllers/why-you-should-use-post-redirect-get
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <typeparam name="X"></typeparam>
+	/// <typeparam name="TUser"></typeparam>
+	/// <typeparam name="TPendingUser"></typeparam>
+	/// <typeparam name="TKey"></typeparam>
 	/// <seealso cref="Microsoft.AspNet.Mvc.Controller" />
 	[Authorize(Roles = RoleHelper.UserAdmin)]
-	public class UserManagerController<T, X> : Controller
-		where T : IdentityUser
-		where X : PendingUser
+	public class UserManagerController<TUser, TPendingUser, TKey> : Controller
+		where TUser : IdentityUser<TKey>
+		where TPendingUser : PendingUser<TKey>
+		where TKey : IEquatable<TKey>
 	{
-		protected readonly BaseRepository<T> UserRepository;
+		protected readonly UserManager<TUser> UserManager;
 
-		protected readonly BaseRepository<X> PendingUserRepository;
+		protected readonly BaseRepository<TUser> UserRepository;
+
+		protected readonly BaseRepository<TPendingUser> PendingUserRepository;
 
 		//Maybe One Day using Logger<T> instead
-		protected readonly ILogger<T> Logger;
+		protected readonly ILogger<UserManagerController<TUser, TPendingUser, TKey>> Logger;
 
-		public ControllerViewData ControllerViewModel { get; }
+		public ControllerViewModel ControllerViewModel { get; }
 
-		public UserManagerController( BaseRepository<T> userRepository, BaseRepository<X> pendingUserRepository, ILogger<T> logger)
+		
+		public UserManagerController( UserManager<TUser> userManager, BaseRepository<TUser> userRepository, BaseRepository<TPendingUser> pendingUserRepository, ILogger<UserManagerController<TUser, TPendingUser, TKey>> logger)
 		{
 			try
 			{
-				if (userRepository != null)
+				//Check parameters for null values
+				if (userManager != null
+					&& userRepository != null
+					&& pendingUserRepository != null
+					&& logger != null)
 				{
-					//Set repo to repo field
+					//Set fields
+					this.UserManager = userManager;
+
 					this.UserRepository = userRepository;
 
 					this.PendingUserRepository = pendingUserRepository;
 
 					this.Logger = logger;
 
-					//Get Controler Name
+					//Get Controller Name
 					var controllerName = this.GetControllerName(this.GetType());
 
 					//Create Controller View Model here
-					this.ControllerViewModel = new ViewModels.ControllerViewData(controllerName);
+					this.ControllerViewModel = new ViewModels.ControllerViewModel(controllerName);
 				}
 				else
 				{
@@ -75,7 +87,7 @@ namespace GenericMvcUtilities.UserManager
 		[NonAction]
 		protected string FormatExceptionMessage(string message)
 		{
-			return (this.GetType().Name + ": " + message + ": " + typeof(T));
+			return (this.GetType().Name + ": " + message + ": " + typeof(TUser));
 		}
 
 		[NonAction]
@@ -93,7 +105,7 @@ namespace GenericMvcUtilities.UserManager
 
 		// GET: /<controller>/
 		[HttpGet]
-		public async Task<IActionResult> Index()
+		public async Task<IActionResult> UserIndex()
 		{
 			const string instructions = "All Users in the Database";
 
@@ -101,7 +113,7 @@ namespace GenericMvcUtilities.UserManager
 
 			try
 			{
-
+				UserManager.lo
 				var actionViewModel = new ActionViewData(
 					this.ControllerViewModel,
 					this.ActionContext.RouteData.Values["action"].ToString(),
@@ -123,9 +135,10 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
+		//todo: show user details page with actions on it
 		[Route("[controller]/[action]/")]
-		[HttpGet("{id:Guid}")]
-		public async Task<IActionResult> Details(Guid? id)
+		[HttpGet("{id}")]
+		public async Task<IActionResult> UserDetails(TKey id)
 		{
 			var instructions = "All " + this.ControllerViewModel.ControllerName + "s in the Database";
 
@@ -159,47 +172,12 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
-		[Route("[controller]/[action]/")]
-		[HttpGet("{id:Guid}")]
-		public async Task<IActionResult> Edit(Guid? id)
-		{
-			try
-			{
-				if (id != null)
-				{
-					var item = await UserRepository.Get(UserRepository.IsMatchedExpression("Id", id));
 
-					if (item != null)
-					{
-						return View(item);
-					}
-					else
-					{
-						Type type = typeof(T);
-						T result = (T)Activator.CreateInstance(type);
-
-						return View(result);
-					}
-				}
-				else
-				{
-					return HttpBadRequest();
-				}
-			}
-			catch (Exception ex)
-			{
-				string Message = "Edit View / Get By Id Failed";
-
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
-
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
-			}
-		}
-
+		//todo: do I need this?
 		[Route("[controller]/[action]/")]
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(T item)
+		public async Task<IActionResult> ChangeUserRole(TUser item)
 		{
 			try
 			{
@@ -222,9 +200,11 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
+		//todo: Change to removing this user
 		[Route("[controller]/[action]/")]
-		[HttpDelete("{id:Guid}")]
-		public async Task<IActionResult> Delete(Guid? id)
+		[HttpPost("{id}")]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> RemoveUser(TKey id)
 		{
 			try
 			{
@@ -273,21 +253,23 @@ namespace GenericMvcUtilities.UserManager
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> DetailedPendingUser(Guid? id)
+		public async Task<IActionResult> DetailedPendingUser(TKey id)
 		{
 			//Serve the detailed view of the user
 			return null;
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> DetailedPendingUser(Guid? id)
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> ChangePendingUserRole(TKey id)
 		{
 			//Serve the detailed view of the user
 			return null;
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> AproveUser(Guid? id)
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> AproveUser(TKey id)
 		{
 			//create user account
 			//send email stating request approved
@@ -295,7 +277,8 @@ namespace GenericMvcUtilities.UserManager
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> DenyUser(Guid? id)
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DenyUser(TKey id)
 		{
 			//delete user account request
 			//send email stating request denied

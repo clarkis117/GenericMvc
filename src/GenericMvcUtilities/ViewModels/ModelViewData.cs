@@ -6,16 +6,16 @@ namespace GenericMvcUtilities.ViewModels
 	/// <summary>
 	/// This is the generic view model for all view controllers
 	/// </summary>
-	public class ControllerViewData
+	public class ControllerViewModel
 	{
-		public ControllerViewData(string controllerName)
+		public ControllerViewModel(string controllerName)
 		{
 			this.ControllerName = controllerName;
 
 			Conventionalize();
 		}
 
-		public ControllerViewData(string controllerName, string sharedView)
+		public ControllerViewModel(string controllerName, string sharedView)
 		{
 			this.ControllerName = controllerName;
 
@@ -97,7 +97,7 @@ namespace GenericMvcUtilities.ViewModels
 		/// <param name="action">The action.</param>
 		/// <param name="instructions">The instructions for the action view.</param>
 		/// <param name="data">The data.</param>
-		public ActionViewData(ControllerViewData controllerViewData, string action, string instructions, object data)
+		public ActionViewData(ControllerViewModel controllerViewData, string action, string instructions, object data)
 		{
 			//set loose params
 			this.Action = action;

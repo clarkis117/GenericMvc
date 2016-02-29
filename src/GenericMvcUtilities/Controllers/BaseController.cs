@@ -21,7 +21,7 @@ namespace GenericMvcUtilities.Controllers
 		/// <value>
 		/// The controller view model.
 		/// </value>
-		public ViewModels.ControllerViewData ControllerViewModel { get; set; }
+		public ViewModels.ControllerViewModel ControllerViewModel { get; set; }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BaseController{T}" /> class.
@@ -40,7 +40,7 @@ namespace GenericMvcUtilities.Controllers
 					var controllerName = this.GetControllerName(this.GetType());
 
 					//Create Controller View Model here
-					this.ControllerViewModel = new ViewModels.ControllerViewData(controllerName);
+					this.ControllerViewModel = new ViewModels.ControllerViewModel(controllerName);
 				}
 				else
 				{
