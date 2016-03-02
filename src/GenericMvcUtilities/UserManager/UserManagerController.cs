@@ -39,7 +39,10 @@ namespace GenericMvcUtilities.UserManager
 		public ControllerViewModel ControllerViewModel { get; }
 
 		
-		public UserManagerController( UserManager<TUser> userManager, BaseRepository<TUser> userRepository, BaseRepository<TPendingUser> pendingUserRepository, ILogger<UserManagerController<TUser, TPendingUser, TKey>> logger)
+		public UserManagerController( UserManager<TUser> userManager,
+			BaseRepository<TUser> userRepository,
+			BaseRepository<TPendingUser> pendingUserRepository,
+			ILogger<UserManagerController<TUser, TPendingUser, TKey>> logger)
 		{
 			try
 			{
@@ -113,7 +116,6 @@ namespace GenericMvcUtilities.UserManager
 
 			try
 			{
-				UserManager.lo
 				var actionViewModel = new ActionViewData(
 					this.ControllerViewModel,
 					this.ActionContext.RouteData.Values["action"].ToString(),
@@ -146,11 +148,12 @@ namespace GenericMvcUtilities.UserManager
 			{
 				if (id != null)
 				{
-					var item = await UserRepository.GetCompleteItem(UserRepository.IsMatchedExpression("Id", id));
+					//var item = await UserRepository.GetCompleteItem(UserRepository.IsMatchedExpression("Id", id));
+					var user = await UserManager.FindByIdAsync(id.ToString());
 
-					if (item != null)
+					if (user != null)
 					{
-						return View(item);
+						return View(user);
 					}
 					else
 					{
@@ -183,6 +186,8 @@ namespace GenericMvcUtilities.UserManager
 			{
 				if (ModelState.IsValid)
 				{
+
+
 					await UserRepository.Update(item);
 
 					return RedirectToAction("Index");
@@ -210,18 +215,21 @@ namespace GenericMvcUtilities.UserManager
 			{
 				if (id != null)
 				{
-					var item = await UserRepository.Get(UserRepository.IsMatchedExpression("Id", id));
+					//var item = await UserRepository.Get(UserRepository.IsMatchedExpression("Id", id));
+					var user = await UserManager.FindByIdAsync(id.ToString());
 
-					if (item != null)
+					if (user != null)
 					{
-						var result = await UserRepository.Delete(item);
+						//var result = await UserRepository.Delete(item);
+						var result = await UserManager.DeleteAsync(user);
 
-						if (result != false)
+						if (result.Succeeded)
 						{
-							return RedirectToAction("Index");
+							return RedirectToAction(nameof(UserIndex));
 						}
 						else
 						{
+							//todo: probably internal error
 							return HttpBadRequest();
 						}
 					}

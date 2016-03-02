@@ -29,4 +29,24 @@ namespace GenericMvcUtilities.UserManager
 		{
 		}
 	}
+
+	/// <summary>
+	/// Generic Version of the Above Role Manager
+	/// </summary>
+	/// <typeparam name="TKey">The type of the key.</typeparam>
+	/// <seealso cref="Microsoft.AspNet.Identity.RoleManager{Microsoft.AspNet.Identity.EntityFramework.IdentityRole{TKey}}" />
+	public class GenericRoleManager<TKey> : RoleManager<IdentityRole<TKey>>
+		where TKey : IEquatable<TKey>
+	{
+		public GenericRoleManager(
+			IRoleStore<IdentityRole<TKey>> store,
+			IEnumerable<IRoleValidator<IdentityRole<TKey>>> roleValidators,
+			ILookupNormalizer keyNormalizer,
+			IdentityErrorDescriber errors,
+			ILogger<RoleManager<IdentityRole<TKey>>> logger,
+			IHttpContextAccessor contextAccessor)
+			: base(store, roleValidators, keyNormalizer, errors, logger, contextAccessor)
+		{
+		}
+	}
 }
