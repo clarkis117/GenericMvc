@@ -12,6 +12,8 @@ namespace GenericMvcUtilities.Models
 
 		string LastName { get; set; }
 
+		string Email { get; set; }
+
 		string PhoneNumber { get; set; }
 
 		DateTime DateRegistered { get; set; }

@@ -26,6 +26,12 @@ namespace GenericMvcUtilities.Models
 		public string Email { get; set; }
 
 		[Required]
+		[Phone]
+		[DataType(DataType.PhoneNumber)]
+		[Display(Name = "Phone Number")]
+		public string PhoneNumber { get; set; }
+
+		[Required]
 		[StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
 		[DataType(DataType.Password)]
 		[Display(Name = "Password")]
@@ -37,14 +43,8 @@ namespace GenericMvcUtilities.Models
 		public string ConfirmPassword { get; set; }
 	}
 
-	public interface IRegistrationModel
+	public interface IRegistrationModel : IUserConstraints
 	{
-		string FirstName { get; set; }
-
-		string LastName { get; set; }
-
-		string Email { get; set; }
-
 		string Password { get; set; }
 
 		string ConfirmPassword { get; set; }
