@@ -33,7 +33,7 @@ namespace GenericMvcUtilities.ViewModels
 		/// </summary>
 		protected virtual void Conventionalize()
 		{
-			this.ModelViewPath = "~/Views/ModelViews/" + this.ControllerName + "/";
+			this.ModelViewPath = "~/Views/" + this.ControllerName + "/";
 			this.CreateEditForm = "CreateEdit" + this.ControllerName;
 		}
 

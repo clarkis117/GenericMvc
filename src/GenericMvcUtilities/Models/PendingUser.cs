@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Models
 {
+	//todo: figure out password handling
 	/// <summary>
 	/// Class for approving users before they can register their account
 	/// </summary>
-	public class PendingUser<TKey> where TKey : IEquatable<TKey>
+	public class PendingUser<TKey> : IUserConstraints
+		where TKey : IEquatable<TKey>
 	{
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public TKey Id { get; set; }
@@ -22,8 +24,13 @@ namespace GenericMvcUtilities.Models
 		public string LastName { get; set; }
 
 		[Required]
-		[DataType(DataType.Date)]
-		public DateTime DateOfBirth { get; set; }
+		[Phone]
+		[DataType(DataType.PhoneNumber)]
+		public string PhoneNumber { get; set; }
+
+		//todo: fix handling of this through user manager
+		[Required]
+		public string RequestedRole { get; set; }
 
 		[Required]
 		[DataType(DataType.DateTime)]

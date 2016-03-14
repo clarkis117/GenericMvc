@@ -12,13 +12,15 @@ namespace GenericMvcUtilities.UserManager
 	/// </summary>
 	public static class RoleHelper
 	{
+		public const string SystemOwner = "SystemOwner";
+
 		public const string UserAdmin = "UserAdmin";
 
 		public const string ContentAdmin = "ContentAdmin";
 
 		public const string ContentViewer = "ContentViewer";
 
-		private static readonly string[] _roles = {"UserAdmin", "ContentAdmin", "ContentViewer"};
+		public static readonly string[] MutableRoles = { "UserAdmin", "ContentAdmin", "ContentViewer"};
 
 		private static async Task EnsureRoleCreated(RoleManager<IdentityRole> roleManager, string roleName)
 		{
@@ -31,6 +33,7 @@ namespace GenericMvcUtilities.UserManager
 		public static async Task EnsureRolesCreated(this RoleManager<IdentityRole> roleManager)
 		{
 			// add all roles, that should be in database, here
+			await EnsureRoleCreated(roleManager, SystemOwner);
 			await EnsureRoleCreated(roleManager, UserAdmin);
 			await EnsureRoleCreated(roleManager, ContentAdmin);
 			await EnsureRoleCreated(roleManager, ContentViewer);
