@@ -415,12 +415,16 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
+		//todo: only show pendingUsers that haven't been added
+		//todo: change filter to unadded pending users
+		[Route("[controller]/[action]/")]
 		[HttpGet]
 		public async Task<IActionResult> PendingUserIndex()
 		{
 			//Serve index view with all pending users loaded 
 			try
 			{
+				//todo: replace with action context constructor
 				TableViewModel tableViewModel = new TableViewModel()
 				{
 					ControllerName = GetControllerName(this.GetType()),
@@ -457,24 +461,117 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
-		[HttpGet("{id}")]
-		public async Task<IActionResult> DetailedPendingUser(TKey id)
-		{
-			//Serve the detailed view of the user
-			return null;
-		}
-
 		[Route("[controller]/[action]/")]
-		[HttpPost("{id}")]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> ChangePendingUserRole(TKey id, string requestedRole)
+		[HttpGet("{id}")]
+		public async Task<IActionResult> PendingUserDetails(TKey id)
 		{
-			//Serve the detailed view of the user
-			return null;
+			try
+			{
+				if (id != null)
+				{
+					var pendingUser = await PendingUserRepository.Get(PendingUserRepository.IsMatchedExpression("Id", id));
+
+					if (pendingUser != null)
+					{
+						//return view with pending user details view model
+						return View("~/Views/UserManager/PendingUserDetails.cshtml", new PendingUserDetails<TKey, TPendingUser>(pendingUser));
+					}
+					else
+					{
+						return HttpNotFound();
+					}
+				}
+				else
+				{
+					return HttpBadRequest();
+				}
+			}
+			catch (Exception ex)
+			{
+				string Message = "Detailed Pending User Failed";
+
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+
+				throw new Exception(this.FormatExceptionMessage(Message), ex);
+			}
 		}
 
+		//todo: add status messages
+		//todo: this change role or redirect back to detailed action
+		[Route("[controller]/[action]/")]
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> ChangePendingUserRole(RoleChangeViewModel roleChange)
+		{
+			try
+			{
+				if (roleChange != null)
+				{
+					if (ModelState.IsValid)
+					{
+						if (roleChange.IsValid)
+						{
+							//todo: find a better way to compare TKey
+							var pendingUser = await this.PendingUserRepository.Get(PendingUserRepository.IsMatchedExpression("Id", roleChange.UserId));
+
+							pendingUser.RequestedRole = roleChange.NewRole;
+
+							var updateResult = await this.PendingUserRepository.Update(pendingUser);
+						}
+						else
+						{
+							return HttpBadRequest("Role is not valid");
+						}
+
+						return RedirectToAction(nameof(this.PendingUserDetails));
+					}
+					else
+					{
+						return HttpBadRequest(this.ModelState);
+					}
+				}
+				else
+				{
+					return HttpBadRequest(this.ModelState);
+				}
+			}
+			catch (Exception ex)
+			{
+				string Message = "Change Pending User Role Failed";
+
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+
+				throw new Exception(this.FormatExceptionMessage(Message), ex);
+			}
+		}
+
+		/// <summary>
+		/// Maps pending user properties to a new instance of a user
+		/// </summary>
+		/// <param name="PendingUser">The pending user.</param>
+		/// <returns></returns>
+		/// 
+		private TUser UserFromPending(TPendingUser PendingUser)
+		{
+			return new TUser()
+			{
+				FirstName = PendingUser.FirstName,
+				LastName = PendingUser.LastName,
+				PhoneNumber = PendingUser.PhoneNumber,
+				Email = PendingUser.Email,
+				DateRegistered = PendingUser.DateRegistered,
+			};
+		}
+
+		//todo: don't delete pending user yet, instead set flag that user has been added
 		//todo: email Notification
 		//todo: handle user role creation
+		//todo: fix this and reconcile changes to pending user model with user model		
+		/// <summary>
+		/// Approves the user.
+		/// </summary>
+		/// <param name="id">The identifier.</param>
+		/// <returns></returns>
 		[Route("[controller]/[action]/")]
 		[HttpPost("{id}")]
 		[ValidateAntiForgeryToken]
@@ -486,49 +583,24 @@ namespace GenericMvcUtilities.UserManager
 			{
 				if (id != null)
 				{
-					var pendingUser = await PendingUserRepository.Get(PendingUserRepository.IsMatchedExpression("Id", id));
+					var pendingUser = await
+						PendingUserRepository.Get(PendingUserRepository.IsMatchedExpression("Id", id));
 
 					if (pendingUser != null)
 					{
-						//todo: phone number and password
-						TUser user = new TUser()
+						pendingUser.HasUserBeenAdded = true;
+
+						var result = await PendingUserRepository.Update(pendingUser);
+
+						if (result)
 						{
-							FirstName = pendingUser.FirstName,
-							LastName = pendingUser.LastName,
-							Email = pendingUser.Email,
-							UserName = pendingUser.Email,
-							DateRegistered = pendingUser.DateRegistered
-						};
-
-						var createdResult = await UserManager.CreateAsync(user);
-
-						if (createdResult.Succeeded)
-						{
-							var result = PendingUserRepository.Delete(pendingUser);
-
-							if (await result != false)
-							{
-								//redirect with status message that user has been added
-								return RedirectToAction(nameof(this.PendingUserIndex),
-									new { ManageMessageId = ManageMessageId.UserAccountCreationSucceeded });
-							}
-							else
-							{
-								string concatErrors = "";
-
-								foreach (var error in createdResult.Errors)
-								{
-									concatErrors += error.Code + ": " + error.Description + ", ";
-								}
-
-								throw new Exception(concatErrors);
-							}
+							//todo: change status message, to user request approved
+							return RedirectToAction(nameof(this.PendingUserIndex),
+								new { ManageMessageId = ManageMessageId.UserAccountCreationSucceeded });
 						}
 						else
 						{
-							//redirect back to user page with status message
-							return RedirectToAction(nameof(this.PendingUserIndex),
-								new { ManageMessageId = ManageMessageId.UserAccountCreationFailed });
+							throw new Exception("Failed updating pending user");
 						}
 					}
 					else
@@ -556,11 +628,10 @@ namespace GenericMvcUtilities.UserManager
 		//todo: status message for success or failure
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> DenyUser(TKey id)
+		public async Task<IActionResult> DenyUser(TKey id) //todo: add reason why
 		{
-			//delete user account request
-			//send email stating request denied
-			try
+			//todo: send email stating request denied
+			try             //delete user account request
 			{
 				if (id != null)
 				{

@@ -7,6 +7,39 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Models
 {
+	//todo: find a way to do key while maintaining pending user model
+	public interface IPendingUser
+	{
+		object Id { get; set; }
+
+		[Required]
+		string FirstName { get; set; }
+
+		[Required]
+		string LastName { get; set; }
+
+		[Required]
+		[Phone]
+		[DataType(DataType.PhoneNumber)]
+		string PhoneNumber { get; set; }
+
+		[Required]
+		string RequestedRole { get; set; }
+
+		[Required]
+		[DataType(DataType.DateTime)]
+		DateTime DateRegistered { get; set; }
+
+		[Required]
+		[EmailAddress]
+		[DataType(DataType.EmailAddress)]
+		string Email { get; set; }
+
+		string HashedPassword { get; set; }
+
+		bool HasUserBeenAdded { get; set; }
+	}
+
 	//todo: figure out password handling
 	/// <summary>
 	/// Class for approving users before they can register their account
@@ -41,8 +74,8 @@ namespace GenericMvcUtilities.Models
 		[DataType(DataType.EmailAddress)]
 		public string Email { get; set; }
 
-		[Required]
-		[DataType(DataType.Password)]
-		public string Password { get; set; }
+		public string HashedPassword { get; set; }
+
+		public bool HasUserBeenAdded { get; set; } = false;
 	}
 }

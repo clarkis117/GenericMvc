@@ -1,20 +1,22 @@
-﻿using System;
+﻿using GenericMvcUtilities.Models;
+using GenericMvcUtilities.ViewModels.Generic;
+using GenericMvcUtilities.Repositories;
+using GenericMvcUtilities.Services;
+using GenericMvcUtilities.ViewModels.UserManager.Account;
+using Microsoft.AspNet.Authorization;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Mvc;
+using Microsoft.AspNet.Mvc.Rendering;
+using Microsoft.Data.Entity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Authorization;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Mvc;
-using Microsoft.AspNet.Mvc.Rendering;
-using Microsoft.Data.Entity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using GenericMvcUtilities.Models;
-using GenericMvcUtilities.Repositories;
-using GenericMvcUtilities.Services;
-using GenericMvcUtilities.ViewModels.UserManager.Account;
 
 //Todo: add in account confirmation phase for added pending users
+//todo: add generic mvc views modeling to it for bootstrap material design
 namespace GenericMvcUtilities.UserManager
 {
 	[Authorize]
@@ -22,7 +24,7 @@ namespace GenericMvcUtilities.UserManager
 	public class AccountController<TKey, TUser, TPendingUser> : Controller
 		where TKey : IEquatable<TKey>
 		where TUser : IdentityUser<TKey>, IUserConstraints, new()
-		where TPendingUser : PendingUser<TKey>
+		where TPendingUser : PendingUser<TKey>, new()
 	{
 		private readonly UserManager<TUser> _userManager;
 		private readonly SignInManager<TUser> _signInManager;
@@ -65,6 +67,157 @@ namespace GenericMvcUtilities.UserManager
 			return View();
 		}
 
+		/// <summary>
+		/// Utility Method for creating confirm user view model.
+		/// </summary>
+		/// <param name="pendingUser">The pending user.</param>
+		/// <returns></returns>
+		private ConfirmUserViewModel CreateConfirmUserViewModel(TPendingUser pendingUser)
+		{
+			return new ConfirmUserViewModel()
+			{
+				PendingUserId = pendingUser.Id,
+				FirstName = pendingUser.FirstName,
+				LastName = pendingUser.LastName,
+				Email = pendingUser.Email,
+				AssignedRole = pendingUser.RequestedRole,
+				PhoneNumber = pendingUser.PhoneNumber
+			};
+		}
+
+		/// <summary>
+		/// Utility Method for Creating a TUser from confirm user view model.
+		/// </summary>
+		/// <param name="confirmModel">The confirm model.</param>
+		/// <returns></returns>
+		private TUser CreateUserFromConfirmModel(ConfirmUserViewModel confirmModel)
+		{
+			return new TUser()
+			{
+				FirstName = confirmModel.FirstName,
+				LastName = confirmModel.LastName,
+				UserName = confirmModel.Email,
+				Email = confirmModel.Email,
+				PhoneNumber = confirmModel.PhoneNumber,
+				DateRegistered = confirmModel.DateRegistered
+			};
+		}
+
+		/// <summary>
+		/// Serves the confirmation view
+		/// verify ids, check if user has been added, create model, assign ids to model, send view
+		/// </summary>
+		/// <param name="pendingUserId">The pending user identifier.</param>
+		/// <param name="userId">The user identifier.</param>
+		/// <returns></returns>
+		[HttpGet]
+		public async Task<IActionResult> ConfirmUser(TKey pendingUserId)
+		{
+			//todo: read one-time token here
+			if (pendingUserId != null)
+			{
+				//todo: go back to repository and find a better way to do this
+				var pendingResult = await
+					_pendingUserRepository.Get(_pendingUserRepository.IsMatchedExpression("Id", pendingUserId));
+
+				if (pendingResult != null && pendingResult.HasUserBeenAdded)
+				{
+					//construct view model
+					var viewModel = new PageViewModel(ActionContext)
+					{
+						Title = "Confirm your Account",
+						Description = "Your Request has been reviewed by a User Administrator and approved, please confirm your information.",
+						Data = CreateConfirmUserViewModel(pendingResult)
+					};
+
+					return this.ViewFromModel(viewModel);
+				}
+				else
+				{
+					//HttpNotFound leaks information
+					return HttpBadRequest();
+				}
+			}
+			else
+			{
+				return HttpBadRequest();
+			}
+		}
+
+		/// <summary>
+		/// Receives form post, verify model state, check data
+		/// </summary>
+		/// <param name="model">The model.</param>
+		/// <returns></returns>
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> ConfirmUser(ConfirmUserViewModel model)
+		{
+			//todo: read one-time token here
+			if (model != null)
+			{
+				if (ModelState.IsValid)
+				{
+					//get pending user from DB
+					var pendingUser = await 
+						_pendingUserRepository.Get(_pendingUserRepository.IsMatchedExpression("Id", model.PendingUserId));
+
+					//hash old password and compare with stored hash
+					if (pendingUser.HashedPassword == _passwordHasher.HashPassword(pendingUser, model.Password))
+					{
+						//then add user to the system
+						TUser newUser = CreateUserFromConfirmModel(model);
+
+						//Add pending user to user system, with password
+						var result = await _userManager.CreateAsync(newUser, model.NewPassword);
+
+						if (result.Succeeded) //then add role
+						{
+							var roleResult = 
+								await _userManager.AddToRoleAsync(newUser, pendingUser.RequestedRole);
+
+							if (roleResult.Succeeded)
+							{
+								//sign user in and redirect to home page
+								var signInResult = 
+									await _signInManager.PasswordSignInAsync(newUser, model.NewPassword, false, false);
+
+								if (signInResult.Succeeded)
+								{
+									return RedirectToAction("Index", "Home");
+								}
+								else
+								{
+									throw new Exception("Failed signing in new user");
+								}
+							}
+							else
+							{
+								//throw error
+								throw new Exception("Failed adding role to new user");
+							}
+						}
+						else // throw error
+						{
+							throw new Exception("Failed Creating New User");
+						}
+					}
+					else
+					{
+						return HttpUnauthorized();
+					}
+				}
+				else
+				{
+					return HttpBadRequest(ModelState);
+				}
+			}
+			else
+			{
+				return HttpBadRequest();
+			}
+		}
+
 		//
 		// POST: /Account/Login
 		[HttpPost]
@@ -73,12 +226,15 @@ namespace GenericMvcUtilities.UserManager
 		public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
 		{
 			EnsureDatabaseCreated(_userRepository.DataContext);
+
 			ViewData["ReturnUrl"] = returnUrl;
+
 			if (ModelState.IsValid)
 			{
 				// This doesn't count login failures towards account lockout
 				// To enable password failures to trigger account lockout, set lockoutOnFailure: true
 				var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+
 				if (result.Succeeded)
 				{
 					return RedirectToLocal(returnUrl);
@@ -91,10 +247,48 @@ namespace GenericMvcUtilities.UserManager
 				{
 					return View("Lockout");
 				}
+				//begin check for pending user
+				if (result.Succeeded == false &&
+					result.IsLockedOut == false &&
+					result.RequiresTwoFactor == false)
+				{
+					//Check for pending user here, query by email address for pending user
+					var pendingUser = await _pendingUserRepository.Get(x => x.Email == model.Email);
+
+					//check for result and correctness of result
+					if (pendingUser != null)
+					{
+						//var user = await _userManager.FindByEmailAsync(model.Email);
+
+						//check to see if the user has been added
+						if (pendingUser.HasUserBeenAdded)
+						{
+							//hash password supplied by the form
+							//var hashedpassword = _passwordHasher.HashPassword(pendingUser, model.Password);
+
+							//todo: use this to fix it
+							var passwordVerified = _passwordHasher.VerifyHashedPassword(pendingUser, pendingUser.HashedPassword, model.Password);
+
+							//compare hashed passwords, hashedpassword == pendingUser.HashedPassword\
+							//todo: add condition handling for password needing rehashed
+							if ((int)passwordVerified == 1)
+							{
+								//todo: create one-time auth cookie and set it
+
+								return RedirectToAction(nameof(this.ConfirmUser),
+									new { pendingUserId = pendingUser.Id });
+							}
+							else
+							{
+								ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+							}
+						}
+					}
+				}
 				else
 				{
 					ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-					return View(model);
+					//return View(model);
 				}
 			}
 
@@ -102,7 +296,7 @@ namespace GenericMvcUtilities.UserManager
 			return View(model);
 		}
 
-		// POST: /Account/Login		
+		// POST: /Account/Login
 		/// <summary>
 		/// Logins to the API.
 		/// </summary>
@@ -151,26 +345,75 @@ namespace GenericMvcUtilities.UserManager
 			return new NoContentResult();
 		}
 
+		//todo: add to role helper class
+		private IEnumerable<SelectListItem> RoleList(string[] roles)
+		{
+			var roleListViewModel = new List<SelectListItem>();
+
+			foreach (var role in roles)
+			{
+				var listItem = new SelectListItem()
+				{
+					Text = role,
+					Value = role
+				};
+
+				roleListViewModel.Add(listItem);
+			}
+
+			return roleListViewModel;
+		} 
+
 		//
 		// GET: /Account/Register
 		[HttpGet]
 		[AllowAnonymous]
 		public IActionResult Register()
 		{
-			return View();
-		}
-		
-		[HttpGet]
-		public async Task<IActionResult> ConfirmAddedUser(TKey pendingUserId, TKey UserId)
-		{
-			return null;
+			//Add Roles to view bag / view data
+			ViewData["Roles"] = RoleList(RoleHelper.MutableRoles);
+
+			var viewModel = new PageViewModel(ActionContext)
+			{
+				Title = "Request Access",
+				Description = "Create a new account request. The account will be reviewed by a User Administrator before being added to the System.",
+			};
+
+			return this.ViewFromModel(viewModel);
 		}
 
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> ConfirmAddedUser(ConfirmUserViewModel model)
+
+		/// <summary>
+		/// Creates the pending user.
+		/// Utility method for creating pending user models from registration model
+		/// </summary>
+		/// <param name="model">The model.</param>
+		/// <returns></returns>
+		/// <exception cref="System.Exception">Error hashing pending user password</exception>
+		private TPendingUser CreatePendingUser(RegisterViewModel model)
 		{
-			return null;
+			var pendingUser = new TPendingUser()
+			{
+				FirstName = model.FirstName,
+				LastName = model.LastName,
+				Email = model.Email,
+				PhoneNumber = model.PhoneNumber,
+				RequestedRole = model.RequestedRole,
+				DateRegistered = model.DateRegistered,
+			};
+
+			var hashedpassword = _passwordHasher.HashPassword(pendingUser, model.Password);
+
+			if (hashedpassword != null)
+			{
+				pendingUser.HashedPassword = hashedpassword;
+			}
+			else
+			{
+				throw new Exception("Error hashing pending user password");
+			}
+
+			return pendingUser;
 		}
 
 		// todo: change to add pending users to the database
@@ -181,26 +424,16 @@ namespace GenericMvcUtilities.UserManager
 		public async Task<IActionResult> Register(RegisterViewModel model)
 		{
 			EnsureDatabaseCreated(_userRepository.DataContext);
+
 			if (ModelState.IsValid)
 			{
+				var pendingUser = CreatePendingUser(model);
 
-				//todo: fix change to TUser and make sure fields are properly mapped
-				var user = new TUser {
-					UserName = model.Email,
-					Email = model.Email,
-					FirstName = model.FirstName,
-					LastName = model.LastName,
-					DateRegistered = DateTime.Now
-				};
+				//var result = await _userManager.CreateAsync(user, model.Password);
 
-				var result = await _userManager.CreateAsync(user, model.Password);
+				var result = await _pendingUserRepository.Insert(pendingUser);
 
-				//roles.CreateAsync()
-
-				//_userManager
-
-
-				if (result.Succeeded)
+				if (result)
 				{
 					// For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
 					// Send an email with this link
@@ -208,14 +441,32 @@ namespace GenericMvcUtilities.UserManager
 					//var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
 					//await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
 					//    "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
-					await _signInManager.SignInAsync(user, isPersistent: false);
+					//await _signInManager.SignInAsync(user, isPersistent: false);
+
 					return RedirectToAction("Index", "Home");
 				}
-				AddErrors(result);
+				else
+				{
+					ModelState.AddModelError(String.Empty, "Failed Inserting Pending User into DB");
+				}
+
+				//AddErrors(result);
 			}
 
+
+			//Fix redisplay of form with generic mvc container 
+			//Add Roles to view bag / view data
+			ViewData["Roles"] = RoleList(RoleHelper.MutableRoles);
+
+			var viewModel = new PageViewModel(ActionContext)
+			{
+				Title = "Request Access",
+				Description = "Create a new account request. The account will be reviewed by a User Administrator before being added to the System.",
+				Data = model
+			};
+
 			// If we got this far, something failed, redisplay form
-			return View(model);
+			return this.ViewFromModel(viewModel);
 		}
 
 		//
@@ -287,7 +538,7 @@ namespace GenericMvcUtilities.UserManager
 		{
 			if (User.IsSignedIn())
 			{
-				return RedirectToAction(nameof(ManageController.Index),"Manage");
+				return RedirectToAction("Index", "Manage");
 			}
 
 			if (ModelState.IsValid)
@@ -566,6 +817,6 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
-		#endregion
+		#endregion Helpers
 	}
 }

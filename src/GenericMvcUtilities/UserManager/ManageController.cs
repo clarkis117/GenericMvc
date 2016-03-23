@@ -6,24 +6,28 @@ using System.Security.Claims;
 using Microsoft.AspNet.Authorization;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Mvc;
-using SmarterPlanetSecBackend.Models;
-using SmarterPlanetSecBackend.Services;
-using SmarterPlanetSecBackend.ViewModels.Manage;
+using GenericMvcUtilities.Models;
+using GenericMvcUtilities.Repositories;
+using GenericMvcUtilities.Services;
+using GenericMvcUtilities.ViewModels.UserManager.Manage;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace GenericMvcUtilities.UserManager
 {
 	[Authorize]
 	[Route("[controller]/[action]/")]
-	public class ManageController : Controller
+	public class ManageController<TKey, TUser> : Controller
+		where TKey : IEquatable<TKey>
+		where TUser : IdentityUser<TKey>, IUserConstraints, new()
 	{
-		private readonly UserManager<ApplicationUser> _userManager;
-		private readonly SignInManager<ApplicationUser> _signInManager;
+		private readonly UserManager<TUser> _userManager;
+		private readonly SignInManager<TUser> _signInManager;
 		private readonly IEmailSender _emailSender;
 		private readonly ISmsSender _smsSender;
 
 		public ManageController(
-			UserManager<ApplicationUser> userManager,
-			SignInManager<ApplicationUser> signInManager,
+			UserManager<TUser> userManager,
+			SignInManager<TUser> signInManager,
 			IEmailSender emailSender,
 			ISmsSender smsSender)
 		{
@@ -66,7 +70,9 @@ namespace GenericMvcUtilities.UserManager
 		{
 			var user = await GetCurrentUserAsync();
 			var linkedAccounts = await _userManager.GetLoginsAsync(user);
-			ViewData["ShowRemoveButton"] = await _userManager.HasPasswordAsync(user) || linkedAccounts.Count > 1;
+
+			//todo: test to see if it causes problems
+			ViewData["ShowRemoveButton"] = await _userManager.HasPasswordAsync(user) || linkedAccounts.Count() > 1;
 			return View(linkedAccounts);
 		}
 
@@ -280,7 +286,9 @@ namespace GenericMvcUtilities.UserManager
 			}
 			var userLogins = await _userManager.GetLoginsAsync(user);
 			var otherLogins = _signInManager.GetExternalAuthenticationSchemes().Where(auth => userLogins.All(ul => auth.AuthenticationScheme != ul.LoginProvider)).ToList();
-			ViewData["ShowRemoveButton"] = user.PasswordHash != null || userLogins.Count > 1;
+
+			//todo: test to see if it causes problems
+			ViewData["ShowRemoveButton"] = user.PasswordHash != null || userLogins.Count() > 1;
 			return View(new ManageLoginsViewModel
 			{
 				CurrentLogins = userLogins,
@@ -352,7 +360,7 @@ namespace GenericMvcUtilities.UserManager
 			Error
 		}
 
-		private async Task<ApplicationUser> GetCurrentUserAsync()
+		private async Task<TUser> GetCurrentUserAsync()
 		{
 			return await _userManager.FindByIdAsync(HttpContext.User.GetUserId());
 		}
@@ -365,7 +373,7 @@ namespace GenericMvcUtilities.UserManager
 			}
 			else
 			{
-				return RedirectToAction(nameof(HomeController.Index), nameof(HomeController));
+				return RedirectToAction("Index", "Home");
 			}
 		}
 

@@ -119,12 +119,8 @@ namespace GenericMvcUtilities.Client
 			return await this.Login(this._credentials);
 		}
 
-		public Task<bool> Register(IRegistrationModel model)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task Register()
+		//todo: fix
+		public Task<bool> Register()
 		{
 			throw new NotImplementedException();
 		}

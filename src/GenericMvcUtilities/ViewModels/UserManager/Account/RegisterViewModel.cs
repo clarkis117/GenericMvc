@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using GenericMvcUtilities.Models;
 
 namespace GenericMvcUtilities.ViewModels.UserManager.Account
 {
 	/// <summary>
 	/// TODO: update this to work with new application user model, and razor form
 	/// </summary>
-	public class RegisterViewModel
+	public class RegisterViewModel : IRegistrationModel
 	{
 		[Required]
 		[StringLength(150, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 2)]
@@ -25,23 +26,39 @@ namespace GenericMvcUtilities.ViewModels.UserManager.Account
 
 		[Required]
 		[EmailAddress]
+		[DataType(DataType.EmailAddress)]
 		[Display(Name = "Email")]
 		public string Email { get; set; }
 
 		[Required]
+		[EmailAddress]
+		[DataType(DataType.EmailAddress)]
+		[Display(Name = "Confirm Email")]
+		[Compare(nameof(Email), ErrorMessage = "The email address and confirmation email address do not match.")]
+		public string ConfirmEmail { get; set; }
+
+		[Required]
 		[Phone]
 		[DataType(DataType.PhoneNumber)]
+		[Display(Name ="Phone Number")]
 		public string PhoneNumber { get; set; }
+
+		[Required]
+		[Phone]
+		[DataType(DataType.PhoneNumber)]
+		[Display(Name = "Confirm Phone Number")]
+		[Compare(nameof(PhoneNumber), ErrorMessage = "The Phone Number and confirmation Phone Number do not match.")]
+		public string ConfirmPhoneNumber { get; set; }
 
 		//todo: fix handling of this through user manager
 		[Required]
+		[Display(Name ="Requested Role")]
 		public string RequestedRole { get; set; }
 
-		/* this is added to model in the controller
 		[Required]
 		[DataType(DataType.DateTime)]
+		[Display(Name = "Date Registered")]
 		public DateTime DateRegistered { get; set; }
-		*/
 
 		[Required]
 		[StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
@@ -51,7 +68,18 @@ namespace GenericMvcUtilities.ViewModels.UserManager.Account
 
 		[DataType(DataType.Password)]
 		[Display(Name = "Confirm password")]
-		[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+		[Compare(nameof(Password), ErrorMessage = "The password and confirmation password do not match.")]
 		public string ConfirmPassword { get; set; }
+	}
+
+	public interface IRegistrationModel : IUserConstraints
+	{
+		string ConfirmPhoneNumber { get; set; }
+
+		string ConfirmEmail { get; set; }
+
+		string Password { get; set; }
+
+		string ConfirmPassword { get; set; }
 	}
 }

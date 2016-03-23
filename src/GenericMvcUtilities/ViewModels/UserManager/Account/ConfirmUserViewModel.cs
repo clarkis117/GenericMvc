@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using GenericMvcUtilities.Models;
 
-namespace GenericMvcUtilities.Models
+namespace GenericMvcUtilities.ViewModels.UserManager.Account
 {
-	public class RegistrationModel : IRegistrationModel
+	public class ConfirmUserViewModel : IUserConstraints 
 	{
+		[Required]
+		public object PendingUserId { get; set; }
+
+		[Required]
+		public DateTime DateRegistered { get; set; }
+
 		[Required]
 		[StringLength(150, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 2)]
 		[DataType(DataType.Text)]
@@ -22,8 +29,14 @@ namespace GenericMvcUtilities.Models
 
 		[Required]
 		[EmailAddress]
+		[DataType(DataType.EmailAddress)]
 		[Display(Name = "Email")]
 		public string Email { get; set; }
+
+		//Corresponds to requested role
+		[Required]
+		[Display(Name = "Assigned Role")]
+		public string AssignedRole { get; set; }
 
 		[Required]
 		[Phone]
@@ -34,19 +47,19 @@ namespace GenericMvcUtilities.Models
 		[Required]
 		[StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
 		[DataType(DataType.Password)]
-		[Display(Name = "Password")]
+		[Display(Name = "Old Password")]
 		public string Password { get; set; }
 
+		[Required]
+		[StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
 		[DataType(DataType.Password)]
-		[Display(Name = "Confirm password")]
-		[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-		public string ConfirmPassword { get; set; }
-	}
+		[Display(Name = "New Password")]
+		public string NewPassword { get; set; }
 
-	public interface IRegistrationModel : IUserConstraints
-	{
-		string Password { get; set; }
+		[DataType(DataType.Password)]
+		[Display(Name = "Confirm New Password")]
+		[Compare(nameof(NewPassword), ErrorMessage = "The new password and confirmation new password do not match.")]
+		public string ConfirmNewPassword { get; set; }
 
-		string ConfirmPassword { get; set; }
 	}
 }

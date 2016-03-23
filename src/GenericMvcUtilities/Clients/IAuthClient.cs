@@ -22,12 +22,13 @@ namespace GenericMvcUtilities.Client
 		string LogOffRoute { get; }
 
 		//param methods
-		Task<bool> Register(IRegistrationModel model);
+		//todo: fix
+		Task<bool> Register();
 
 		Task<string> Login(ILoginModel model);
 
 		//State machine methods
-		Task Register();
+		//todo: Task Register();
 
 		Task<string> Login();
 

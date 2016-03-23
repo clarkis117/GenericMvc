@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc;
+using Microsoft.AspNet;
 
 namespace GenericMvcUtilities.ViewModels.Generic
 {
-	public class TableViewModel : GenericViewModel
+	public class PageViewModel : GenericViewModel
 	{
 		public string Title { get; set; }
 
@@ -14,16 +15,14 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 		public string Description { get; set; }
 
-		public bool CreateButton { get; set; }
-
-		public TableViewModel()
+		public PageViewModel()
 		{
-			ContainerName = "Table";
+			ContainerName = "Page";
 		}
 
-		public TableViewModel(ActionContext actionContext)
+		public PageViewModel(ActionContext actionContext)
 		{
-			ContainerName = "Table";
+			ContainerName = "Page";
 
 			Action = actionContext.ActionDescriptor.Name;
 
