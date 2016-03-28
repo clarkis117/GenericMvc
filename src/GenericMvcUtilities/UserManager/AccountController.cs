@@ -85,12 +85,14 @@ namespace GenericMvcUtilities.UserManager
 			};
 		}
 
+
+		//DON'T USE THIS, THIS METHOD IS A MISTAKE
 		/// <summary>
 		/// Utility Method for Creating a TUser from confirm user view model.
 		/// </summary>
 		/// <param name="confirmModel">The confirm model.</param>
 		/// <returns></returns>
-		private TUser CreateUserFromConfirmModel(ConfirmUserViewModel confirmModel)
+		private TUser CreateUserFromConfirm(ConfirmUserViewModel confirmModel)
 		{
 			return new TUser()
 			{
@@ -100,6 +102,24 @@ namespace GenericMvcUtilities.UserManager
 				Email = confirmModel.Email,
 				PhoneNumber = confirmModel.PhoneNumber,
 				DateRegistered = confirmModel.DateRegistered
+			};
+		}
+
+		/// <summary>
+		/// Users from pending.
+		/// </summary>
+		/// <param name="PendingUser">The pending user.</param>
+		/// <returns></returns>
+		private TUser UserFromPending(TPendingUser PendingUser)
+		{
+			return new TUser()
+			{
+				FirstName = PendingUser.FirstName,
+				LastName = PendingUser.LastName,
+				UserName = PendingUser.Email,
+				PhoneNumber = PendingUser.PhoneNumber,
+				Email = PendingUser.Email,
+				DateRegistered = PendingUser.DateRegistered,
 			};
 		}
 
@@ -162,11 +182,13 @@ namespace GenericMvcUtilities.UserManager
 					var pendingUser = await 
 						_pendingUserRepository.Get(_pendingUserRepository.IsMatchedExpression("Id", model.PendingUserId));
 
+					var passwordResult = _passwordHasher.VerifyHashedPassword(pendingUser, pendingUser.HashedPassword, model.Password);
+					
 					//hash old password and compare with stored hash
-					if (pendingUser.HashedPassword == _passwordHasher.HashPassword(pendingUser, model.Password))
+					if (passwordResult == PasswordVerificationResult.Success || passwordResult == PasswordVerificationResult.SuccessRehashNeeded)
 					{
 						//then add user to the system
-						TUser newUser = CreateUserFromConfirmModel(model);
+						TUser newUser = UserFromPending(pendingUser);
 
 						//Add pending user to user system, with password
 						var result = await _userManager.CreateAsync(newUser, model.NewPassword);
@@ -263,27 +285,37 @@ namespace GenericMvcUtilities.UserManager
 						//check to see if the user has been added
 						if (pendingUser.HasUserBeenAdded)
 						{
-							//hash password supplied by the form
-							//var hashedpassword = _passwordHasher.HashPassword(pendingUser, model.Password);
+							//verify the user has been added
+							var passwordResult = _passwordHasher.VerifyHashedPassword(pendingUser, pendingUser.HashedPassword, model.Password);
 
-							//todo: use this to fix it
-							var passwordVerified = _passwordHasher.VerifyHashedPassword(pendingUser, pendingUser.HashedPassword, model.Password);
 
-							//compare hashed passwords, hashedpassword == pendingUser.HashedPassword\
-							//todo: add condition handling for password needing rehashed
-							if ((int)passwordVerified == 1)
+							if (passwordResult == PasswordVerificationResult.SuccessRehashNeeded || passwordResult == PasswordVerificationResult.SuccessRehashNeeded)
 							{
 								//todo: create one-time auth cookie and set it
+								var stamp = Guid.NewGuid();
 
-								return RedirectToAction(nameof(this.ConfirmUser),
-									new { pendingUserId = pendingUser.Id });
-							}
-							else
-							{
-								ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+								var datetimeoffset = DateTimeOffset.UtcNow;
+
+								pendingUser.StampExpiration = datetimeoffset.AddHours(1);
+
+								pendingUser.SecurityStamp = _passwordHasher.HashPassword(pendingUser, stamp.ToString());
+
+								var stampResult = await _pendingUserRepository.Update(pendingUser);
+
+								if (stampResult)
+								{
+									return RedirectToAction(nameof(this.ConfirmUser),
+														new { PendingUserId = pendingUser.Id, Stamp =  stamp });
+								}
+								else
+								{
+									throw new Exception("Updating Pending User Failed");
+								}
 							}
 						}
 					}
+
+					ModelState.AddModelError(string.Empty, "Invalid login attempt.");
 				}
 				else
 				{
@@ -302,7 +334,7 @@ namespace GenericMvcUtilities.UserManager
 		/// </summary>
 		/// <param name="model">The model.</param>
 		/// <returns></returns>
-		[Route("[controller]/[action]")]
+		//[Route("[controller]/[action]")]
 		[HttpPost]
 		[AllowAnonymous]
 		public async Task<IActionResult> LoginApi([FromBody]LoginViewModel model)

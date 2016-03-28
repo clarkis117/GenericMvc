@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Tests
 {
-	public interface IBaseApiTest<T> where T : IModel
+	public interface IBaseApiTest<T> where T : class
 	{
 		Task<string> GetTestData(string path);
 

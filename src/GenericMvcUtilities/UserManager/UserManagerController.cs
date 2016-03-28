@@ -178,7 +178,7 @@ namespace GenericMvcUtilities.UserManager
 			UserCannotBeLocked,
 			UserAccountHasBeenLocked,
 			ErrorOccuredProcessingRequest,
-			UserAccountCreationSucceeded,
+			UserAccountCreationApproved,
 			UserAccountCreationFailed
 		}
 
@@ -424,7 +424,7 @@ namespace GenericMvcUtilities.UserManager
 			//Serve index view with all pending users loaded 
 			try
 			{
-				//todo: replace with action context constructor
+				//todo: add and replace with action context constructor
 				TableViewModel tableViewModel = new TableViewModel()
 				{
 					ControllerName = GetControllerName(this.GetType()),
@@ -437,7 +437,8 @@ namespace GenericMvcUtilities.UserManager
 
 				var viewModelList = new List<IUserIndexView>();
 
-				var pendingUsers = await PendingUserRepository.GetAll();
+				//fixed: only show non added users
+				var pendingUsers = (await PendingUserRepository.GetAll()).Where(x => x.HasUserBeenAdded == false);
 
 				if(pendingUsers != null)
 				{
@@ -473,6 +474,7 @@ namespace GenericMvcUtilities.UserManager
 
 					if (pendingUser != null)
 					{
+						//todo: use generic mvc container 
 						//return view with pending user details view model
 						return View("~/Views/UserManager/PendingUserDetails.cshtml", new PendingUserDetails<TKey, TPendingUser>(pendingUser));
 					}
@@ -563,10 +565,8 @@ namespace GenericMvcUtilities.UserManager
 			};
 		}
 
-		//todo: don't delete pending user yet, instead set flag that user has been added
+		//done: don't delete pending user yet, instead set flag that user has been added
 		//todo: email Notification
-		//todo: handle user role creation
-		//todo: fix this and reconcile changes to pending user model with user model		
 		/// <summary>
 		/// Approves the user.
 		/// </summary>
@@ -596,7 +596,7 @@ namespace GenericMvcUtilities.UserManager
 						{
 							//todo: change status message, to user request approved
 							return RedirectToAction(nameof(this.PendingUserIndex),
-								new { ManageMessageId = ManageMessageId.UserAccountCreationSucceeded });
+								new { ManageMessageId = ManageMessageId.UserAccountCreationApproved });
 						}
 						else
 						{
@@ -643,6 +643,7 @@ namespace GenericMvcUtilities.UserManager
 
 						if (result != false)
 						{
+							//todo: add status message successfully pending user deleted
 							return RedirectToAction(nameof(this.PendingUserIndex));
 						}
 						else

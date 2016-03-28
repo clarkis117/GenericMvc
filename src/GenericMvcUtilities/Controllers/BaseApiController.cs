@@ -14,7 +14,9 @@ using System.Threading.Tasks;
 namespace GenericMvcUtilities.Controllers
 {
 	[Route("api/")]
-	public class BaseApiController<T> : Controller, IBaseApiController<T> where T : class, IModel
+	public class BaseApiController<T, TKey> : Controller, IBaseApiController<T, TKey>
+		where T : class, IModel<TKey> 
+		where TKey : IEquatable<TKey>
 	{
 		protected readonly BaseRepository<T> Repository;
 
@@ -79,7 +81,7 @@ namespace GenericMvcUtilities.Controllers
 					//todo: fix this, test fix
 					foreach (var item in items)
 					{
-						var doesItExist = await this.Repository.ContextSet.AnyAsync(x => x.Id == item.Id);
+						var doesItExist = await this.Repository.ContextSet.AnyAsync(x => x.Id.Equals(item.Id));
 
 						if (!doesItExist)
 						{
@@ -125,8 +127,8 @@ namespace GenericMvcUtilities.Controllers
 
 		[AllowAnonymous]
 		[Route("[controller]/[action]/")]
-		[HttpGet("{id:int}")]
-		public virtual async Task<T> Get(int? id)
+		[HttpGet("{id}")]
+		public virtual async Task<T> Get(TKey id)
 		{
 			try
 			{
@@ -299,8 +301,8 @@ namespace GenericMvcUtilities.Controllers
 		}
 
 		[Route("[controller]/[action]/")]
-		[HttpPut("{id:int}")]
-		public virtual async Task<IActionResult> Update(int? id, [FromBody] T item)
+		[HttpPut("{id}")]
+		public virtual async Task<IActionResult> Update(TKey id, [FromBody] T item)
 		{
 			try
 			{
@@ -354,10 +356,50 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
+		//todo: finish
+		//todo: add unit test
+		[Route("[controller]/[action]/")]
+		[HttpDelete]
+		public async Task<IActionResult> DeleteChild([FromBody] object child)
+		{
+			try
+			{
+				if (child != null)
+				{
+					if (ModelState.IsValid)
+					{
+						//first make sure type isn't the root of the object graph, in this case type T
+
+						//todo: maybe cache entity types in a field?
+						//todo: check type T in controller constructor as well
+						//todo: check type T in repository constructor as well
+						//Second make sure the type is present in the data-context 
+						//One possiblity
+						var a = Repository.DataContext.Model.GetEntityTypes().First().ClrType;
+
+
+						//third delete the object
+						//Repository.DataContext.
+						
+						//forth save changes
+						
+					}
+				}
+
+				return HttpBadRequest(ModelState);
+			}
+			catch (Exception ex)
+			{
+
+				throw;
+			}
+		}
+		
+
 		//todo: fix design oversight to have whole object deleted
 		[Route("[controller]/[action]/")]
-		[HttpDelete("{id:int}")]
-		public virtual async Task<IActionResult> Delete(int? id)
+		[HttpDelete("{id}")]
+		public virtual async Task<IActionResult> Delete(TKey id)
 		{
 			try
 			{

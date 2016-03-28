@@ -12,12 +12,14 @@ namespace GenericMvcUtilities.Controllers
 	/// Base Interface for all Web API nodes
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface IBaseApiController<T> where T : class
+	public interface IBaseApiController<T, TKey>
+		where T : class
+		where TKey : IEquatable<TKey>
 	{
 		//todo: maybe a count method?
 
 		//[HttpGet("{id:int}")]
-		Task<T> Get(int? id);
+		Task<T> Get(TKey id);
 
 		//[HttpGet]
 		Task<IEnumerable<T>> GetAll();
@@ -30,9 +32,9 @@ namespace GenericMvcUtilities.Controllers
 		Task<IActionResult> Creates([FromBody] T[] items);
 
 		//[HttpPut("{id:int}")]
-		Task<IActionResult> Update(int? id, [FromBody] T item);
+		Task<IActionResult> Update(TKey id, [FromBody] T item);
 
 		//[HttpDelete("{id:int}")]
-		Task<IActionResult> Delete(int? id);
+		Task<IActionResult> Delete(TKey id);
 	}
 }

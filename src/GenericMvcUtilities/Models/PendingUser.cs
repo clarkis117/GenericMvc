@@ -38,6 +38,16 @@ namespace GenericMvcUtilities.Models
 		string HashedPassword { get; set; }
 
 		bool HasUserBeenAdded { get; set; }
+
+		/// <summary>
+		/// Gets or sets the security stamp.
+		/// This will be treated like the above hashed password
+		/// this will add an additional layer of security in case of a db breach
+		/// </summary>
+		/// <value>
+		/// The security stamp.
+		/// </value>
+		string SecurityStamp { get; set; }
 	}
 
 	//todo: figure out password handling
@@ -77,5 +87,17 @@ namespace GenericMvcUtilities.Models
 		public string HashedPassword { get; set; }
 
 		public bool HasUserBeenAdded { get; set; } = false;
+
+		/// <summary>
+		/// Gets or sets the security stamp.
+		/// This will be treated like the above hashed password
+		/// this will add an additional layer of security in case of a db breach
+		/// </summary>
+		/// <value>
+		/// The security stamp.
+		/// </value>
+		public string SecurityStamp { get; set; }
+
+		public DateTimeOffset StampExpiration { get; set; }
 	}
 }

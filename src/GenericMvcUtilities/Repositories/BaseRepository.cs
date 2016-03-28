@@ -7,13 +7,16 @@ using System.Threading;
 using System.Threading.Tasks;
 
 //ToDo: Add Eager Loading to this and IBaseRepository
+//Todo: reconcile this with changes in RC2
+//Todo: add an additional generic type constraint of TKey
 namespace GenericMvcUtilities.Repositories
 {
 	/// <summary>
 	/// Base Repository for accessing the Entity Framework Context
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public class BaseRepository<T> : IBaseRepository<T>, IDisposable where T : class
+	public class BaseRepository<T> : IBaseRepository<T>, IDisposable
+		where T : class
 	{
 		/// <summary>
 		/// Gets or sets the data context.
@@ -122,7 +125,7 @@ namespace GenericMvcUtilities.Repositories
 		/// </summary>
 		/// <param name="id">The identifier.</param>
 		/// <returns></returns>
-		public Expression<Func<T, bool>> MatchByIdExpression(int? id)
+		public Expression<Func<T, bool>> MatchByIdExpression(object id)
 		{
 			var parameterExpression = Expression.Parameter(typeof(T));
 			var propertyOrField = Expression.PropertyOrField(parameterExpression, "Id");

@@ -12,7 +12,9 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Client
 {
-	public class ApiClient<T> : IDisposable, IApiClient<T> where T : class, IModel
+	public class ApiClient<T, TKey> : IDisposable, IApiClient<T, TKey>
+		where T : class, IModel<TKey>
+		where TKey : IEquatable<TKey>
 	{
 		#region Fields
 
@@ -133,7 +135,7 @@ namespace GenericMvcUtilities.Client
 			}
 		}
 
-		public async Task<HttpResponseMessage> Get(int id, bool useAuth)
+		public async Task<HttpResponseMessage> Get(TKey id, bool useAuth)
 		{
 			try
 			{
@@ -307,7 +309,7 @@ namespace GenericMvcUtilities.Client
 			}
 		}
 
-		public async Task<HttpResponseMessage> Update(bool useAuth, int id, HttpContent contentOverride)
+		public async Task<HttpResponseMessage> Update(bool useAuth, TKey id, HttpContent contentOverride)
 		{
 			try
 			{
@@ -333,7 +335,7 @@ namespace GenericMvcUtilities.Client
 			}
 		}
 
-		public async Task<HttpResponseMessage> Delete(int id, bool useAuth)
+		public async Task<HttpResponseMessage> Delete(TKey id, bool useAuth)
 		{
 			try
 			{
@@ -356,7 +358,7 @@ namespace GenericMvcUtilities.Client
 
 		#region EasyCrudMethods
 
-		public async Task<T> Get(int id)
+		public async Task<T> Get(TKey id)
 		{
 			try
 			{
@@ -494,7 +496,7 @@ namespace GenericMvcUtilities.Client
 			}
 		}
 
-		public async Task<bool> Delete(int id)
+		public async Task<bool> Delete(TKey id)
 		{
 			try
 			{

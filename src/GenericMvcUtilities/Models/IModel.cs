@@ -1,12 +1,23 @@
-﻿namespace GenericMvcUtilities.Models
+﻿using System;
+
+namespace GenericMvcUtilities.Models
 {
 	/// <summary>
 	/// Interface for all models
 	/// </summary>
-	public interface IModel
+	public interface IModel<TKey> where TKey : IEquatable<TKey> //,no this is for arrays IComparable<TKey>
 	{
-		int Id { get; set; }
+		TKey Id { get; set; }
 
 		//string JsonType { get; }
 	}
+
+	
+	public interface IModel2 //<TKey> where TKey : class
+	{
+		ValueType Id { get; set; }
+
+		//string JsonType { get; }
+	}
+	
 }

@@ -8,7 +8,9 @@ using System.Net.Http;
 
 namespace GenericMvcUtilities.Client
 {
-	public interface IApiClient<T> where T : IModel
+	public interface IApiClient<T, TKey>
+		where T : class
+		where TKey : IEquatable<TKey>
 	{
 		//Begin Routes
 		string Protocal { get; set; }
@@ -35,7 +37,7 @@ namespace GenericMvcUtilities.Client
 		//Uility CRUD Methods
 		Task<HttpResponseMessage> SendRequest(string route, string concatCookies, HttpMethod method, HttpContent content);
 
-		Task<HttpResponseMessage> Get(int id, bool useAuth);
+		Task<HttpResponseMessage> Get(TKey id, bool useAuth);
 
 		Task<HttpResponseMessage> GetAll(bool useAuth);
 
@@ -49,12 +51,12 @@ namespace GenericMvcUtilities.Client
 
 		Task<HttpResponseMessage> Update(T item, bool useAuth);
 
-		Task<HttpResponseMessage> Update(bool useAuth, int id, HttpContent contentOverride);
+		Task<HttpResponseMessage> Update(bool useAuth, TKey id, HttpContent contentOverride);
 
-		Task<HttpResponseMessage> Delete(int id, bool useAuth);
+		Task<HttpResponseMessage> Delete(TKey id, bool useAuth);
 
 		//All these use auth
-		Task<T> Get(int id);
+		Task<T> Get(TKey id);
 
 		Task<IEnumerable<T>> GetAll();
 
@@ -64,6 +66,6 @@ namespace GenericMvcUtilities.Client
 
 		Task<bool> Update(T item);
 
-		Task<bool> Delete(int id);
+		Task<bool> Delete(TKey id);
 	}
 }
