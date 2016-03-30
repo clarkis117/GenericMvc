@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 //Todo: add in account confirmation phase for added pending users
 //todo: add generic mvc views modeling to it for bootstrap material design
@@ -292,20 +293,19 @@ namespace GenericMvcUtilities.UserManager
 							if (passwordResult == PasswordVerificationResult.SuccessRehashNeeded || passwordResult == PasswordVerificationResult.SuccessRehashNeeded)
 							{
 								//todo: create one-time auth cookie and set it
-								var stamp = Guid.NewGuid();
+								var token = new OneTimeToken(OneTimeToken.GetBytes(model.Password));
 
-								var datetimeoffset = DateTimeOffset.UtcNow;
+								pendingUser.StampExpiration = token.ExpirationDate;
 
-								pendingUser.StampExpiration = datetimeoffset.AddHours(1);
-
-								pendingUser.SecurityStamp = _passwordHasher.HashPassword(pendingUser, stamp.ToString());
+								//todo: maybe change sec stamp to bytes
+								pendingUser.SecurityStamp = token.TokenStamp.ToString();
 
 								var stampResult = await _pendingUserRepository.Update(pendingUser);
 
 								if (stampResult)
 								{
 									return RedirectToAction(nameof(this.ConfirmUser),
-														new { PendingUserId = pendingUser.Id, Stamp =  stamp });
+														new { PendingUserId = pendingUser.Id, secToken = await token.GenerateToken()  });
 								}
 								else
 								{
