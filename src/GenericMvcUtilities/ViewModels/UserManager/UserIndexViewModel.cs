@@ -28,6 +28,8 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 		[DataType(DataType.DateTime)]
 		[Display(Name = "Date Registered")]
 		DateTime DateRegistered { get; set; }
+
+		bool ShowDetails { get; set; }
 	}
 
 
@@ -46,6 +48,8 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 		public string Email { get; set; }
 
 		public DateTime DateRegistered { get; set; }
+
+		public bool ShowDetails { get; set; } = true;
 
 		public PendingUserViewModel(TPendingUser pendingUser)
 		{
@@ -82,6 +86,9 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 		public string Email { get; set; }
 
 		public DateTime DateRegistered { get; set; }
+
+		public bool ShowDetails { get; set; } = true;
+
 
 		public UserIndexViewModel(TUser user)
 		{

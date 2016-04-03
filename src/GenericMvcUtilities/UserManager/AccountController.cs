@@ -73,36 +73,17 @@ namespace GenericMvcUtilities.UserManager
 		/// </summary>
 		/// <param name="pendingUser">The pending user.</param>
 		/// <returns></returns>
-		private ConfirmUserViewModel CreateConfirmUserViewModel(TPendingUser pendingUser)
+		private ConfirmUserViewModel CreateConfirmUserViewModel(TPendingUser pendingUser, string token)
 		{
 			return new ConfirmUserViewModel()
 			{
-				PendingUserId = pendingUser.Id,
+				PendingUserId = pendingUser.Id.ToString(),
+				AuthToken = token,
 				FirstName = pendingUser.FirstName,
 				LastName = pendingUser.LastName,
 				Email = pendingUser.Email,
 				AssignedRole = pendingUser.RequestedRole,
 				PhoneNumber = pendingUser.PhoneNumber
-			};
-		}
-
-
-		//DON'T USE THIS, THIS METHOD IS A MISTAKE
-		/// <summary>
-		/// Utility Method for Creating a TUser from confirm user view model.
-		/// </summary>
-		/// <param name="confirmModel">The confirm model.</param>
-		/// <returns></returns>
-		private TUser CreateUserFromConfirm(ConfirmUserViewModel confirmModel)
-		{
-			return new TUser()
-			{
-				FirstName = confirmModel.FirstName,
-				LastName = confirmModel.LastName,
-				UserName = confirmModel.Email,
-				Email = confirmModel.Email,
-				PhoneNumber = confirmModel.PhoneNumber,
-				DateRegistered = confirmModel.DateRegistered
 			};
 		}
 
@@ -131,31 +112,29 @@ namespace GenericMvcUtilities.UserManager
 		/// <param name="pendingUserId">The pending user identifier.</param>
 		/// <param name="userId">The user identifier.</param>
 		/// <returns></returns>
+		[AllowAnonymous]
 		[HttpGet]
-		public async Task<IActionResult> ConfirmUser(TKey pendingUserId)
+		public async Task<IActionResult> ConfirmUser(TKey pendingUserId, string secToken)
 		{
-			//todo: read one-time token here
 			if (pendingUserId != null)
 			{
-				//todo: go back to repository and find a better way to do this
-				var pendingResult = await
+				var pendingUser = await
 					_pendingUserRepository.Get(_pendingUserRepository.IsMatchedExpression("Id", pendingUserId));
 
-				if (pendingResult != null && pendingResult.HasUserBeenAdded)
-				{
-					//construct view model
-					var viewModel = new PageViewModel(ActionContext)
-					{
-						Title = "Confirm your Account",
-						Description = "Your Request has been reviewed by a User Administrator and approved, please confirm your information.",
-						Data = CreateConfirmUserViewModel(pendingResult)
-					};
+				//create token for comparison 
+				var token = new OneTimeToken(OneTimeToken.GetBytes(pendingUser.HashedPassword),
+						pendingUser.SecurityStamp,
+						pendingUser.StampExpiration);
 
-					return this.ViewFromModel(viewModel);
+				if (pendingUser != null &&
+					pendingUser.HasUserBeenAdded &&
+					await token.VerifyToken(secToken, pendingUser.StampExpiration))
+				{
+					return this.ViewFromModel(getConfirmViewModel(pendingUser, secToken));
 				}
 				else
 				{
-					//HttpNotFound leaks information
+					//HttpNotFound and anything else leaks information
 					return HttpBadRequest();
 				}
 			}
@@ -165,16 +144,38 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
+		private PageViewModel getConfirmViewModel(ConfirmUserViewModel model)
+		{
+			//construct view model
+			return new PageViewModel(ActionContext)
+			{
+				Title = "Confirm your Account",
+				Description = "Your Request has been reviewed by a User Administrator and approved, please confirm your information.",
+				Data = model
+			};
+		}
+
+		private PageViewModel getConfirmViewModel(TPendingUser pending, string token)
+		{
+			//construct view model
+			return new PageViewModel(ActionContext)
+			{
+				Title = "Confirm your Account",
+				Description = "Your Request has been reviewed by a User Administrator and approved, please confirm your information.",
+				Data = CreateConfirmUserViewModel(pending, token)
+			};
+		}
+
 		/// <summary>
 		/// Receives form post, verify model state, check data
 		/// </summary>
 		/// <param name="model">The model.</param>
 		/// <returns></returns>
+		[AllowAnonymous]
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> ConfirmUser(ConfirmUserViewModel model)
 		{
-			//todo: read one-time token here
 			if (model != null)
 			{
 				if (ModelState.IsValid)
@@ -183,8 +184,18 @@ namespace GenericMvcUtilities.UserManager
 					var pendingUser = await 
 						_pendingUserRepository.Get(_pendingUserRepository.IsMatchedExpression("Id", model.PendingUserId));
 
+					//create token for comparison 
+					var token = new OneTimeToken(OneTimeToken.GetBytes(pendingUser.HashedPassword),
+							pendingUser.SecurityStamp,
+							pendingUser.StampExpiration);
+
+					if ((await token.VerifyToken(model.AuthToken, pendingUser.StampExpiration)) == false)
+					{
+						return HttpUnauthorized();
+					}
+
 					var passwordResult = _passwordHasher.VerifyHashedPassword(pendingUser, pendingUser.HashedPassword, model.Password);
-					
+
 					//hash old password and compare with stored hash
 					if (passwordResult == PasswordVerificationResult.Success || passwordResult == PasswordVerificationResult.SuccessRehashNeeded)
 					{
@@ -196,13 +207,12 @@ namespace GenericMvcUtilities.UserManager
 
 						if (result.Succeeded) //then add role
 						{
-							var roleResult = 
-								await _userManager.AddToRoleAsync(newUser, pendingUser.RequestedRole);
+							var roleResult = await _userManager.AddToRoleAsync(newUser, pendingUser.RequestedRole);
 
 							if (roleResult.Succeeded)
 							{
 								//sign user in and redirect to home page
-								var signInResult = 
+								var signInResult =
 									await _signInManager.PasswordSignInAsync(newUser, model.NewPassword, false, false);
 
 								if (signInResult.Succeeded)
@@ -214,16 +224,12 @@ namespace GenericMvcUtilities.UserManager
 									throw new Exception("Failed signing in new user");
 								}
 							}
-							else
-							{
-								//throw error
-								throw new Exception("Failed adding role to new user");
-							}
 						}
-						else // throw error
-						{
-							throw new Exception("Failed Creating New User");
-						}
+
+						//if password errors redisplay form with data and errors
+						AddErrors(result);
+
+						return this.ViewFromModel(getConfirmViewModel(pendingUser, model.AuthToken));
 					}
 					else
 					{
@@ -232,7 +238,9 @@ namespace GenericMvcUtilities.UserManager
 				}
 				else
 				{
-					return HttpBadRequest(ModelState);
+					//return HttpBadRequest(ModelState);
+
+					return this.ViewFromModel(getConfirmViewModel(model));
 				}
 			}
 			else
@@ -250,7 +258,10 @@ namespace GenericMvcUtilities.UserManager
 		{
 			EnsureDatabaseCreated(_userRepository.DataContext);
 
-			ViewData["ReturnUrl"] = returnUrl;
+			if (returnUrl != null)
+			{
+				ViewData["ReturnUrl"] = returnUrl;
+			}
 
 			if (ModelState.IsValid)
 			{
@@ -281,31 +292,29 @@ namespace GenericMvcUtilities.UserManager
 					//check for result and correctness of result
 					if (pendingUser != null)
 					{
-						//var user = await _userManager.FindByEmailAsync(model.Email);
 
 						//check to see if the user has been added
 						if (pendingUser.HasUserBeenAdded)
 						{
-							//verify the user has been added
 							var passwordResult = _passwordHasher.VerifyHashedPassword(pendingUser, pendingUser.HashedPassword, model.Password);
 
-
-							if (passwordResult == PasswordVerificationResult.SuccessRehashNeeded || passwordResult == PasswordVerificationResult.SuccessRehashNeeded)
+							if (passwordResult == PasswordVerificationResult.Success || passwordResult == PasswordVerificationResult.SuccessRehashNeeded)
 							{
-								//todo: create one-time auth cookie and set it
-								var token = new OneTimeToken(OneTimeToken.GetBytes(model.Password));
+								//create one-time authentication cookie
+								var token = new OneTimeToken(OneTimeToken.GetBytes(pendingUser.HashedPassword));
 
+								//set token expiration date
 								pendingUser.StampExpiration = token.ExpirationDate;
 
-								//todo: maybe change sec stamp to bytes
-								pendingUser.SecurityStamp = token.TokenStamp.ToString();
+								//set token random number stamp for validation
+								pendingUser.SecurityStamp = token.TokenStamp;
 
-								var stampResult = await _pendingUserRepository.Update(pendingUser);
+								var stampResult = await _pendingUserRepository.Update(pendingUser);;
 
 								if (stampResult)
 								{
 									return RedirectToAction(nameof(this.ConfirmUser),
-														new { PendingUserId = pendingUser.Id, secToken = await token.GenerateToken()  });
+														new { PendingUserId = pendingUser.Id, secToken = await token.GenerateToken() });
 								}
 								else
 								{
@@ -377,25 +386,6 @@ namespace GenericMvcUtilities.UserManager
 			return new NoContentResult();
 		}
 
-		//todo: add to role helper class
-		private IEnumerable<SelectListItem> RoleList(string[] roles)
-		{
-			var roleListViewModel = new List<SelectListItem>();
-
-			foreach (var role in roles)
-			{
-				var listItem = new SelectListItem()
-				{
-					Text = role,
-					Value = role
-				};
-
-				roleListViewModel.Add(listItem);
-			}
-
-			return roleListViewModel;
-		} 
-
 		//
 		// GET: /Account/Register
 		[HttpGet]
@@ -403,7 +393,7 @@ namespace GenericMvcUtilities.UserManager
 		public IActionResult Register()
 		{
 			//Add Roles to view bag / view data
-			ViewData["Roles"] = RoleList(RoleHelper.MutableRoles);
+			ViewData["Roles"] = RoleHelper.SelectableRoleList();
 
 			var viewModel = new PageViewModel(ActionContext)
 			{
@@ -488,7 +478,7 @@ namespace GenericMvcUtilities.UserManager
 
 			//Fix redisplay of form with generic mvc container 
 			//Add Roles to view bag / view data
-			ViewData["Roles"] = RoleList(RoleHelper.MutableRoles);
+			ViewData["Roles"] = RoleHelper.SelectableRoleList();
 
 			var viewModel = new PageViewModel(ActionContext)
 			{

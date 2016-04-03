@@ -291,11 +291,11 @@ namespace GenericMvcUtilities.Client
 
 					if (useAuth)
 					{
-						return await this.SendRequest(this.UpdateRoute + "?id=" + item.Id, this.AuthCookie, HttpMethod.Put, content);
+						return await this.SendRequest(this.UpdateRoute + "?id=" + item.Id, this.AuthCookie, HttpMethod.Post, content);
 					}
 					else
 					{
-						return await this.SendRequest(this.UpdateRoute + "?id=" + item.Id, null, HttpMethod.Put, content);
+						return await this.SendRequest(this.UpdateRoute + "?id=" + item.Id, null, HttpMethod.Post, content);
 					}
 				}
 				else
@@ -317,11 +317,11 @@ namespace GenericMvcUtilities.Client
 				{
 					if (useAuth)
 					{
-						return await this.SendRequest(this.UpdateRoute + "?id=" + id, this.AuthCookie, HttpMethod.Put, contentOverride);
+						return await this.SendRequest(this.UpdateRoute + "?id=" + id, this.AuthCookie, HttpMethod.Post, contentOverride);
 					}
 					else
 					{
-						return await this.SendRequest(this.UpdateRoute + "?id=" + id, null, HttpMethod.Put, contentOverride);
+						return await this.SendRequest(this.UpdateRoute + "?id=" + id, null, HttpMethod.Post, contentOverride);
 					}
 				}
 				else

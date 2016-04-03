@@ -41,8 +41,6 @@ namespace GenericMvcUtilities.UserManager
 		//Maybe One Day using Logger<T> instead
 		protected readonly ILogger<UserManagerController<TUser, TPendingUser, TKey, TRole>> Logger;
 
-		public ControllerViewModel ControllerViewModel { get; }
-
 		
 		public UserManagerController( UserManager<TUser> userManager,
 			RoleManager<TRole> roleManager,
@@ -62,8 +60,6 @@ namespace GenericMvcUtilities.UserManager
 					//Set fields
 					this.UserManager = userManager;
 
-					//this.UserManager.g
-
 					this.RoleManager = roleManager;
 
 					this.UserRepository = userRepository;
@@ -71,12 +67,6 @@ namespace GenericMvcUtilities.UserManager
 					this.PendingUserRepository = pendingUserRepository;
 
 					this.Logger = logger;
-
-					//Get Controller Name
-					var controllerName = this.GetControllerName(this.GetType());
-
-					//Create Controller View Model here
-					this.ControllerViewModel = new ViewModels.ControllerViewModel(controllerName);
 				}
 				else
 				{
@@ -117,7 +107,7 @@ namespace GenericMvcUtilities.UserManager
 			return controllerName;
 		}
 
-		//todo merge back to basic controller
+		//todo: merge back to basic controller
 		[NonAction]
 		private string GetDepluaralizedControllerName(Type controllerType)
 		{
@@ -415,6 +405,25 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
+		private List<IUserIndexView> convertToViewModelList(IEnumerable<TPendingUser> pendingUsers, bool showDetails)
+		{
+			var viewModelList = new List<IUserIndexView>();
+
+			if (pendingUsers != null)
+			{
+				foreach (var pendingUser in pendingUsers)
+				{ 
+					viewModelList.Add(new PendingUserViewModel<TKey, TPendingUser>(pendingUser)
+					{
+						ShowDetails = showDetails
+					});
+				}
+			}
+
+			return viewModelList;
+		}
+		
+
 		//todo: only show pendingUsers that haven't been added
 		//todo: change filter to unadded pending users
 		[Route("[controller]/[action]/")]
@@ -424,8 +433,25 @@ namespace GenericMvcUtilities.UserManager
 			//Serve index view with all pending users loaded 
 			try
 			{
-				//todo: add and replace with action context constructor
-				TableViewModel tableViewModel = new TableViewModel()
+				var viewList = new List<PageViewModel>
+				{
+					new PageViewModel(ActionContext)
+					{
+						Title = "Added Pending Users",
+						Description = "Pending Users that have been approved",
+						Data = convertToViewModelList((await PendingUserRepository.GetAll()).Where(x => x.HasUserBeenAdded == true), false)
+					},
+					new PageViewModel(ActionContext)
+					{
+						Title = "Pending Users",
+						Description = "All Pending Users in the Database",
+						Data = convertToViewModelList((await PendingUserRepository.GetAll()).Where(x => x.HasUserBeenAdded == false), true)
+					},
+
+				};
+				
+				/*
+				PageViewModel tableViewModel = new PageViewModel()
 				{
 					ControllerName = GetControllerName(this.GetType()),
 					Title = "Pending Users",
@@ -434,23 +460,9 @@ namespace GenericMvcUtilities.UserManager
 					CreateButton = false,
 					NestedView = "PendingUserIndex"
 				};
+				*/
 
-				var viewModelList = new List<IUserIndexView>();
-
-				//fixed: only show non added users
-				var pendingUsers = (await PendingUserRepository.GetAll()).Where(x => x.HasUserBeenAdded == false);
-
-				if(pendingUsers != null)
-				{
-					foreach (var pendingUser in pendingUsers)
-					{
-						viewModelList.Add(new PendingUserViewModel<TKey, TPendingUser>(pendingUser));
-					}
-				}
-
-				tableViewModel.Data = viewModelList;
-
-				return View("~/Views/Shared/TableContainer.cshtml", tableViewModel);
+				return View("~/Views/Shared/MultiPageContainer.cshtml", viewList);
 			}
 			catch (Exception ex)
 			{
@@ -462,6 +474,7 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
+		//check for has been added... and don't return
 		[Route("[controller]/[action]/")]
 		[HttpGet("{id}")]
 		public async Task<IActionResult> PendingUserDetails(TKey id)
@@ -474,7 +487,14 @@ namespace GenericMvcUtilities.UserManager
 
 					if (pendingUser != null)
 					{
-						//todo: use generic mvc container 
+						if (pendingUser.HasUserBeenAdded)
+						{
+							return RedirectToAction(nameof(this.PendingUserIndex));
+						}
+
+						ViewData["Roles"] = RoleHelper.SelectableRoleList();
+
+						//todo: maybe use generic mvc container 
 						//return view with pending user details view model
 						return View("~/Views/UserManager/PendingUserDetails.cshtml", new PendingUserDetails<TKey, TPendingUser>(pendingUser));
 					}
@@ -511,21 +531,24 @@ namespace GenericMvcUtilities.UserManager
 				{
 					if (ModelState.IsValid)
 					{
-						if (roleChange.IsValid)
+						var pendingUser = await 
+							this.PendingUserRepository.Get(PendingUserRepository.IsMatchedExpression("Id", roleChange.UserId));
+
+						if (pendingUser != null)
 						{
-							//todo: find a better way to compare TKey
-							var pendingUser = await this.PendingUserRepository.Get(PendingUserRepository.IsMatchedExpression("Id", roleChange.UserId));
+							if (roleChange.IsValid)
+							{
+								pendingUser.RequestedRole = roleChange.NewRole;
 
-							pendingUser.RequestedRole = roleChange.NewRole;
-
-							var updateResult = await this.PendingUserRepository.Update(pendingUser);
+								var updateResult = await this.PendingUserRepository.Update(pendingUser);
+							}
+							else
+							{
+								return HttpBadRequest("Role is not valid");
+							}
 						}
-						else
-						{
-							return HttpBadRequest("Role is not valid");
-						}
 
-						return RedirectToAction(nameof(this.PendingUserDetails));
+						return RedirectToAction(nameof(this.PendingUserDetails), new { id = roleChange.UserId });
 					}
 					else
 					{

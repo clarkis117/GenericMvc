@@ -7,50 +7,6 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Models
 {
-	//todo: find a way to do key while maintaining pending user model
-	public interface IPendingUser
-	{
-		object Id { get; set; }
-
-		[Required]
-		string FirstName { get; set; }
-
-		[Required]
-		string LastName { get; set; }
-
-		[Required]
-		[Phone]
-		[DataType(DataType.PhoneNumber)]
-		string PhoneNumber { get; set; }
-
-		[Required]
-		string RequestedRole { get; set; }
-
-		[Required]
-		[DataType(DataType.DateTime)]
-		DateTime DateRegistered { get; set; }
-
-		[Required]
-		[EmailAddress]
-		[DataType(DataType.EmailAddress)]
-		string Email { get; set; }
-
-		string HashedPassword { get; set; }
-
-		bool HasUserBeenAdded { get; set; }
-
-		/// <summary>
-		/// Gets or sets the security stamp.
-		/// This will be treated like the above hashed password
-		/// this will add an additional layer of security in case of a db breach
-		/// </summary>
-		/// <value>
-		/// The security stamp.
-		/// </value>
-		string SecurityStamp { get; set; }
-	}
-
-	//todo: figure out password handling
 	/// <summary>
 	/// Class for approving users before they can register their account
 	/// </summary>
@@ -84,19 +40,12 @@ namespace GenericMvcUtilities.Models
 		[DataType(DataType.EmailAddress)]
 		public string Email { get; set; }
 
+		//Authentication attributes for pending user
 		public string HashedPassword { get; set; }
 
 		public bool HasUserBeenAdded { get; set; } = false;
 
-		/// <summary>
-		/// Gets or sets the security stamp.
-		/// This will be treated like the above hashed password
-		/// this will add an additional layer of security in case of a db breach
-		/// </summary>
-		/// <value>
-		/// The security stamp.
-		/// </value>
-		public string SecurityStamp { get; set; }
+		public byte[] SecurityStamp { get; set; }
 
 		public DateTimeOffset StampExpiration { get; set; }
 	}

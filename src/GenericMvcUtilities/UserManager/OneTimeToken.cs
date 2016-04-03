@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.IO;
+using System.Text;
 
 namespace GenericMvcUtilities.UserManager
 {
@@ -32,6 +33,12 @@ namespace GenericMvcUtilities.UserManager
 
 		public byte[] Value { get; set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="OneTimeToken"/> class.
+		/// Creates a new token for Verification 
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <exception cref="System.ArgumentNullException"></exception>
 		public OneTimeToken(byte[] key)
 		{
 			if (key != null || key.Length <= 0)
@@ -54,7 +61,7 @@ namespace GenericMvcUtilities.UserManager
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="OneTimeToken"/> class.
-		/// This method is the constructor for recreating another token to compare against
+		/// Recreates a previously issued token for verification
 		/// </summary>
 		/// <param name="key">The key.</param>
 		/// <param name="tokenStamp">The token stamp.</param>
@@ -93,6 +100,7 @@ namespace GenericMvcUtilities.UserManager
 			return bytes;
 		}
 
+		//todo: eval for removal
 		private static string GetString(byte[] bytes)
 		{
 			char[] chars = new char[bytes.Length / sizeof(char)];
@@ -115,12 +123,11 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
-
-		public Task<bool> VerifyToken(byte[] token)
+		private Task<bool> VerifyRawToken(byte[] token)
 		{
 			return Task.Run(() => {
 
-				if(token != null || token.Length <= 0)
+				if(token == null || token.Length <= 0)
 				{
 					throw new ArgumentNullException(nameof(token));
 				}
@@ -134,8 +141,34 @@ namespace GenericMvcUtilities.UserManager
 			});
 		}
 
+		public async Task<bool> VerifyToken(string utf8Token, DateTimeOffset expiration)
+		{
+			//if expired return false
+			if (IsTokenExpried(expiration))
+			{
+				return false;
+			}
+
+			//if not null check token
+			if (utf8Token != null)
+			{
+				if (Value != null && Value.Length > 0)
+				{
+					return (System.Text.Encoding.UTF8.GetString(Value) == utf8Token);
+				}
+				else
+				{
+					return (utf8Token == (await GenerateToken()));
+				}
+			}
+			else
+			{
+				throw new ArgumentNullException(nameof(utf8Token));
+			}
+		}
+
 		//todo: maybe this can be done more efficiently 
-		public Task<byte[]> GenerateToken()
+		private Task<byte[]> GenerateRawToken()
 		{
 			return Task.Run(() => {
 				
@@ -153,10 +186,22 @@ namespace GenericMvcUtilities.UserManager
 
 				Value = _hmacSha.ComputeHash(merge.ToArray());
 
+				//todo: make this into a unit test
+				//var value2 = _hmacSha.ComputeHash(merge.ToArray());
+				//var ver = VerifyToken(value2).Result;
+
 				merge.Dispose();
 
 				return Value;
 			});
+		}
+
+
+		public async Task<string> GenerateToken()
+		{
+			var rawToken = GenerateRawToken();
+
+			return System.Text.Encoding.UTF8.GetString(await rawToken);
 		}
 
 		#region IDisposable Support

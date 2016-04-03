@@ -300,8 +300,9 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
+		//todo: add behavior for returning updated section
 		[Route("[controller]/[action]/")]
-		[HttpPut("{id}")]
+		[HttpPost("{id}")]
 		public virtual async Task<IActionResult> Update(TKey id, [FromBody] T item)
 		{
 			try
@@ -343,7 +344,7 @@ namespace GenericMvcUtilities.Controllers
 				else
 				{
 					//Send 400 Response
-					return HttpBadRequest();
+					return HttpBadRequest("request value is null");
 				}
 			}
 			catch (Exception ex)
@@ -374,7 +375,7 @@ namespace GenericMvcUtilities.Controllers
 						//todo: check type T in controller constructor as well
 						//todo: check type T in repository constructor as well
 						//Second make sure the type is present in the data-context 
-						//One possiblity
+						//One possibility
 						var a = Repository.DataContext.Model.GetEntityTypes().First().ClrType;
 
 

@@ -9,9 +9,10 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 	public class RoleChangeViewModel
 	{
 		[Required]
-		public object UserId { get; set; }
+		public string UserId { get; set; }
 
 		[Required]
+		[Display(Name = "New Role")]
 		public string NewRole { get; set; }
 
 		public bool IsValid
@@ -34,6 +35,16 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 
 				return valid;
 			}
+		}
+
+		public RoleChangeViewModel()
+		{
+
+		}
+
+		public RoleChangeViewModel(object userId)
+		{
+			UserId = userId.ToString();
 		}
 	}
 }

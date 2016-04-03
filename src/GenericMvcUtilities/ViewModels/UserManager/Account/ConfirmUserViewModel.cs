@@ -7,13 +7,18 @@ using GenericMvcUtilities.Models;
 
 namespace GenericMvcUtilities.ViewModels.UserManager.Account
 {
-	public class ConfirmUserViewModel : IUserConstraints 
+	public class ConfirmUserViewModel //: IUserConstraints 
 	{
 		[Required]
-		public object PendingUserId { get; set; }
+		public string PendingUserId { get; set; }
 
 		[Required]
+		public string AuthToken { get; set; }
+
+		/*
+		[Required]
 		public DateTime DateRegistered { get; set; }
+		*/
 
 		[Required]
 		[StringLength(150, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 2)]

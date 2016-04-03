@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Mvc.Rendering;
 
 namespace GenericMvcUtilities.UserManager
 {
@@ -37,6 +38,30 @@ namespace GenericMvcUtilities.UserManager
 			await EnsureRoleCreated(roleManager, UserAdmin);
 			await EnsureRoleCreated(roleManager, ContentAdmin);
 			await EnsureRoleCreated(roleManager, ContentViewer);
+		}
+
+
+
+		/// <summary>
+		/// Selectable role list for Mvc.
+		/// </summary>
+		/// <returns></returns>
+		public static IEnumerable<SelectListItem> SelectableRoleList()
+		{
+			var roleListViewModel = new List<SelectListItem>();
+
+			foreach (var role in RoleHelper.MutableRoles)
+			{
+				var listItem = new SelectListItem()
+				{
+					Text = role,
+					Value = role
+				};
+
+				roleListViewModel.Add(listItem);
+			}
+
+			return roleListViewModel;
 		}
 	}
 }
