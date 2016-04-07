@@ -357,6 +357,8 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
+		private IEnumerable<Microsoft.Data.Entity.Metadata.IEntityType> EntityTypes;
+
 		//todo: finish
 		//todo: add unit test
 		[Route("[controller]/[action]/")]
@@ -370,20 +372,42 @@ namespace GenericMvcUtilities.Controllers
 					if (ModelState.IsValid)
 					{
 						//first make sure type isn't the root of the object graph, in this case type T
+						if (EntityTypes == null)
+						{
+							EntityTypes = Repository.DataContext.Model.GetEntityTypes();
+						}
+
+						if (EntityTypes.Any(x => x.ClrType == child.GetType()))
+						{
+							if (Repository.DataContext.Entry(child).State == EntityState.Detached)
+							{
+								Repository.DataContext.Attach(child, GraphBehavior.IncludeDependents);
+							}
+
+							Repository.DataContext.Remove(child);
+
+							if (await Repository.DataContext.SaveChangesAsync() > 0)
+							{
+								return new NoContentResult();
+							}
+							else
+							{
+								throw new Exception("Object was not removed from DB");
+							}
+						}
+						else
+						{
+							return HttpNotFound();
+						}
 
 						//todo: maybe cache entity types in a field?
 						//todo: check type T in controller constructor as well
 						//todo: check type T in repository constructor as well
 						//Second make sure the type is present in the data-context 
 						//One possibility
-						var a = Repository.DataContext.Model.GetEntityTypes().First().ClrType;
-
-
 						//third delete the object
 						//Repository.DataContext.
-						
 						//forth save changes
-						
 					}
 				}
 
@@ -391,13 +415,16 @@ namespace GenericMvcUtilities.Controllers
 			}
 			catch (Exception ex)
 			{
+				string Message = "Delete Child - HTTP Delete Request Failed";
 
-				throw;
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
+
+				throw new Exception(this.FormatExceptionMessage(Message), ex);
 			}
 		}
 		
 
-		//todo: fix design oversight to have whole object deleted
+		//fixed: fix design oversight to have whole object deleted
 		[Route("[controller]/[action]/")]
 		[HttpDelete("{id}")]
 		public virtual async Task<IActionResult> Delete(TKey id)

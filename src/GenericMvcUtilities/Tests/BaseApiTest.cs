@@ -669,6 +669,29 @@ namespace GenericMvcUtilities.Tests
 			}
 		}
 
+		/* todo add test
+		[Fact]
+		public async Task DeleteChild()
+		{
+			try
+			{
+				var response = await this._client.Delete(this.WhiteListedTestDataIds.First(), true);
+
+				Assert.NotNull(response);
+
+				Assert.True(response.IsSuccessStatusCode);
+
+				Assert.True(response.StatusCode == System.Net.HttpStatusCode.NoContent);
+			}
+			catch (Exception ex) when (ex.GetType() != typeof(Xunit.Sdk.XunitException))
+			{
+				var message = "Delete Test Failed";
+
+				this.LogAndThrowException(message, ex);
+			}
+		}
+		*/
+
 		/// <summary>
 		/// Unauthenticated create request should fail
 		/// </summary>
