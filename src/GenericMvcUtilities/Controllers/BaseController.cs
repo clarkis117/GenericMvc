@@ -1,76 +1,56 @@
-﻿using GenericMvcUtilities.Repositories;
+﻿using GenericMvcUtilities.Models;
+using GenericMvcUtilities.Repositories;
+using GenericMvcUtilities.UserManager;
+using GenericMvcUtilities.ViewModels.Generic;
 using Microsoft.AspNet.Authorization;
 using Microsoft.AspNet.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace GenericMvcUtilities.Controllers
 {
-	[Authorize]
-	//[Route("[controller]/[action]/")]
-	public class BaseController<T> : Controller, IBaseController<T> where T : class
+	[Authorize(Roles = RoleHelper.SystemOwner + "," + RoleHelper.UserAdmin + "," + RoleHelper.ContentAdmin)]
+	public class BaseController<TKey, T> : Controller, IBaseController<TKey, T>
+		where T : class, IModel<TKey>
+		where TKey : IEquatable<TKey>
 	{
 		protected readonly BaseRepository<T> Repository;
 
-		/// <summary>
-		/// Gets or sets the controller view model.
-		/// </summary>
-		/// <value>
-		/// The controller view model.
-		/// </value>
-		public ViewModels.ControllerViewModel ControllerViewModel { get; set; }
+		protected readonly ILogger<T> Logger;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BaseController{T}" /> class.
 		/// </summary>
-		/// <param name="Repo">The repo.</param>
-		public BaseController(BaseRepository<T> Repo)
+		/// <param name="repository">The repo.</param>
+		public BaseController(BaseRepository<T> repository, ILogger<T> logger)
 		{
 			try
 			{
-				if (Repo != null)
+				if (repository != null && logger != null)
 				{
 					//Set repo to repo field
-					this.Repository = Repo;
+					this.Repository = repository;
 
-					//Get Controler Name
-					var controllerName = this.GetControllerName(this.GetType());
-
-					//Create Controller View Model here
-					this.ControllerViewModel = new ViewModels.ControllerViewModel(controllerName);
+					this.Logger = logger;
 				}
 				else
 				{
-					throw new ArgumentNullException("Repository argument is null");
+					throw new ArgumentNullException("Repository or Logger argument is null");
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = this.FormatExceptionMessage("Creation of Controller Failed");
+				string message = this.FormatExceptionMessage("Creation of Controller Failed");
 
-				throw new Exception(Message, ex);
+				this.Logger.LogCritical(message, ex);
+
+				throw new Exception(message, ex);
 			}
-		}
-
-		/// <summary>
-		/// Gets the name of the controller.
-		/// </summary>
-		/// <param name="controllerType">Type of the controller.</param>
-		/// <returns></returns>
-		[NonAction]
-		private string GetControllerName(Type controllerType)
-		{
-			string controllerName = controllerType.Name;
-
-			if (controllerName.EndsWith("Controller", StringComparison.OrdinalIgnoreCase))
-			{
-				controllerName = controllerName.Substring(0, controllerName.Length - "Controller".Length);
-			}
-
-			return controllerName;
 		}
 
 		[NonAction]
@@ -89,40 +69,30 @@ namespace GenericMvcUtilities.Controllers
 		[HttpGet]
 		public virtual async Task<IActionResult> Index()
 		{
-			string instructions = "All "+this.ControllerViewModel.ControllerName+"s in the Database";
-
-			ICollection<ViewModels.ActionViewData> actionViewModels = new List<ViewModels.ActionViewData>();
-
 			try
 			{
-
-				var actionViewModel = new ViewModels.ActionViewData(
-					this.ControllerViewModel,
-					this.ActionContext.RouteData.Values["action"].ToString(),
-					instructions,
-					await Repository.GetAll());
-
-				actionViewModels.Add(actionViewModel);
+				var indexViewModel = new IndexViewModel(ActionContext)
+				{
+					Data = await Repository.GetAll()
+				};
 
 				//return view
-				return View(this.ControllerViewModel.SharedViewPath, actionViewModels);
+				return this.ViewFromModel(indexViewModel);
 			}
 			catch (Exception ex)
 			{
 				string Message = "Get All / Index Failed";
 
-				//logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
 
 				throw new Exception(this.FormatExceptionMessage(Message), ex);
 			}
 		}
 
 		[Route("[controller]/[action]/")]
-		[HttpGet("{id:int}")]
-		public virtual async Task<IActionResult> Details(int? id)
+		[HttpGet("{id}")]
+		public virtual async Task<IActionResult> Details(TKey id)
 		{
-			string instructions = "All "+this.ControllerViewModel.ControllerName+"s in the Database";
-			
 			try
 			{
 				if (id != null)
@@ -131,11 +101,17 @@ namespace GenericMvcUtilities.Controllers
 
 					if (item != null)
 					{
-						return View(item);
+						var detailsViewModel = new DetailsViewModel(ActionContext)
+						{
+							Data = item
+						};
+
+						return this.ViewFromModel(detailsViewModel);
 					}
 					else
 					{
-						return HttpNotFound();
+						//return HttpNotFound();
+						return RedirectToAction(nameof(this.Index));
 					}
 				}
 				else
@@ -147,15 +123,15 @@ namespace GenericMvcUtilities.Controllers
 			{
 				string Message = "Detailed View Failed";
 
-				//this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
 
 				throw new Exception(this.FormatExceptionMessage(Message), ex);
 			}
 		}
 
 		[Route("[controller]/[action]/")]
-		[HttpGet("{id:int}")]
-		public virtual async Task<IActionResult> Edit(int? id)
+		[HttpGet("{id}")]
+		public virtual async Task<IActionResult> Edit(TKey id)
 		{
 			try
 			{
@@ -165,14 +141,17 @@ namespace GenericMvcUtilities.Controllers
 
 					if (item != null)
 					{
-						return View(item);
+						var editViewModel = new EditViewModel(ActionContext)
+						{
+							Data = item
+						};
+
+						return this.ViewFromModel(editViewModel);
 					}
 					else
 					{
-						Type type = typeof(T);
-						T result = (T)Activator.CreateInstance(type);
-
-						return View(result);
+						//httpnotfound
+						return RedirectToAction(nameof(this.Index));
 					}
 				}
 				else
@@ -184,7 +163,7 @@ namespace GenericMvcUtilities.Controllers
 			{
 				string Message = "Edit View / Get By Id Failed";
 
-				//this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
 
 				throw new Exception(this.FormatExceptionMessage(Message), ex);
 			}
@@ -197,27 +176,44 @@ namespace GenericMvcUtilities.Controllers
 		{
 			try
 			{
-				if (ModelState.IsValid)
+				if (ModelState.IsValid && item != null)
 				{
-					await Repository.Update(item);
-
-					return RedirectToAction("Index");
+					//If Item Exists Update it
+					if (await Repository.Exists(Repository.MatchByIdExpression(item.Id)))
+					{
+						if (await Repository.Update(item))
+						{
+							return RedirectToAction(nameof(this.Index));
+						}
+						else
+						{
+							//Send 500 Response if update fails
+							throw new Exception("Update Item Failed");
+						}
+					}
+					else
+					{
+						//return HttpNotFound();
+						return RedirectToAction(nameof(this.Index));
+					}
 				}
-
-				return View(item);
+				else
+				{
+					//send bad request response with model state errors
+					return HttpBadRequest(ModelState);
+				}
 			}
 			catch (Exception ex)
 			{
 				string Message = "Posting Edit Failed";
 
-				//this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
 
 				throw new Exception(this.FormatExceptionMessage(Message), ex);
 			}
 		}
 
-		[Route("[controller]/[action]/")]
-		[HttpGet]
+		[HttpGet, Route("[controller]/[action]/")]
 		public virtual IActionResult Create()
 		{
 			try
@@ -228,90 +224,98 @@ namespace GenericMvcUtilities.Controllers
 			{
 				string Message = "Get Create View Failed";
 
-				//this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
 
 				throw new Exception(this.FormatExceptionMessage(Message), ex);
 			}
 		}
 
-		[Route("[controller]/[action]/")]
-		[HttpPost()]
+		[HttpPost, Route("[controller]/[action]/")]
 		[ValidateAntiForgeryToken]
 		public virtual async Task<IActionResult> Create(T item)
 		{
 			try
 			{
-				if (ModelState.IsValid)
+				if (ModelState.IsValid && item != null)
 				{
-					await Repository.Insert(item);
-
-					return RedirectToAction("Index");
-				}
-
-				return View(item);
-			}
-			catch (Exception ex)
-			{
-				string Message = "Create Post Failed";
-
-				//this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
-
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
-			}
-		}
-
-		[Route("[controller]/[action]/")]
-		[HttpGet]
-		public virtual async Task<IEnumerable<T>> GetAll()
-		{
-			try
-			{
-				return await Repository.GetAll();
-			}
-			catch (Exception ex)
-			{
-				string Message = "Get All Failed";
-
-				//this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
-
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
-			}
-		}
-
-		[Route("[controller]/[action]/")]
-		[HttpGet("{id:int}")]
-		public virtual async Task<T> Get(int? id)
-		{
-			try
-			{
-				var item = await Repository.Get(Repository.MatchByIdExpression(id));
-
-				if (item != null)
-				{
-					return item;
+					//If Item Exists Update it
+					if (await Repository.Exists(Repository.MatchByIdExpression(item.Id)))
+					{
+						if (await Repository.Insert(item))
+						{
+							return RedirectToAction(nameof(this.Index));
+						}
+						else
+						{
+							//Send 500 Response if update fails
+							throw new Exception("Creating Item Failed");
+						}
+					}
+					else
+					{
+						//Send conflict response
+						return new HttpStatusCodeResult((int)HttpStatusCode.Conflict);
+					}
 				}
 				else
 				{
-					Type type = typeof(T);
-					dynamic result = (T)Activator.CreateInstance(type);
-					result.Id = id;
-
-					return result;
+					//send bad request response with model state errors
+					return HttpBadRequest(ModelState);
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Get by Id Failed";
+				string Message = "Created New item Failed";
 
-				//this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
 
 				throw new Exception(this.FormatExceptionMessage(Message), ex);
 			}
 		}
 
-		[Route("[controller]/[action]/")]
-		[HttpDelete("{id:int}")]
-		public async Task<IActionResult> Delete(int? id)
+		// Delete View GET: /Delete/5
+		[HttpGet, ActionName("Delete"), Route("[controller]/[action]/")]
+		public async Task<IActionResult> Delete(TKey id)
+		{
+			try
+			{
+				if (id != null)
+				{
+					var item = await Repository.GetCompleteItem(Repository.MatchByIdExpression(id));
+
+					if (item != null)
+					{
+						var deleteViewModel = new DeleteViewModel(ActionContext)
+						{
+							Data = item
+						};
+
+						return this.ViewFromModel(deleteViewModel);
+					}
+					else
+					{
+						//return HttpNotFound();
+						return RedirectToAction(nameof(this.Index));
+					}
+				}
+				else
+				{
+					return HttpBadRequest();
+				}
+			}
+			catch (Exception ex)
+			{
+				string Message = "Detailed View Failed";
+
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+
+				throw new Exception(this.FormatExceptionMessage(Message), ex);
+			}
+		}
+
+		[HttpPost("{id}"), ActionName("Delete"), Route("[controller]/[action]/")]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DeleteConfirmed(TKey id)
 		{
 			try
 			{
@@ -323,9 +327,9 @@ namespace GenericMvcUtilities.Controllers
 					{
 						var result = await Repository.Delete(item);
 
-						if (result != false)
+						if (result)
 						{
-							return RedirectToAction("Index");
+							return RedirectToAction(nameof(this.Index));
 						}
 						else
 						{
@@ -334,7 +338,8 @@ namespace GenericMvcUtilities.Controllers
 					}
 					else
 					{
-						return HttpNotFound();
+						//return HttpNotFound();
+						return RedirectToAction(nameof(this.Index));
 					}
 				}
 				else
@@ -346,7 +351,7 @@ namespace GenericMvcUtilities.Controllers
 			{
 				string Message = "Delete by Id Failed";
 
-				//this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
 
 				throw new Exception(this.FormatExceptionMessage(Message), ex);
 			}

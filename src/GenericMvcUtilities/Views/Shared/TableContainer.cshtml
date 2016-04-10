@@ -1,0 +1,31 @@
+﻿@using GenericMvcUtilities.ViewModels.Generic
+@model TableViewModel
+
+<section class="well">
+	<header>
+		<ul class="list-inline">
+			<li><h2 class="text-primary">@Model.Title</h2></li>
+			<li class="pull-right"><h2 class="text-primary">@Model.Action</h2></li>
+		</ul>
+		<ul class="list-inline">
+			<li><h5>@Model.Description</h5></li>
+			@if (Model.CreateButton)
+			{
+				<li class="pull-right">
+					<a class="btn btn-primary btn-sm" asp-action="create">Create New</a>
+				</li>
+			}
+		</ul>
+		<hr class="shadow-z-1 primarycolor" />
+	</header>
+	<div>
+		@await Html.PartialAsync(Model.NestedViewPath, Model.Data)
+	</div>
+	<footer>
+		<hr class="shadow-z-1 primarycolor" />
+		<ul class="list-inline">
+			<li><h5 class="text-primary">@Model.Title</h5></li>
+			<li class="pull-right"><h5 class="text-capitalize">@Model.Action</h5></li>
+		</ul>
+	</footer>
+</section>
