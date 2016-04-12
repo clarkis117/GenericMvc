@@ -66,6 +66,7 @@ namespace GenericMvcUtilities.Controllers
 		}
 
 		// GET: /<controller>/
+		[Route("[controller]/[action]/")]
 		[HttpGet]
 		public virtual async Task<IActionResult> Index()
 		{
@@ -218,7 +219,11 @@ namespace GenericMvcUtilities.Controllers
 		{
 			try
 			{
-				return View();
+				var createViewModel = new CreateViewModel(ActionContext)
+				{
+				};
+
+				return this.ViewFromModel(createViewModel);
 			}
 			catch (Exception ex)
 			{
@@ -274,7 +279,7 @@ namespace GenericMvcUtilities.Controllers
 		}
 
 		// Delete View GET: /Delete/5
-		[HttpGet, ActionName("Delete"), Route("[controller]/[action]/")]
+		[HttpGet("{id}"), ActionName("Delete"), Route("[controller]/[action]/")]
 		public async Task<IActionResult> Delete(TKey id)
 		{
 			try

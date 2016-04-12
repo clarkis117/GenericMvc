@@ -217,6 +217,9 @@ namespace GenericMvcUtilities.UserManager
 
 								if (signInResult.Succeeded)
 								{
+									//todo test this
+									await _pendingUserRepository.Delete(pendingUser);
+
 									return RedirectToAction("Index", "Home");
 								}
 								else
