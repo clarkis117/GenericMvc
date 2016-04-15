@@ -37,4 +37,11 @@ namespace GenericMvcUtilities.Controllers
 		//[HttpDelete("{id:int}")]
 		Task<IActionResult> Delete(TKey id);
 	}
+
+	public interface ISinglePageController<T, TKey> : IBaseApiController<T, TKey>
+		where T : class
+		where TKey : IEquatable<TKey>
+	{
+		Task<IActionResult> Index();
+	}
 }
