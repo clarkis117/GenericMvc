@@ -18,7 +18,7 @@ namespace GenericMvcUtilities.Controllers
 		public SinglePageController(BaseRepository<T> repository, ILogger<T> logger) : base(repository, logger)
 		{
 
-
+			//dirty the project
 		}
 
 		public abstract Task<IActionResult> Index();
