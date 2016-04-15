@@ -38,9 +38,9 @@ namespace GenericMvcUtilities.ViewModels.Generic
 		{
 			string conName = "";
 
-			if (controllerName.EndsWith("sController", StringComparison.OrdinalIgnoreCase))
+			if (controllerName.EndsWith("s", StringComparison.OrdinalIgnoreCase))
 			{
-				conName = controllerName.Substring(0, controllerName.Length - "sController".Length);
+				conName = controllerName.Substring(0, controllerName.Length - "s".Length);
 
 				return conName;
 			}
@@ -83,6 +83,18 @@ namespace GenericMvcUtilities.ViewModels.Generic
 			Title = deplural;
 
 			Description = $"All the data for this, {deplural}";
+		}
+	}
+
+	public class CreateViewModel : BasicViewModel
+	{
+		public CreateViewModel(ActionContext context) : base(context)
+		{
+			var deplural = depluralizeController(ControllerName) ?? ControllerName;
+
+			Title = deplural;
+
+			Description = $"Create a new, {deplural}";
 		}
 	}
 
