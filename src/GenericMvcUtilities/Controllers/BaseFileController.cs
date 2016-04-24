@@ -9,14 +9,14 @@ using Microsoft.AspNet.Http;
 
 namespace GenericMvcUtilities.Controllers
 {
-    public class BaseFileController : Controller
-    {
-        // GET: /<controller>/
-        public IActionResult Index()
-        {
-			File.
+	public class BaseFileController : Controller
+	{
+		// GET: /<controller>/
+		public IActionResult Index()
+		{
+			//File.
 
-            return View();
-        }
-    }
+			return View();
+		}
+	}
 }
