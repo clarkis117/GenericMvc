@@ -19,7 +19,7 @@ namespace GenericMvcUtilities.Controllers
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
-		protected readonly BaseRepository<T> Repository;
+		protected readonly BaseRepositroy<T> Repository;
 
 		protected readonly ILogger<T> Logger;
 
@@ -27,7 +27,7 @@ namespace GenericMvcUtilities.Controllers
 		/// Initializes a new instance of the <see cref="BaseController{T}" /> class.
 		/// </summary>
 		/// <param name="repository">The repo.</param>
-		public BaseController(BaseRepository<T> repository, ILogger<T> logger)
+		public BaseController(BaseRepositroy<T> repository, ILogger<T> logger)
 		{
 			try
 			{

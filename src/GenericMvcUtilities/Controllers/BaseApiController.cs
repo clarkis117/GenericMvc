@@ -18,12 +18,12 @@ namespace GenericMvcUtilities.Controllers
 		where T : class, IModel<TKey> 
 		where TKey : IEquatable<TKey>
 	{
-		protected readonly BaseRepository<T> Repository;
+		protected readonly BaseRepositroy<T> Repository;
 
 		//Maybe One Day using Logger<T> instead
 		protected readonly ILogger<T> Logger;
 
-		public BaseApiController(BaseRepository<T> repository, ILogger<T> logger)
+		public BaseApiController(BaseRepositroy<T> repository, ILogger<T> logger)
 		{
 			try
 			{

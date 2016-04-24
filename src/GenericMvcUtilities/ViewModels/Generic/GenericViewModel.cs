@@ -45,5 +45,15 @@ namespace GenericMvcUtilities.ViewModels.Generic
 		{
 			return controller.View(viewModel.ViewContainerPath, viewModel);
 		}
+
+		public static Microsoft.AspNet.Mvc.ViewResult ViewFromModels(this Microsoft.AspNet.Mvc.Controller controller, IList<GenericViewModel> viewModels)
+		{
+			return controller.View("~/Views/Shared/MultiPageContainer.cshtml", viewModels);
+		}
+
+		public static Microsoft.AspNet.Mvc.ViewResult ViewFromModels(this Microsoft.AspNet.Mvc.Controller controller, IList<PageViewModel> viewModels)
+		{
+			return controller.View("~/Views/Shared/MultiPageContainer.cshtml", viewModels);
+		}
 	}
 }
