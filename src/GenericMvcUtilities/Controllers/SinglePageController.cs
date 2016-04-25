@@ -15,7 +15,7 @@ namespace GenericMvcUtilities.Controllers
 		where TKey : IEquatable<TKey>
 	{
 
-		public SinglePageController(BaseRepository<T> repository, ILogger<T> logger) : base(repository, logger)
+		public SinglePageController(BaseRepositroy<T> repository, ILogger<T> logger) : base(repository, logger)
 		{
 
 			//dirty the project

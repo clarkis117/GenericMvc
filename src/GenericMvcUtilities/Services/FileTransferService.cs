@@ -7,15 +7,31 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Services
 {
-	public enum TransferType { NewFolder, MoveFolder}
+	public enum TransferType { NewCopyFolder, MoveFolder }
 
 	public struct TransferRequest
 	{
 		public string SourcePath;
 
-		public string DestPath;
+		public string DestinationPath;
 
-		public TransferType type;
+		public TransferType Type;
+
+		public TransferRequest(string sourcePath, string destinationPath, TransferType type)
+		{
+			if (Directory.Exists(sourcePath))//&& Directory.Exists(destPath)
+			{
+				SourcePath = sourcePath;
+
+				DestinationPath = destinationPath;
+			}
+			else
+			{
+				throw new DirectoryNotFoundException(sourcePath + " " + destinationPath);
+			}
+
+			Type = type;
+		}
 	}
 
 	public class FileTransferService
@@ -26,54 +42,63 @@ namespace GenericMvcUtilities.Services
 
 		public FileTransferService()
 		{
-			Requests.CollectionChanged += RequestExecutionFilter;
-			
+			Requests.CollectionChanged += CollectionRequestExecutionFilter;
 		}
 
-		public void transferCompletedEvent();
 
-		/// <summary>
-		/// Filter for executing request
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private static async void RequestExecutionFilter(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		public static async Task RequestExecutionFilter()
 		{
-			//eval if anything is executing
-			if (FileTransferService.IsTransferInProgress == false)
+			if (IsTransferInProgress == false)
 			{
-				if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+				TransferRequest request;
+
+
+				if (Requests.Count > 0)
 				{
-					TransferRequest request;
+					request = Requests.Take(1).Single();
+				}
+				else
+				{
+					return;
+				}
 
-					try
+				try
+				{
+					if (request.Type == TransferType.NewCopyFolder)
 					{
-						request = Requests.Take(1).Single();
+						await Task.Run(() => CopyDirectory(request));
 					}
-					catch (Exception)
+					else if (request.Type == TransferType.MoveFolder)
 					{
-						return;
-					}
-
-					if (request.type == TransferType.NewFolder)
-					{
-						await Task.Run(() => CopyFolder.CopyDirectory(request.SourcePath, request.DestPath));
-					}
-					else if (request.type == TransferType.MoveFolder)
-					{
-						 Task.Run(() => CopyFolder.MoveDirectory(request.SourcePath, request.DestPath));
+						await Task.Run(() => MoveDirectory(request));
 					}
 					else
 					{
 						return;
 					}
 				}
-				else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset || e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Replace)
+				catch (Exception)
 				{
-					throw new Exception("List cannot be replaced");
+					return;
 				}
 			}
-			//else do nothing
+		}
+
+		/// <summary>
+		/// Filter for executing request
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private static async void CollectionRequestExecutionFilter(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add || e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+			{
+				await RequestExecutionFilter();
+			}
+			else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset || e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Replace)
+			{
+				throw new Exception("Illegal operation, List cannot be replaced");
+			}
 		}
 
 		/// <summary>
@@ -86,65 +111,90 @@ namespace GenericMvcUtilities.Services
 			FileTransferService.Requests.Add(request);
 		}
 
-
-		public static class CopyFolder
+		public static void CopyDirectory(TransferRequest request)
 		{
-			public static void CopyDirectory(string source, string target)
+			if (IsTransferInProgress == false)
 			{
-				var stack = new Stack<Folders>();
-				stack.Push(new Folders(source, target));
-
-				while (stack.Count > 0)
+				try
 				{
-					var folders = stack.Pop();
-					Directory.CreateDirectory(folders.Target);
-					foreach (var file in Directory.GetFiles(folders.Source, "*.*"))
-					{
-						string targetFile = Path.Combine(folders.Target, Path.GetFileName(file));
-						if (File.Exists(targetFile)) File.Delete(targetFile);
-						File.Copy(file, targetFile);
-					}
+					IsTransferInProgress = true;
 
-					foreach (var folder in Directory.GetDirectories(folders.Source))
+					var stack = new Stack<Folders>();
+					stack.Push(new Folders(request.SourcePath, request.DestinationPath));
+
+					while (stack.Count > 0)
 					{
-						stack.Push(new Folders(folder, Path.Combine(folders.Target, Path.GetFileName(folder))));
+						var folders = stack.Pop();
+						Directory.CreateDirectory(folders.Target);
+						foreach (var file in Directory.GetFiles(folders.Source, "*.*"))
+						{
+							string targetFile = Path.Combine(folders.Target, Path.GetFileName(file));
+							if (File.Exists(targetFile)) File.Delete(targetFile);
+							File.Copy(file, targetFile);
+						}
+
+						foreach (var folder in Directory.GetDirectories(folders.Source))
+						{
+							stack.Push(new Folders(folder, Path.Combine(folders.Target, Path.GetFileName(folder))));
+						}
 					}
+				}
+				finally
+				{
+					IsTransferInProgress = false;
+
+					Requests.Remove(request);
 				}
 			}
+		}
 
-			public static void MoveDirectory(string source, string target)
+		public static void MoveDirectory(TransferRequest request)
+		{
+			if (IsTransferInProgress == false)
 			{
-				var stack = new Stack<Folders>();
-				stack.Push(new Folders(source, target));
-
-				while (stack.Count > 0)
+				try
 				{
-					var folders = stack.Pop();
-					Directory.CreateDirectory(folders.Target);
-					foreach (var file in Directory.GetFiles(folders.Source, "*.*"))
-					{
-						string targetFile = Path.Combine(folders.Target, Path.GetFileName(file));
-						if (File.Exists(targetFile)) File.Delete(targetFile);
-						File.Move(file, targetFile);
-					}
+					IsTransferInProgress = true;
 
-					foreach (var folder in Directory.GetDirectories(folders.Source))
+					var stack = new Stack<Folders>();
+					stack.Push(new Folders(request.SourcePath, request.DestinationPath));
+
+					while (stack.Count > 0)
 					{
-						stack.Push(new Folders(folder, Path.Combine(folders.Target, Path.GetFileName(folder))));
+						var folders = stack.Pop();
+						Directory.CreateDirectory(folders.Target);
+						foreach (var file in Directory.GetFiles(folders.Source, "*.*"))
+						{
+							string targetFile = Path.Combine(folders.Target, Path.GetFileName(file));
+							if (File.Exists(targetFile)) File.Delete(targetFile);
+							File.Move(file, targetFile);
+						}
+
+						foreach (var folder in Directory.GetDirectories(folders.Source))
+						{
+							stack.Push(new Folders(folder, Path.Combine(folders.Target, Path.GetFileName(folder))));
+						}
 					}
+					Directory.Delete(request.SourcePath, true);
 				}
-				Directory.Delete(source, true);
+				finally
+				{
+					IsTransferInProgress = false;
+
+					Requests.Remove(request);
+				}
 			}
-			public class Folders
-			{
-				public string Source { get; private set; }
-				public string Target { get; private set; }
+		}
 
-				public Folders(string source, string target)
-				{
-					Source = source;
-					Target = target;
-				}
+		public struct Folders
+		{
+			public string Source { get; private set; }
+			public string Target { get; private set; }
+
+			public Folders(string source, string target)
+			{
+				Source = source;
+				Target = target;
 			}
 		}
 	}
