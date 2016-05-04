@@ -30,7 +30,10 @@ namespace GenericMvcUtilities.Services
 			
 		}
 
-		public void transferCompletedEvent();
+		public void transferCompletedEvent()
+		{
+
+		}
 
 		/// <summary>
 		/// Filter for executing request
