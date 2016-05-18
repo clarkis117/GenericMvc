@@ -15,9 +15,9 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 		//<div class="well page" id="about">About</div>
 		//<div class="well page" id="Id">@View goes here</div>
 
-		public string Id { get; set; }
+		public virtual string Id { get; set; }
 
-		public string Name { get; set; }
+		public virtual string Name { get; set; }
 
 		public virtual string ViewPath
 		{
@@ -37,13 +37,116 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 
 	}
 
-	public class Editor
+	//page with conventions
+	public class BasicPage : Page
 	{
+		public BasicPage()
+		{
+			//this.Folder = ViewName;
+		}
+
+		public override string Id
+		{
+			get
+			{
+				return Name;
+			}
+		}
+
+		public override string ContainingFolder
+		{
+			get
+			{
+				return "ModelViews";
+			}
+		}
+
+		public override string ViewName
+		{
+			get
+			{
+				return this.Name;
+			}
+		}
+
+		public string Folder { get; set; }
+
+		public override string ViewPath
+		{
+			get
+			{
+				if (Folder != null)
+				{
+					return $"~/Views/{ContainingFolder}/{Folder}/{ViewName}.cshtml";
+				}
+
+				return $"~/Views/{ContainingFolder}/{ViewName}/{ViewName}.cshtml";
+			}
+		}
+	}
+
+	/// <summary>
+	/// This is used to layout the collapsing forms 
+	/// </summary>
+	public class BasicEditor : Page
+	{
+		public BasicEditor()
+		{
+			//Much wow I so cheat
+			this.Data = this;
+		}
+
+		public BasicPage ParentForm { get; set; }
+
+		public List<BasicPage> ChildForms { get; set; }
+
+		public override string Id
+		{
+			get
+			{
+				return ParentForm.Name;
+			}
+		}
+
+		public override string Name
+		{
+			get
+			{
+				return ParentForm.Name;
+			}
+
+			set
+			{
+				ParentForm.Name = value;
+			}
+		}
+
+		public override string ContainingFolder
+		{
+			get
+			{
+				return "Shared";
+			}
+		}
+
+		public override string ViewName
+		{
+			get
+			{
+				return "BasicEditor";
+			}
+		}
+
+		public override string ViewPath
+		{
+			get
+			{
+				return $"~/Views/{ContainingFolder}/{ViewName}.cshtml";
+			}
+		}
+
 
 	}
 
-	public class GraphEditor
-	{
 
-	}
 }

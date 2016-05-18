@@ -45,13 +45,11 @@ namespace GenericMvcUtilities.Services
 			Requests.CollectionChanged += CollectionRequestExecutionFilter;
 		}
 
-<<<<<<< HEAD
 		public void transferCompletedEvent()
 		{
 
 		}
-=======
->>>>>>> 284072fbb6b3511b4e13a3b2744ab37f707c96c0
+
 
 		public static async Task RequestExecutionFilter()
 		{

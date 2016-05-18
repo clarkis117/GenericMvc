@@ -15,12 +15,15 @@ namespace GenericMvcUtilities.Controllers
 		where TKey : IEquatable<TKey>
 	{
 
-		public SinglePageController(BaseRepositroy<T> repository, ILogger<T> logger) : base(repository, logger)
+		public SinglePageController(BaseRepository<T> repository, ILogger<T> logger) : base(repository, logger)
 		{
 
-			//dirty the project
 		}
 
+		/// <summary>
+		/// Construct the Single Page View Hierarchy here then return it
+		/// </summary>
+		/// <returns>the Single Page View container with associate view data</returns>
 		public abstract Task<IActionResult> Index();
 	}
 }
