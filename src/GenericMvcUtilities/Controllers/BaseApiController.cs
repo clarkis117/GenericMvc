@@ -357,13 +357,14 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
-		private IEnumerable<Microsoft.Data.Entity.Metadata.IEntityType> EntityTypes;
+		private static IEnumerable<Microsoft.Data.Entity.Metadata.IEntityType> EntityTypes;
 
+		//todo more design work
 		//todo: finish
 		//todo: add unit test
-		[Route("[controller]/[action]/")]
-		[HttpDelete]
-		public async Task<IActionResult> DeleteChild([FromBody] object child)
+		//[NonAction]
+		[HttpDelete, Route("[controller]/[action]/")]
+		public async Task<IActionResult> DeleteChild([FromBody]Newtonsoft.Json.Linq.JObject child)
 		{
 			try
 			{
@@ -377,14 +378,27 @@ namespace GenericMvcUtilities.Controllers
 							EntityTypes = Repository.DataContext.Model.GetEntityTypes();
 						}
 
-						if (EntityTypes.Any(x => x.ClrType == child.GetType()))
+						object dbObj = null;
+
+						foreach (var type in EntityTypes)
 						{
-							if (Repository.DataContext.Entry(child).State == EntityState.Detached)
+							//EntityTypes.Any(x => x.ClrType.FullName == child["$type"].ToString())
+							if (type.ClrType.FullName == child["$type"].ToString())
 							{
-								Repository.DataContext.Attach(child, GraphBehavior.IncludeDependents);
+								dbObj = child.ToObject(type.ClrType);
+								break;
+							}
+						}
+
+						//EntityTypes.Any(x => x.ClrType == child.GetType())
+						if (dbObj != null)
+						{
+							if (Repository.DataContext.Entry(dbObj).State == EntityState.Detached)
+							{
+								Repository.DataContext.Attach(dbObj, GraphBehavior.IncludeDependents);
 							}
 
-							Repository.DataContext.Remove(child);
+							Repository.DataContext.Remove(dbObj);
 
 							if (await Repository.DataContext.SaveChangesAsync() > 0)
 							{
@@ -397,7 +411,7 @@ namespace GenericMvcUtilities.Controllers
 						}
 						else
 						{
-							return HttpNotFound();
+							return HttpNotFound("Object Must Support a '$type' field or property");
 						}
 
 						//todo: maybe cache entity types in a field?
