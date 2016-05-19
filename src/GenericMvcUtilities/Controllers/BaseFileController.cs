@@ -9,6 +9,15 @@ using Microsoft.AspNet.Http;
 
 namespace GenericMvcUtilities.Controllers
 {
+	public interface FileController
+	{
+		void Get();
+		void Create();
+		void Update();
+		void Delete();
+	}
+
+
 	public class BaseFileController : Controller
 	{
 		// GET: /<controller>/
@@ -17,6 +26,12 @@ namespace GenericMvcUtilities.Controllers
 			//File.
 
 			return View();
+		}
+
+		public IActionResult Get()
+		{
+			return new NoContentResult();
+			//return VirtualFileResult
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace GenericMvcUtilities.Repositories
 	/// Base Repository for accessing the Entity Framework Context
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public class BaseRepositroy<T> : IBaseRepository<T>, IDisposable
+	public class BaseEntityFrameworkRepositroy<T> : IEntityFrameworkRepository<T>, IDisposable
 		where T : class
 	{
 		/// <summary>
@@ -29,15 +29,15 @@ namespace GenericMvcUtilities.Repositories
 		/// <summary>
 		/// The context set, this is the Set used to access the Table this Repository corresponds to
 		/// </summary>
-		public DbSet<T> ContextSet;
+		public DbSet<T> ContextSet { get; set; }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="BaseRepositroy{T}"/> class.
+		/// Initializes a new instance of the <see cref="BaseEntityFrameworkRepositroy{T}"/> class.
 		/// </summary>
 		/// <param name="dataContext">The data context.</param>
 		/// <exception cref="System.ArgumentNullException">Null Data Context:  + DataContext.ToString()</exception>
 		/// <exception cref="System.Exception">BaseRepository Constructor Failed:  + typeof(T).ToString()</exception>
-		public BaseRepositroy(DbContext dataContext)
+		public BaseEntityFrameworkRepositroy(DbContext dataContext)
 		{
 			try
 			{

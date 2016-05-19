@@ -18,12 +18,12 @@ namespace GenericMvcUtilities.Controllers
 		where T : class, IModel<TKey> 
 		where TKey : IEquatable<TKey>
 	{
-		protected readonly BaseRepositroy<T> Repository;
+		protected readonly BaseEntityFrameworkRepositroy<T> Repository;
 
 		//Maybe One Day using Logger<T> instead
 		protected readonly ILogger<T> Logger;
 
-		public BaseApiController(BaseRepositroy<T> repository, ILogger<T> logger)
+		public BaseApiController(BaseEntityFrameworkRepositroy<T> repository, ILogger<T> logger)
 		{
 			try
 			{
@@ -81,7 +81,8 @@ namespace GenericMvcUtilities.Controllers
 					//todo: fix this, test fix
 					foreach (var item in items)
 					{
-						var doesItExist = await this.Repository.ContextSet.AnyAsync(x => x.Id.Equals(item.Id));
+						var doesItExist = await this.Repository.Exists(x => x.Id.Equals(item.Id));
+						//var doesItExist = await this.Repository.ContextSet.AnyAsync(x => x.Id.Equals(item.Id));
 
 						if (!doesItExist)
 						{
@@ -113,7 +114,8 @@ namespace GenericMvcUtilities.Controllers
 		{
 			try
 			{
-				return await Repository.ContextSet.ToListAsync();
+				//return await Repository.ContextSet.ToListAsync();
+				return await Repository.GetAll();
 			}
 			catch (Exception ex)
 			{
@@ -134,9 +136,9 @@ namespace GenericMvcUtilities.Controllers
 			{
 				if (id != null)
 				{
-					if (await Repository.Exists(Repository.MatchByIdExpression(id)))
+					if (await Repository.Exists(x => x.Id.Equals(id)))
 					{
-						var item = await Repository.GetCompleteItem(Repository.MatchByIdExpression(id));
+						var item = await Repository.GetCompleteItem(x => x.Id.Equals(id));
 
 						if (item != null)
 						{
@@ -197,7 +199,7 @@ namespace GenericMvcUtilities.Controllers
 				{
 					if (ModelState.IsValid)
 					{
-						if (!(await Repository.Exists(Repository.MatchByIdExpression(item.Id))))
+						if (!(await Repository.Exists(x => x.Id.Equals(item.Id))))
 						{
 							//Attempt to Insert Item
 							if ((await Repository.Insert(item)) != false)

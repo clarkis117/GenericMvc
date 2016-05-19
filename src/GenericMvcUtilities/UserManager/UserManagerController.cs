@@ -34,9 +34,9 @@ namespace GenericMvcUtilities.UserManager
 
 		protected readonly RoleManager<TRole> RoleManager;
 
-		protected readonly BaseRepositroy<TUser> UserRepository;
+		protected readonly BaseEntityFrameworkRepositroy<TUser> UserRepository;
 
-		protected readonly BaseRepositroy<TPendingUser> PendingUserRepository;
+		protected readonly BaseEntityFrameworkRepositroy<TPendingUser> PendingUserRepository;
 
 		//Maybe One Day using Logger<T> instead
 		protected readonly ILogger<UserManagerController<TUser, TPendingUser, TKey, TRole>> Logger;
@@ -44,8 +44,8 @@ namespace GenericMvcUtilities.UserManager
 		
 		public UserManagerController( UserManager<TUser> userManager,
 			RoleManager<TRole> roleManager,
-			BaseRepositroy<TUser> userRepository,
-			BaseRepositroy<TPendingUser> pendingUserRepository,
+			BaseEntityFrameworkRepositroy<TUser> userRepository,
+			BaseEntityFrameworkRepositroy<TPendingUser> pendingUserRepository,
 			ILogger<UserManagerController<TUser, TPendingUser, TKey, TRole>> logger)
 		{
 			try

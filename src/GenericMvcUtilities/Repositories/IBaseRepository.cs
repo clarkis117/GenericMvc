@@ -8,7 +8,7 @@ using GenericMvcUtilities.Models;
 
 namespace GenericMvcUtilities.Repositories
 {
-	public interface IBaseRepository<T> where T : class
+	public interface IRepository<T> where T : class
 	{
 		Task<bool> Exists(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
 
@@ -27,6 +27,13 @@ namespace GenericMvcUtilities.Repositories
 		Task<bool> Update(T entity);
 
 		Task<bool> Delete(T entity);
+	}
+
+	public interface IEntityFrameworkRepository<T> : IRepository<T>  where T : class 
+	{
+		DbContext DataContext { get; set; }
+
+		DbSet<T> ContextSet { get; set; }
 
 		Task<int> Save();
 	}
