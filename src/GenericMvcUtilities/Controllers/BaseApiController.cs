@@ -321,7 +321,7 @@ namespace GenericMvcUtilities.Controllers
 							if ((await Repository.Update((item)) != false))
 							{
 								//Send 201 Response if success full
-								return new NoContentResult();
+								return new JsonResult(item);
 							}
 							else
 							{
