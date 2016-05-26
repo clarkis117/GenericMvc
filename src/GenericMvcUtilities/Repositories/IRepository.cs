@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Data.Entity;
 using GenericMvcUtilities.Models;
+using System.Linq.Expressions;
 
 namespace GenericMvcUtilities.Repositories
 {
@@ -29,8 +30,14 @@ namespace GenericMvcUtilities.Repositories
 		Task<bool> Delete(T entity);
 	}
 
+	//public interface IBaseRepository
+
 	public interface IEntityFrameworkRepository<T> : IRepository<T>  where T : class 
 	{
+		Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue);
+
+		Expression<Func<T, bool>> MatchByIdExpression(object id);
+
 		DbContext DataContext { get; set; }
 
 		DbSet<T> ContextSet { get; set; }
