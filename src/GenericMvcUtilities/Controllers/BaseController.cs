@@ -2,8 +2,8 @@
 using GenericMvcUtilities.Repositories;
 using GenericMvcUtilities.UserManager;
 using GenericMvcUtilities.ViewModels.Generic;
-using Microsoft.AspNet.Authorization;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -54,7 +54,7 @@ namespace GenericMvcUtilities.Controllers
 		}
 
 		[NonAction]
-		protected string FormatLogMessage(string message, Microsoft.AspNet.Http.HttpRequest request)
+		protected string FormatLogMessage(string message, Microsoft.AspNetCore.Http.HttpRequest request)
 		{
 			return (message + ": \nHTTP Request: \n" + "Header: " + request.Headers.ToString() + "\nBody: " + request.Body.ToString());
 		}
@@ -72,7 +72,7 @@ namespace GenericMvcUtilities.Controllers
 		{
 			try
 			{
-				var indexViewModel = new IndexViewModel(ActionContext)
+				var indexViewModel = new IndexViewModel(this)
 				{
 					Data = await Repository.GetAll()
 				};
@@ -102,7 +102,7 @@ namespace GenericMvcUtilities.Controllers
 
 					if (item != null)
 					{
-						var detailsViewModel = new DetailsViewModel(ActionContext)
+						var detailsViewModel = new DetailsViewModel(this)
 						{
 							Data = item
 						};
@@ -117,7 +117,7 @@ namespace GenericMvcUtilities.Controllers
 				}
 				else
 				{
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)
@@ -142,7 +142,7 @@ namespace GenericMvcUtilities.Controllers
 
 					if (item != null)
 					{
-						var editViewModel = new EditViewModel(ActionContext)
+						var editViewModel = new EditViewModel(this)
 						{
 							Data = item
 						};
@@ -157,7 +157,7 @@ namespace GenericMvcUtilities.Controllers
 				}
 				else
 				{
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)
@@ -201,7 +201,7 @@ namespace GenericMvcUtilities.Controllers
 				else
 				{
 					//send bad request response with model state errors
-					return HttpBadRequest(ModelState);
+					return BadRequest(ModelState);
 				}
 			}
 			catch (Exception ex)
@@ -219,7 +219,7 @@ namespace GenericMvcUtilities.Controllers
 		{
 			try
 			{
-				var createViewModel = new CreateViewModel(ActionContext)
+				var createViewModel = new CreateViewModel(this)
 				{
 				};
 
@@ -259,13 +259,13 @@ namespace GenericMvcUtilities.Controllers
 					else
 					{
 						//Send conflict response
-						return new HttpStatusCodeResult((int)HttpStatusCode.Conflict);
+						return new StatusCodeResult((int)HttpStatusCode.Conflict);
 					}
 				}
 				else
 				{
 					//send bad request response with model state errors
-					return HttpBadRequest(ModelState);
+					return BadRequest(ModelState);
 				}
 			}
 			catch (Exception ex)
@@ -290,7 +290,7 @@ namespace GenericMvcUtilities.Controllers
 
 					if (item != null)
 					{
-						var deleteViewModel = new DeleteViewModel(ActionContext)
+						var deleteViewModel = new DeleteViewModel(this)
 						{
 							Data = item
 						};
@@ -305,7 +305,7 @@ namespace GenericMvcUtilities.Controllers
 				}
 				else
 				{
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)
@@ -338,7 +338,7 @@ namespace GenericMvcUtilities.Controllers
 						}
 						else
 						{
-							return HttpBadRequest();
+							return BadRequest();
 						}
 					}
 					else
@@ -349,7 +349,7 @@ namespace GenericMvcUtilities.Controllers
 				}
 				else
 				{
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)

@@ -3,12 +3,12 @@ using GenericMvcUtilities.ViewModels.Generic;
 using GenericMvcUtilities.Repositories;
 using GenericMvcUtilities.Services;
 using GenericMvcUtilities.ViewModels.UserManager.Account;
-using Microsoft.AspNet.Authorization;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Mvc;
-using Microsoft.AspNet.Mvc.Rendering;
-using Microsoft.Data.Entity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,19 +135,19 @@ namespace GenericMvcUtilities.UserManager
 				else
 				{
 					//HttpNotFound and anything else leaks information
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			else
 			{
-				return HttpBadRequest();
+				return BadRequest();
 			}
 		}
 
 		private PageViewModel getConfirmViewModel(ConfirmUserViewModel model)
 		{
 			//construct view model
-			return new PageViewModel(ActionContext)
+			return new PageViewModel(this)
 			{
 				Title = "Confirm your Account",
 				Description = "Your Request has been reviewed by a User Administrator and approved, please confirm your information.",
@@ -158,7 +158,7 @@ namespace GenericMvcUtilities.UserManager
 		private PageViewModel getConfirmViewModel(TPendingUser pending, string token)
 		{
 			//construct view model
-			return new PageViewModel(ActionContext)
+			return new PageViewModel(this)
 			{
 				Title = "Confirm your Account",
 				Description = "Your Request has been reviewed by a User Administrator and approved, please confirm your information.",
@@ -191,7 +191,7 @@ namespace GenericMvcUtilities.UserManager
 
 					if ((await token.VerifyToken(model.AuthToken, pendingUser.StampExpiration)) == false)
 					{
-						return HttpUnauthorized();
+						return Unauthorized();
 					}
 
 					var passwordResult = _passwordHasher.VerifyHashedPassword(pendingUser, pendingUser.HashedPassword, model.Password);
@@ -236,7 +236,7 @@ namespace GenericMvcUtilities.UserManager
 					}
 					else
 					{
-						return HttpUnauthorized();
+						return Unauthorized();
 					}
 				}
 				else
@@ -248,7 +248,7 @@ namespace GenericMvcUtilities.UserManager
 			}
 			else
 			{
-				return HttpBadRequest();
+				return BadRequest();
 			}
 		}
 
@@ -366,21 +366,21 @@ namespace GenericMvcUtilities.UserManager
 				if (result.RequiresTwoFactor)
 				{
 					//no way to two factor bots at the moment
-					return HttpUnauthorized();
+					return Unauthorized();
 				}
 				if (result.IsLockedOut)
 				{
-					return new HttpStatusCodeResult(403);
+					return new StatusCodeResult(403);
 				}
 				else
 				{
 					//ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-					return HttpUnauthorized();
+					return Unauthorized();
 				}
 			}
 
 			// If we got this far, something failed, send server error
-			return new HttpStatusCodeResult(500);
+			return new StatusCodeResult(500);
 		}
 
 		[HttpGet]
@@ -398,7 +398,7 @@ namespace GenericMvcUtilities.UserManager
 			//Add Roles to view bag / view data
 			ViewData["Roles"] = RoleHelper.SelectableRoleList();
 
-			var viewModel = new PageViewModel(ActionContext)
+			var viewModel = new PageViewModel(this)
 			{
 				Title = "Request Access",
 				Description = "Create a new account request. The account will be reviewed by a User Administrator before being added to the System.",
@@ -483,7 +483,7 @@ namespace GenericMvcUtilities.UserManager
 			//Add Roles to view bag / view data
 			ViewData["Roles"] = RoleHelper.SelectableRoleList();
 
-			var viewModel = new PageViewModel(ActionContext)
+			var viewModel = new PageViewModel(this)
 			{
 				Title = "Request Access",
 				Description = "Create a new account request. The account will be reviewed by a User Administrator before being added to the System.",
@@ -549,7 +549,7 @@ namespace GenericMvcUtilities.UserManager
 				// If the user does not have an account, then ask the user to create an account.
 				ViewData["ReturnUrl"] = returnUrl;
 				ViewData["LoginProvider"] = info.LoginProvider;
-				var email = info.ExternalPrincipal.FindFirstValue(ClaimTypes.Email);
+				var email = info.Principal.FindFirstValue(ClaimTypes.Email);
 				return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = email });
 			}
 		}
@@ -561,7 +561,7 @@ namespace GenericMvcUtilities.UserManager
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model, string returnUrl = null)
 		{
-			if (User.IsSignedIn())
+			if (_signInManager.IsSignedIn(User))
 			{
 				return RedirectToAction("Index", "Manage");
 			}
@@ -827,7 +827,7 @@ namespace GenericMvcUtilities.UserManager
 
 		private async Task<TUser> GetCurrentUserAsync()
 		{
-			return await _userManager.FindByIdAsync(HttpContext.User.GetUserId());
+			return await _userManager.FindByIdAsync(this._userManager.GetUserId(this.User));
 		}
 
 		private IActionResult RedirectToLocal(string returnUrl)

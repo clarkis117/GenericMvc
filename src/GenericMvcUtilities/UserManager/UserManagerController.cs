@@ -8,10 +8,10 @@ using GenericMvcUtilities.Repositories;
 using GenericMvcUtilities.ViewModels;
 using GenericMvcUtilities.ViewModels.Generic;
 using GenericMvcUtilities.ViewModels.UserManager;
-using Microsoft.AspNet.Authorization;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace GenericMvcUtilities.UserManager
@@ -22,7 +22,7 @@ namespace GenericMvcUtilities.UserManager
 	/// <typeparam name="TUser"></typeparam>
 	/// <typeparam name="TPendingUser"></typeparam>
 	/// <typeparam name="TKey"></typeparam>
-	/// <seealso cref="Microsoft.AspNet.Mvc.Controller" />
+	/// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
 	[Authorize(Roles = RoleHelper.SystemOwner + "," + RoleHelper.UserAdmin)]
 	public class UserManagerController<TUser, TPendingUser, TKey, TRole> : Controller
 		where TUser : IdentityUser<TKey>, IUserConstraints, new()
@@ -79,10 +79,11 @@ namespace GenericMvcUtilities.UserManager
 
 				throw new Exception(Message, ex);
 			}
+
 		}
 
 		[NonAction]
-		protected string FormatLogMessage(string message, Microsoft.AspNet.Http.HttpRequest request)
+		protected string FormatLogMessage(string message, Microsoft.AspNetCore.Http.HttpRequest request)
 		{
 			return (message + ": \nHTTP Request: \n" + "Header: " + request.Headers.ToString() + "\nBody: " + request.Body.ToString());
 		}
@@ -192,12 +193,12 @@ namespace GenericMvcUtilities.UserManager
 					}
 					else
 					{
-						return HttpNotFound();
+						return NotFound();
 					}
 				}
 				else
 				{
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)
@@ -262,7 +263,7 @@ namespace GenericMvcUtilities.UserManager
 					}
 					else
 					{
-						return HttpNotFound();
+						return NotFound();
 					}
 
 
@@ -339,12 +340,12 @@ namespace GenericMvcUtilities.UserManager
 					}
 					else
 					{
-						return HttpNotFound();
+						return NotFound();
 					}
 				}
 				else
 				{
-					return HttpBadRequest(this.ModelState);
+					return BadRequest(this.ModelState);
 				}
 			}
 			catch (Exception ex)
@@ -382,17 +383,17 @@ namespace GenericMvcUtilities.UserManager
 						else
 						{
 							//todo: probably internal error
-							return HttpBadRequest();
+							return BadRequest();
 						}
 					}
 					else
 					{
-						return HttpNotFound();
+						return NotFound();
 					}
 				}
 				else
 				{
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)
@@ -435,13 +436,13 @@ namespace GenericMvcUtilities.UserManager
 			{
 				var viewList = new List<PageViewModel>
 				{
-					new PageViewModel(ActionContext)
+					new PageViewModel(this)
 					{
 						Title = "Added Pending Users",
 						Description = "Pending Users that have been approved",
 						Data = convertToViewModelList((await PendingUserRepository.GetAll()).Where(x => x.HasUserBeenAdded == true), false)
 					},
-					new PageViewModel(ActionContext)
+					new PageViewModel(this)
 					{
 						Title = "Pending Users",
 						Description = "All Pending Users in the Database",
@@ -500,12 +501,12 @@ namespace GenericMvcUtilities.UserManager
 					}
 					else
 					{
-						return HttpNotFound();
+						return NotFound();
 					}
 				}
 				else
 				{
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)
@@ -544,7 +545,7 @@ namespace GenericMvcUtilities.UserManager
 							}
 							else
 							{
-								return HttpBadRequest("Role is not valid");
+								return BadRequest("Role is not valid");
 							}
 						}
 
@@ -552,12 +553,12 @@ namespace GenericMvcUtilities.UserManager
 					}
 					else
 					{
-						return HttpBadRequest(this.ModelState);
+						return BadRequest(this.ModelState);
 					}
 				}
 				else
 				{
-					return HttpBadRequest(this.ModelState);
+					return BadRequest(this.ModelState);
 				}
 			}
 			catch (Exception ex)
@@ -628,12 +629,12 @@ namespace GenericMvcUtilities.UserManager
 					}
 					else
 					{
-						return HttpNotFound();
+						return NotFound();
 					}
 				}
 				else
 				{
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)
@@ -671,17 +672,17 @@ namespace GenericMvcUtilities.UserManager
 						}
 						else
 						{
-							return HttpBadRequest();
+							return BadRequest();
 						}
 					}
 					else
 					{
-						return HttpNotFound();
+						return NotFound();
 					}
 				}
 				else
 				{
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)

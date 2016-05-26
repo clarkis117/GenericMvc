@@ -1,7 +1,7 @@
 ﻿@model GenericMvcUtilities.ViewModels.UserManager.Account.RegisterViewModel
 
 <form asp-controller="Account" asp-action="Register" method="post" class="form-horizontal" role="form">
-	<div asp-validation-summary="ValidationSummary.All" class="text-danger"></div>
+	<div asp-validation-summary="All" class="text-danger"></div>
 	<input hidden asp-for="DateRegistered" value="@DateTime.Now" />
 	<div class="form-group">
 		<label asp-for="FirstName" class="col-md-2 control-label"></label>
@@ -83,6 +83,7 @@
 	</div>
 </form>
 
+
 @section Scripts {
-	@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+	@{ await Html.PartialAsync("_ValidationScriptsPartial"); }
 }

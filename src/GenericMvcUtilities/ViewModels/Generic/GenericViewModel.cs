@@ -41,17 +41,17 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 	public static class ViewModelHelper
 	{
-		public static Microsoft.AspNet.Mvc.ViewResult ViewFromModel(this Microsoft.AspNet.Mvc.Controller controller, GenericViewModel viewModel)
+		public static Microsoft.AspNetCore.Mvc.ViewResult ViewFromModel(this Microsoft.AspNetCore.Mvc.Controller controller, GenericViewModel viewModel)
 		{
 			return controller.View(viewModel.ViewContainerPath, viewModel);
 		}
 
-		public static Microsoft.AspNet.Mvc.ViewResult ViewFromModels(this Microsoft.AspNet.Mvc.Controller controller, IList<GenericViewModel> viewModels)
+		public static Microsoft.AspNetCore.Mvc.ViewResult ViewFromModels(this Microsoft.AspNetCore.Mvc.Controller controller, IList<GenericViewModel> viewModels)
 		{
 			return controller.View("~/Views/Shared/MultiPageContainer.cshtml", viewModels);
 		}
 
-		public static Microsoft.AspNet.Mvc.ViewResult ViewFromModels(this Microsoft.AspNet.Mvc.Controller controller, IList<PageViewModel> viewModels)
+		public static Microsoft.AspNetCore.Mvc.ViewResult ViewFromModels(this Microsoft.AspNetCore.Mvc.Controller controller, IList<PageViewModel> viewModels)
 		{
 			return controller.View("~/Views/Shared/MultiPageContainer.cshtml", viewModels);
 		}

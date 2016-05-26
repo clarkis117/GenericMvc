@@ -1,0 +1,76 @@
+﻿@{
+	Layout = "~/Views/Shared/_SPALayout.cshtml";
+}
+@using GenericMvcUtilities.ViewModels.SinglePageApp
+@model SinglePageGraph
+@section StyleSheets {
+	<link rel="stylesheet" href="~/css/TableStyle.css" />
+}
+<div class="row">
+	<nav class="menu col-xs-3 well">
+		<h3 class="text-primary" data-bind="text: CurrentItemName"></h3>
+		<h4 class="text-primary">Menu</h4>
+		@*- Page List View Models -*@
+		<ul class="nava">
+			@foreach (var page in Model.Pages)
+			{
+				<li class="withripple" data-target="#@page.Id">@page.Name</li>
+			}
+		</ul>
+		<ul class="list-inline">
+			<li><button class="btn btn-success" data-bind="click: SaveItem">Save Changes</button></li>
+			<li><button class="btn btn-warning" data-bind="click: CreateItem">Create New</button></li>
+			<li><button class="btn btn-primary" data-bind="click: ExportItemToJson">Export JSON</button></li>
+			<li><button class="btn btn-danger" data-bind="click: DeleteItem">Delete</button></li>
+		</ul>
+		<h4 class="text-primary">Items</h4>
+		<ul class="list-group" data-bind="foreach: $root.ItemList">
+			@await Html.PartialAsync(Model.MenuListViewModel.ViewPath, Model.MenuListViewModel.Data)
+		</ul>
+		<footer class="navbar navbar-fixed-bottom col-xs-3">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<p class="navbar-text" data-bind="text: $root.StatusMessage, css: $root.StatusStyle">Status Message Status Message Status Message</p>
+				</div>
+				<div class="navbar-collapse collapse">
+					@await Html.PartialAsync("_LoginPartial")
+				</div>
+			</div>
+		</footer>
+	</nav>
+	<div class="pages col-xs-9">
+		<div class="row">
+			<div class="col-xs-12">
+				@foreach (var page in Model.Pages)
+				{
+					<div class="well page" id="@page.Id">
+						@await Html.PartialAsync(page.ViewPath, page.Data)
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Modals {
+	@*- Modal Views for objects with one to many options -*@
+	@foreach (var modal in Model.Modals)
+	{
+		@await Html.PartialAsync(modal.ViewPath, modal.Data)
+	}
+}
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+		await Html.RenderPartialAsync("~/Views/ModelViews/SpaScripts.cshtml");
+		<script src="~/js/SpaNav.js"></script>
+
+	}
+}

@@ -1,7 +1,7 @@
 ﻿@model GenericMvcUtilities.ViewModels.UserManager.Account.ConfirmUserViewModel
 
 <form asp-controller="Account" asp-action="ConfirmUser" method="post" class="form-horizontal" role="form">
-	<div asp-validation-summary="ValidationSummary.All" class="text-danger"></div>
+	<div asp-validation-summary="All" class="text-danger"></div>
 	<input asp-for="PendingUserId"  hidden/>
 	<input asp-for="AuthToken" hidden />
 	<div class="form-group">

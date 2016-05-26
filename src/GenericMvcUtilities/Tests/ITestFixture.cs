@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using GenericMvcUtilities.Client;
-using Microsoft.AspNet.TestHost;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Logging;
 
 namespace GenericMvcUtilities.Tests

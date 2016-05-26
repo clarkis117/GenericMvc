@@ -97,10 +97,10 @@ namespace GenericMvcUtilities.Client
 				var cookieJar = new CookieContainer();
 
 				//Post Password and stuff to Rest Server, Response should contain the password token cookie
-				HttpResponseMessage response = await this._client.PostAsJsonAsync(this.LoginRoute, model);
+				HttpResponseMessage response = await this._client.PostAsync(this.LoginRoute, new StringContent(JsonConvert.SerializeObject(model)));
 
 				//Grab the cookies
-				var cookies = response.Headers.GetValues("Set-Cookie"); //First(x => x.StartsWith(".AspNet.Microsoft.Identity.Application"));
+				var cookies = response.Headers.GetValues("Set-Cookie"); //First(x => x.StartsWith(".AspNetCore.Microsoft.Identity.Application"));
 
 				var processedCookie = ProcessCookies(CleanCookies(cookies));
 

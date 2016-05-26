@@ -2,7 +2,7 @@
 
 namespace GenericMvcUtilities.ViewModels.SinglePageApp
 {
-	public class SideMenuPage
+	public class SinglePageGraph
 	{
 		public List<Page> Pages { get; set; }
 
@@ -11,11 +11,9 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 		public Page MenuListViewModel { get; set; }
 	}
 
-	public static class SideMenu
+	public static class SinglePage
 	{
-
-
-		public static Microsoft.AspNet.Mvc.ViewResult SideMenuView(this Microsoft.AspNet.Mvc.Controller controller, SideMenuPage sideMenu)
+		public static Microsoft.AspNetCore.Mvc.ViewResult SideMenuView(this Microsoft.AspNetCore.Mvc.Controller controller, SinglePageGraph sideMenu)
 		{
 			return controller.View("~/Views/Shared/SideMenuContainer.cshtml", sideMenu);
 		}

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Mvc;
-using Microsoft.AspNet;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Http;
 
 namespace GenericMvcUtilities.ViewModels.Generic
 {
@@ -20,13 +21,20 @@ namespace GenericMvcUtilities.ViewModels.Generic
 			ContainerName = "Page";
 		}
 
-		public PageViewModel(ActionContext actionContext)
+		public PageViewModel(Controller context)
 		{
 			ContainerName = "Page";
 
+			ControllerName = context.RouteData.Values["controller"].ToString();
+
+
+			Action = context.RouteData.Values["action"].ToString();
+
+			/*
 			Action = actionContext.ActionDescriptor.Name;
 
 			ControllerName = actionContext.RouteData.Values["controller"].ToString();
+			*/
 
 			NestedView = this.Action;
 		}
@@ -58,7 +66,7 @@ namespace GenericMvcUtilities.ViewModels.Generic
 			}
 		}
 
-		public BasicViewModel(ActionContext context) : base(context)
+		public BasicViewModel(Controller context) : base(context)
 		{
 
 		}
@@ -66,7 +74,7 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 	public class IndexViewModel : BasicViewModel
 	{
-		public IndexViewModel(ActionContext context) : base(context)
+		public IndexViewModel(Controller context) : base(context)
 		{
 			Title = ControllerName;
 
@@ -76,7 +84,7 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 	public class DetailsViewModel : BasicViewModel
 	{
-		public DetailsViewModel(ActionContext context): base(context)
+		public DetailsViewModel(Controller context): base(context)
 		{
 			var deplural = depluralizeController(ControllerName) ?? ControllerName;
 
@@ -88,7 +96,7 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 	public class CreateViewModel : BasicViewModel
 	{
-		public CreateViewModel(ActionContext context) : base(context)
+		public CreateViewModel(Controller context) : base(context)
 		{
 			var deplural = depluralizeController(ControllerName) ?? ControllerName;
 
@@ -100,7 +108,7 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 	public class EditViewModel : BasicViewModel
 	{
-		public EditViewModel(ActionContext context) : base(context)
+		public EditViewModel(Controller context) : base(context)
 		{
 			var deplural = depluralizeController(ControllerName) ?? ControllerName;
 
@@ -112,7 +120,7 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 	public class DeleteViewModel : BasicViewModel
 	{
-		public DeleteViewModel(ActionContext context) : base(context)
+		public DeleteViewModel(Controller context) : base(context)
 		{
 			var deplural = depluralizeController(ControllerName) ?? ControllerName;
 

@@ -1,13 +1,12 @@
 ﻿using GenericMvcUtilities.Repositories;
-using Microsoft.AspNet.Authorization;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using GenericMvcUtilities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity;
-using Microsoft.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -57,7 +56,7 @@ namespace GenericMvcUtilities.Controllers
 		}
 
 		[NonAction]
-		protected string FormatLogMessage(string message, Microsoft.AspNet.Http.HttpRequest request)
+		protected string FormatLogMessage(string message, Microsoft.AspNetCore.Http.HttpRequest request)
 		{
 			return (message + ": \nHTTP Request: \n" + "Header: " + request.Headers.ToString() + "\nBody: " + request.Body.ToString());
 		}
@@ -214,19 +213,19 @@ namespace GenericMvcUtilities.Controllers
 						else
 						{
 							//Send conflict response
-							return new HttpStatusCodeResult((int)HttpStatusCode.Conflict);
+							return new StatusCodeResult((int)HttpStatusCode.Conflict);
 						}
 					}
 					else
 					{
 						//Send 400 Response
-						return HttpBadRequest();
+						return BadRequest();
 					}
 				}
 				else
 				{
 					//Send 400 Response
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)
@@ -281,13 +280,13 @@ namespace GenericMvcUtilities.Controllers
 					else
 					{
 						//Send 400 Response
-						return HttpBadRequest();
+						return BadRequest();
 					}
 				}
 				else
 				{
 					//Send 400 Response
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)
@@ -332,19 +331,19 @@ namespace GenericMvcUtilities.Controllers
 						else
 						{
 							//Send 404 Response if Item not Found
-							return HttpNotFound();
+							return NotFound();
 						}
 					}
 					else
 					{
 						//send bad request response with model state errors
-						return HttpBadRequest(ModelState);
+						return BadRequest(ModelState);
 					}
 				}
 				else
 				{
 					//Send 400 Response
-					return HttpBadRequest("request value is null");
+					return BadRequest("request value is null");
 				}
 			}
 			catch (Exception ex)
@@ -357,7 +356,7 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
-		private static IEnumerable<Microsoft.Data.Entity.Metadata.IEntityType> EntityTypes;
+		private static IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IEntityType> EntityTypes;
 
 		//todo more design work
 		//todo: finish
@@ -395,7 +394,7 @@ namespace GenericMvcUtilities.Controllers
 						{
 							if (Repository.DataContext.Entry(dbObj).State == EntityState.Detached)
 							{
-								Repository.DataContext.Attach(dbObj, GraphBehavior.IncludeDependents);
+								Repository.DataContext.Attach(dbObj);
 							}
 
 							Repository.DataContext.Remove(dbObj);
@@ -411,7 +410,7 @@ namespace GenericMvcUtilities.Controllers
 						}
 						else
 						{
-							return HttpNotFound("Object Must Support a '$type' field or property");
+							return NotFound("Object Must Support a '$type' field or property");
 						}
 
 						//todo: maybe cache entity types in a field?
@@ -425,7 +424,7 @@ namespace GenericMvcUtilities.Controllers
 					}
 				}
 
-				return HttpBadRequest(ModelState);
+				return BadRequest(ModelState);
 			}
 			catch (Exception ex)
 			{
@@ -468,13 +467,13 @@ namespace GenericMvcUtilities.Controllers
 					else
 					{
 						//Send 404 if object is not in Database
-						return HttpNotFound();
+						return NotFound();
 					}
 				}
 				else
 				{
 					//Send 400 Response
-					return HttpBadRequest();
+					return BadRequest();
 				}
 			}
 			catch (Exception ex)

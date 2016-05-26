@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
-using Microsoft.AspNet.Authorization;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using GenericMvcUtilities.Models;
 using GenericMvcUtilities.Repositories;
 using GenericMvcUtilities.Services;
 using GenericMvcUtilities.ViewModels.UserManager.Manage;
-using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace GenericMvcUtilities.UserManager
 {
@@ -304,7 +304,7 @@ namespace GenericMvcUtilities.UserManager
 		{
 			// Request a redirect to the external login provider to link a login for the current user
 			var redirectUrl = Url.Action("LinkLoginCallback", "Manage");
-			var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl, User.GetUserId());
+			var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl, this._userManager.GetUserId(User));
 			return new ChallengeResult(provider, properties);
 		}
 
@@ -318,7 +318,7 @@ namespace GenericMvcUtilities.UserManager
 			{
 				return View("Error");
 			}
-			var info = await _signInManager.GetExternalLoginInfoAsync(User.GetUserId());
+			var info = await _signInManager.GetExternalLoginInfoAsync(this._userManager.GetUserId(User));
 			if (info == null)
 			{
 				return RedirectToAction(nameof(ManageLogins), new { Message = ManageMessageId.Error });
@@ -340,7 +340,7 @@ namespace GenericMvcUtilities.UserManager
 
 		private async Task<bool> HasPhoneNumber()
 		{
-			var user = await _userManager.FindByIdAsync(User.GetUserId());
+			var user = await _userManager.FindByIdAsync(this._userManager.GetUserId(User));
 			if (user != null)
 			{
 				return user.PhoneNumber != null;
@@ -362,7 +362,7 @@ namespace GenericMvcUtilities.UserManager
 
 		private async Task<TUser> GetCurrentUserAsync()
 		{
-			return await _userManager.FindByIdAsync(HttpContext.User.GetUserId());
+			return await _userManager.FindByIdAsync(this._userManager.GetUserId(User));
 		}
 
 		private IActionResult RedirectToLocal(string returnUrl)

@@ -1,0 +1,9 @@
+﻿@using GenericMvcUtilities.ViewModels.SinglePageApp
+@model BasicEditor
+
+@await Html.PartialAsync(Model.ParentForm.ViewPath, Model.ParentForm.Data)
+
+@foreach (var form in Model.ChildForms)
+{
+	@await Html.PartialAsync(form.ViewPath, form.Data)
+}

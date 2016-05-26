@@ -1,11 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNet.Identity.EntityFramework;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace GenericMvcUtilities.Models
 {
+	public abstract class BaseUser : IdentityUser, IUserConstraints
+	{
+		[Required]
+		public string FirstName { get; set; }
+
+		[Required]
+		public string LastName { get; set; }
+
+		//already in identity user public string Email { get; set; }
+
+		//already in identity user public string PhoneNumber { get; set; }
+
+		[Required]
+		public DateTime DateRegistered { get; set; }
+	}
+
 	public interface IUserConstraints
 	{
 		string FirstName { get; set; }
@@ -23,7 +37,6 @@ namespace GenericMvcUtilities.Models
 	public interface IUser<TKey> : IdentityUser<TKey>
 		where TKey : IEquatable<TKey>
 	{
-		
 	}
 	*/
 }

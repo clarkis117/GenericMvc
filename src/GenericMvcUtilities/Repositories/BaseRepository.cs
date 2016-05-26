@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.Entity;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -303,7 +303,7 @@ namespace GenericMvcUtilities.Repositories
 			{
 				if (entity != null)
 				{
-					ContextSet.Add(entity, GraphBehavior.IncludeDependents);
+					ContextSet.Add(entity);
 
 					if (await this.DataContext.SaveChangesAsync() > 0)
 					{
@@ -337,7 +337,7 @@ namespace GenericMvcUtilities.Repositories
 			{
 				if (entities != null && entities.Count > 0)
 				{
-					ContextSet.AddRange(entities, GraphBehavior.IncludeDependents);
+					ContextSet.AddRange(entities);
 
 					if (await this.DataContext.SaveChangesAsync() > 0)
 					{
@@ -374,10 +374,10 @@ namespace GenericMvcUtilities.Repositories
 				{
 					if (this.DataContext.Entry(entity).State == EntityState.Detached)
 					{
-						ContextSet.Attach(entity, GraphBehavior.IncludeDependents);
+						ContextSet.Attach(entity);
 					}
 
-					ContextSet.Update(entity, GraphBehavior.IncludeDependents);
+					ContextSet.Update(entity);
 
 					//dataContext.Entry(entity).State = EntityState.Modified;
 
@@ -415,7 +415,7 @@ namespace GenericMvcUtilities.Repositories
 				{
 					if (this.DataContext.Entry(entity).State == EntityState.Detached)
 					{
-						this.ContextSet.Attach(entity, GraphBehavior.IncludeDependents);
+						this.ContextSet.Attach(entity);
 					}
 
 					this.ContextSet.Remove(entity);
