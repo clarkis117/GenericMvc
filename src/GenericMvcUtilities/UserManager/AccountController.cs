@@ -415,6 +415,7 @@ namespace GenericMvcUtilities.UserManager
 		/// <param name="model">The model.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Error hashing pending user password</exception>
+		[NonAction]
 		private TPendingUser CreatePendingUser(RegisterViewModel model)
 		{
 			var pendingUser = new TPendingUser()
@@ -441,7 +442,20 @@ namespace GenericMvcUtilities.UserManager
 			return pendingUser;
 		}
 
-		// todo: change to add pending users to the database
+		[HttpGet]
+		[AllowAnonymous]
+		public IActionResult ConfirmRegistration()
+		{
+			var page = new PageViewModel(this)
+			{
+				Title = "Registration Confirmation",
+				Description = "Your Request for Access has been submitted for approval.",
+				DisplayAction = false
+			};
+
+			return this.ViewFromModel(page);
+		}
+
 		// POST: /Account/Register
 		[HttpPost]
 		[AllowAnonymous]
@@ -468,7 +482,7 @@ namespace GenericMvcUtilities.UserManager
 					//    "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
 					//await _signInManager.SignInAsync(user, isPersistent: false);
 
-					return RedirectToAction("Index", "Home");
+					return RedirectToAction("ConfirmRegistration", "Account");
 				}
 				else
 				{

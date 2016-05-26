@@ -48,6 +48,8 @@
 		"Microsoft.AspNetCore.TestHost": "1.0.0-rc2-final"
 	},
 
+
+
 	"frameworks": {
 		"netstandard1.5": {
 			"imports": [

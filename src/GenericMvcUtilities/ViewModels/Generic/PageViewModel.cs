@@ -12,6 +12,8 @@ namespace GenericMvcUtilities.ViewModels.Generic
 	{
 		public string Title { get; set; }
 
+		public bool DisplayAction { get; set; } = true;
+
 		public string Action { get; set; }
 
 		public string Description { get; set; }
