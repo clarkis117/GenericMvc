@@ -45,6 +45,7 @@ namespace GenericMvcUtilities.Services
 			Requests.CollectionChanged += CollectionRequestExecutionFilter;
 		}
 
+		//todo is needed?
 		public void transferCompletedEvent()
 		{
 

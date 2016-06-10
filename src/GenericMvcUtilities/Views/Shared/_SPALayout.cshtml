@@ -10,10 +10,10 @@
 	<environment names="Development,Staging,Production">
 		<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
 		<link rel="stylesheet" href="~/lib/bootstrap-touch-carousel/dist/css/bootstrap-touch-carousel.css" />
-		<link rel="stylesheet" href="~/css/material-dist/bootstrap-material-design.css"/>
+		<link rel="stylesheet" href="~/css/material-dist/bootstrap-material-design.css" />
 		<link rel="stylesheet" href="~/lib/bootstrap-material-design/dist/css/ripples.css" />
-		<link rel="stylesheet" href="~/css/SpaStyles.css" />
-		@*<link rel="stylesheet" href="~/css/site.css" />*@
+		@*<link rel="stylesheet" href="~/css/SpaStyles.css" />*@
+		@await Html.PartialAsync("~/Views/Shared/SpaStyles.cshtml")
 		@await RenderSectionAsync("stylesheets", false)
 	</environment>
 </head>
@@ -21,40 +21,18 @@
 	<div class="header-panel shadow-z-2">
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-xs-3">
+				<div class="col-xs-5">
 					@*
-
-					<ul class="list-inline">
-						<li><button class="btn btn-primary btn-raised">User Name</button></li>
-						<li><button class="btn btn-flat btn-white">Log Out</button></li>
-					</ul>
+						<ul class="list-inline">
+							<li><button class="btn btn-primary btn-raised">User Name</button></li>
+							<li><button class="btn btn-flat btn-white">Log Out</button></li>
+						</ul>
 					*@
 					<h1>Data Manager</h1>
 				</div>
 			</div>
 		</div>
 	</div>
-	@*
-	<nav class="navbar navbar-default navbar-static-top" role="navigation">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a asp-controller="Home" asp-action="Index" class="navbar-brand">Data Manager</a>
-				<p class="navbar-text" data-bind="text: $root.StatusMessage, css: $root.StatusStyle">Status Message Status Message Status Message</p>
-			</div>
-			<div class="navbar-collapse collapse">
-				<ul class="nav navbar-nav">
-				</ul>
-				@await Html.PartialAsync("_LoginPartial")
-			</div>
-		</div>
-	</nav>
-	*@
 	<div class="main container-fluid">
 		@RenderBody()
 	</div>
@@ -64,7 +42,6 @@
 		<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
 		<script src="~/lib/hammer.js/hammer.js"></script>
 		<script src="~/lib/bootstrap-touch-carousel/dist/js/bootstrap-touch-carousel.js"></script>
-		<script src="~/js/site.js" asp-append-version="true"></script>
 		<script src="~/lib/arrive/src/arrive.js"></script>
 		<script src="~/lib/bootstrap-material-design/dist/js/ripples.js"></script>
 		<script src="~/lib/bootstrap-material-design/dist/js/material.js"></script>

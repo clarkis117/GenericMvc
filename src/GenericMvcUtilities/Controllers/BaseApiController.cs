@@ -1,12 +1,11 @@
-﻿using GenericMvcUtilities.Repositories;
+﻿using GenericMvcUtilities.Models;
+using GenericMvcUtilities.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using GenericMvcUtilities.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -14,15 +13,15 @@ namespace GenericMvcUtilities.Controllers
 {
 	[Route("api/")]
 	public class BaseApiController<T, TKey> : Controller, IBaseApiController<T, TKey>
-		where T : class, IModel<TKey> 
+		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
-		protected readonly BaseRepository<T> Repository;
+		protected readonly IRepository<T> Repository;
 
 		//Maybe One Day using Logger<T> instead
 		protected readonly ILogger<T> Logger;
 
-		public BaseApiController(BaseRepository<T> repository, ILogger<T> logger)
+		public BaseApiController(BaseEntityFrameworkRepository<T> repository, ILogger<T> logger)
 		{
 			try
 			{
@@ -80,7 +79,8 @@ namespace GenericMvcUtilities.Controllers
 					//todo: fix this, test fix
 					foreach (var item in items)
 					{
-						var doesItExist = await this.Repository.ContextSet.AnyAsync(x => x.Id.Equals(item.Id));
+						var doesItExist = await this.Repository.Exists(x => x.Id.Equals(item.Id));
+						//var doesItExist = await this.Repository.ContextSet.AnyAsync(x => x.Id.Equals(item.Id));
 
 						if (!doesItExist)
 						{
@@ -112,7 +112,8 @@ namespace GenericMvcUtilities.Controllers
 		{
 			try
 			{
-				return await Repository.ContextSet.ToListAsync();
+				//return await Repository.ContextSet.ToListAsync();
+				return await Repository.GetAll();
 			}
 			catch (Exception ex)
 			{
@@ -124,6 +125,7 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
+		//todo change back to mvc style
 		[AllowAnonymous]
 		[Route("[controller]/[action]/")]
 		[HttpGet("{id}")]
@@ -133,9 +135,9 @@ namespace GenericMvcUtilities.Controllers
 			{
 				if (id != null)
 				{
-					if (await Repository.Exists(Repository.MatchByIdExpression(id)))
+					if (await Repository.Exists(x => x.Id.Equals(id)))
 					{
-						var item = await Repository.GetCompleteItem(Repository.MatchByIdExpression(id));
+						var item = await Repository.GetCompleteItem(x => x.Id.Equals(id));
 
 						if (item != null)
 						{
@@ -196,7 +198,7 @@ namespace GenericMvcUtilities.Controllers
 				{
 					if (ModelState.IsValid)
 					{
-						if (!(await Repository.Exists(Repository.MatchByIdExpression(item.Id))))
+						if (!(await Repository.Exists(x => x.Id.Equals(item.Id))))
 						{
 							//Attempt to Insert Item
 							if ((await Repository.Insert(item)) != false)
@@ -219,13 +221,13 @@ namespace GenericMvcUtilities.Controllers
 					else
 					{
 						//Send 400 Response
-						return BadRequest();
+						return BadRequest(ModelState);
 					}
 				}
 				else
 				{
 					//Send 400 Response
-					return BadRequest();
+					return BadRequest("Request Value is Null");
 				}
 			}
 			catch (Exception ex)
@@ -280,13 +282,13 @@ namespace GenericMvcUtilities.Controllers
 					else
 					{
 						//Send 400 Response
-						return BadRequest();
+						return BadRequest(ModelState);
 					}
 				}
 				else
 				{
 					//Send 400 Response
-					return BadRequest();
+					return BadRequest("null input value");
 				}
 			}
 			catch (Exception ex)
@@ -312,7 +314,7 @@ namespace GenericMvcUtilities.Controllers
 					if (ModelState.IsValid)
 					{
 						//Check for item existence
-						var exists = await Repository.Exists(Repository.MatchByIdExpression(id));
+						var exists = await Repository.Exists(x => x.Id.Equals(item.Id));
 
 						//If Item Exists Update it
 						if (exists == true)
@@ -343,7 +345,7 @@ namespace GenericMvcUtilities.Controllers
 				else
 				{
 					//Send 400 Response
-					return BadRequest("request value is null");
+					return BadRequest("Request Value is Null");
 				}
 			}
 			catch (Exception ex)
@@ -356,86 +358,6 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
-		private static IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IEntityType> EntityTypes;
-
-		//todo more design work
-		//todo: finish
-		//todo: add unit test
-		//[NonAction]
-		[HttpDelete, Route("[controller]/[action]/")]
-		public async Task<IActionResult> DeleteChild([FromBody]Newtonsoft.Json.Linq.JObject child)
-		{
-			try
-			{
-				if (child != null)
-				{
-					if (ModelState.IsValid)
-					{
-						//first make sure type isn't the root of the object graph, in this case type T
-						if (EntityTypes == null)
-						{
-							EntityTypes = Repository.DataContext.Model.GetEntityTypes();
-						}
-
-						object dbObj = null;
-
-						foreach (var type in EntityTypes)
-						{
-							//EntityTypes.Any(x => x.ClrType.FullName == child["$type"].ToString())
-							if (type.ClrType.FullName == child["$type"].ToString())
-							{
-								dbObj = child.ToObject(type.ClrType);
-								break;
-							}
-						}
-
-						//EntityTypes.Any(x => x.ClrType == child.GetType())
-						if (dbObj != null)
-						{
-							if (Repository.DataContext.Entry(dbObj).State == EntityState.Detached)
-							{
-								Repository.DataContext.Attach(dbObj);
-							}
-
-							Repository.DataContext.Remove(dbObj);
-
-							if (await Repository.DataContext.SaveChangesAsync() > 0)
-							{
-								return new NoContentResult();
-							}
-							else
-							{
-								throw new Exception("Object was not removed from DB");
-							}
-						}
-						else
-						{
-							return NotFound("Object Must Support a '$type' field or property");
-						}
-
-						//todo: maybe cache entity types in a field?
-						//todo: check type T in controller constructor as well
-						//todo: check type T in repository constructor as well
-						//Second make sure the type is present in the data-context 
-						//One possibility
-						//third delete the object
-						//Repository.DataContext.
-						//forth save changes
-					}
-				}
-
-				return BadRequest(ModelState);
-			}
-			catch (Exception ex)
-			{
-				string Message = "Delete Child - HTTP Delete Request Failed";
-
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
-
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
-			}
-		}
-		
 
 		//fixed: fix design oversight to have whole object deleted
 		[Route("[controller]/[action]/")]
@@ -447,7 +369,7 @@ namespace GenericMvcUtilities.Controllers
 				if (id != null)
 				{
 					//Get Item, this causes EF to begin tracking it
-					var item = await Repository.GetCompleteItem(Repository.MatchByIdExpression(id));
+					var item = await Repository.GetCompleteItem(x => x.Id.Equals(id));
 
 					if (item != null)
 					{
@@ -473,7 +395,7 @@ namespace GenericMvcUtilities.Controllers
 				else
 				{
 					//Send 400 Response
-					return BadRequest();
+					return BadRequest("Object Identifier is Null");
 				}
 			}
 			catch (Exception ex)

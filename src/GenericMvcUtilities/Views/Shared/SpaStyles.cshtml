@@ -1,0 +1,128 @@
+﻿<style>
+* {
+	box-sizing: border-box;
+}
+
+.form-group label.control-label {
+	font-size: 16px;
+	color: #333;
+}
+
+.form-group .form-group-lg .label-floating label.control-label {
+	color: #333;
+}
+
+.primarycolor {
+	background-color: #0D47A1;
+}
+
+html, body {
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+}
+
+.header-panel {
+	background-color: #0D47A1;
+	height: 70px;
+	position: relative;
+	z-index: 3;
+}
+
+.header-panel div {
+	position: relative;
+	height: 100%;
+}
+
+.header-panel h1 {
+	color: #FFF;
+	/*font-size: 20px;*/
+	/*font-weight: 400;*/
+	position: absolute;
+	bottom: 10px;
+	padding-left: 10px;
+}
+
+.menu {
+	overflow: auto;
+	padding: 0;
+}
+
+.menu, .menu * {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.menu ul.nava {
+	padding: 0;
+	margin: 7px 0;
+}
+
+.menu ul.nava li {
+	list-style: none;
+	padding: 20px 0 20px 50px;
+	font-size: 15px;
+	font-weight: normal;
+	cursor: pointer;
+}
+
+.menu ul.list-group li {
+	cursor: pointer;
+
+}
+
+.menu ul li.active {
+	background-color: #dedede;
+	position: relative;
+}
+
+.menu ul li a {
+	color: rgb(51, 51, 51);
+	text-decoration: none;
+}
+
+.pages {
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 4;
+	padding: 0;
+	overflow: auto;
+	overflow-x: hidden;
+}
+
+.pages > div {
+	padding: 0 5px;
+	padding-top: 64px;
+}
+
+.pages .header {
+	/*color: rgb(82, 101, 162);*/
+	/*font-size: 24px;*/
+	/*font-weight: normal;*/
+	/*margin-top: 5px;*/
+	/*margin-bottom: 60px;*/
+	/*letter-spacing: 1.20000004768372px;*/
+}
+
+.page {
+	-webkit-transform: translateY(1080px);
+	-webkit-transition: transform 0 linear;
+	transform: translateY(1080px);
+	transition: transform 0 linear;
+	display: none;
+	opacity: 0;
+	font-size: 16px;
+	margin-left: 1em;	}
+
+.page.active {
+	-webkit-transform: translateY(0px);
+	-webkit-transition: all 0.3s ease-out;
+	transform: translateY(0px);
+	transition: all 0.3s ease-out;
+	display: block;
+	opacity: 1;
+}
+</style>

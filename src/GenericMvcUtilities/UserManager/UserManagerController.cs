@@ -24,29 +24,27 @@ namespace GenericMvcUtilities.UserManager
 	/// <typeparam name="TKey"></typeparam>
 	/// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
 	[Authorize(Roles = RoleHelper.SystemOwner + "," + RoleHelper.UserAdmin)]
-	public class UserManagerController<TUser, TPendingUser, TKey, TRole> : Controller
+	public class UserManagerController<TUser, TPendingUser, TRole, TKey> : Controller
 		where TUser : IdentityUser<TKey>, IUserConstraints, new()
 		where TPendingUser : PendingUser<TKey>
-		where TKey : IEquatable<TKey>
 		where TRole : IdentityRole<TKey>
+		where TKey : IEquatable<TKey>
 	{
 		protected readonly UserManager<TUser> UserManager;
 
 		protected readonly RoleManager<TRole> RoleManager;
 
-		protected readonly BaseRepository<TUser> UserRepository;
+		protected readonly BaseEntityFrameworkRepository<TUser> UserRepository;
 
-		protected readonly BaseRepository<TPendingUser> PendingUserRepository;
+		protected readonly BaseEntityFrameworkRepository<TPendingUser> PendingUserRepository;
 
-		//Maybe One Day using Logger<T> instead
-		protected readonly ILogger<UserManagerController<TUser, TPendingUser, TKey, TRole>> Logger;
-
+		protected readonly ILogger<UserManagerController<TUser, TPendingUser, TRole, TKey>> Logger;
 		
 		public UserManagerController( UserManager<TUser> userManager,
 			RoleManager<TRole> roleManager,
-			BaseRepository<TUser> userRepository,
-			BaseRepository<TPendingUser> pendingUserRepository,
-			ILogger<UserManagerController<TUser, TPendingUser, TKey, TRole>> logger)
+			BaseEntityFrameworkRepository<TUser> userRepository,
+			BaseEntityFrameworkRepository<TPendingUser> pendingUserRepository,
+			ILogger<UserManagerController<TUser, TPendingUser,TRole, TKey>> logger)
 		{
 			try
 			{

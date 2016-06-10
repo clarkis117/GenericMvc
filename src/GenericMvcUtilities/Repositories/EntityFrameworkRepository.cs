@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Reactive;
 
 //ToDo: Add Eager Loading to this and IBaseRepository
 //Todo: reconcile this with changes in RC2
@@ -15,7 +16,7 @@ namespace GenericMvcUtilities.Repositories
 	/// Base Repository for accessing the Entity Framework Context
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public class BaseRepository<T> : IBaseRepository<T>, IDisposable
+	public class BaseEntityFrameworkRepository<T> : IEntityFrameworkRepository<T>, IDisposable
 		where T : class
 	{
 		/// <summary>
@@ -29,15 +30,15 @@ namespace GenericMvcUtilities.Repositories
 		/// <summary>
 		/// The context set, this is the Set used to access the Table this Repository corresponds to
 		/// </summary>
-		public DbSet<T> ContextSet;
+		public DbSet<T> ContextSet { get; set; }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="BaseRepository{T}"/> class.
+		/// Initializes a new instance of the <see cref="BaseEntityFrameworkRepository{T}"/> class.
 		/// </summary>
 		/// <param name="dataContext">The data context.</param>
 		/// <exception cref="System.ArgumentNullException">Null Data Context:  + DataContext.ToString()</exception>
 		/// <exception cref="System.Exception">BaseRepository Constructor Failed:  + typeof(T).ToString()</exception>
-		public BaseRepository(DbContext dataContext)
+		public BaseEntityFrameworkRepository(DbContext dataContext)
 		{
 			try
 			{
@@ -238,7 +239,7 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Get Multi Failed:  + typeof(T).ToString()</exception>
-		public virtual async Task<IEnumerable<T>> GetMulti(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public virtual async Task<ICollection<T>> GetMultiple(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
 			try
 			{

@@ -38,7 +38,15 @@ namespace GenericMvcUtilities.Controllers
 		Task<IActionResult> Delete(TKey id);
 	}
 
-	public interface ISinglePageController<T, TKey> : IBaseApiController<T, TKey>
+	public interface IBaseGraphController<T, TKey> : IBaseApiController<T, TKey>
+	where T : class
+	where TKey : IEquatable<TKey>
+	{
+		Task<IActionResult> DeleteChild([FromBody] Newtonsoft.Json.Linq.JObject child);
+	}
+
+
+	public interface ISinglePageController<T, TKey> : IBaseGraphController<T, TKey>
 		where T : class
 		where TKey : IEquatable<TKey>
 	{

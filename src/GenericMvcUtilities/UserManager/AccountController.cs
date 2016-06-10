@@ -32,9 +32,9 @@ namespace GenericMvcUtilities.UserManager
 		private readonly IEmailSender _emailSender;
 		private readonly ISmsSender _smsSender;
 
-		private readonly BaseRepository<TUser> _userRepository;
+		private readonly BaseEntityFrameworkRepository<TUser> _userRepository;
 
-		private readonly BaseRepository<TPendingUser> _pendingUserRepository;
+		private readonly BaseEntityFrameworkRepository<TPendingUser> _pendingUserRepository;
 
 		private readonly PasswordHasher<TPendingUser> _passwordHasher;
 
@@ -45,8 +45,8 @@ namespace GenericMvcUtilities.UserManager
 			SignInManager<TUser> signInManager,
 			IEmailSender emailSender,
 			ISmsSender smsSender,
-			BaseRepository<TUser> userRepository,
-			BaseRepository<TPendingUser> pendingUserRepository,
+			BaseEntityFrameworkRepository<TUser> userRepository,
+			BaseEntityFrameworkRepository<TPendingUser> pendingUserRepository,
 			PasswordHasher<TPendingUser> passwordHasher)
 		{
 			_userManager = userManager;

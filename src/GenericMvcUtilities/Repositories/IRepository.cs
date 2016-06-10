@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using GenericMvcUtilities.Models;
+using System.Linq.Expressions;
 
 namespace GenericMvcUtilities.Repositories
 {
-	public interface IBaseRepository<T> where T : class
+	public interface IRepository<T> where T : class
 	{
 		Task<bool> Exists(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
 
@@ -18,7 +19,7 @@ namespace GenericMvcUtilities.Repositories
 
 		Task<T> GetCompleteItem(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
 
-		Task<IEnumerable<T>> GetMulti(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
+		Task<ICollection<T>> GetMultiple(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
 
 		Task<bool> Insert(T entity);
 
@@ -27,6 +28,19 @@ namespace GenericMvcUtilities.Repositories
 		Task<bool> Update(T entity);
 
 		Task<bool> Delete(T entity);
+	}
+
+	//public interface IBaseRepository
+
+	public interface IEntityFrameworkRepository<T> : IRepository<T>  where T : class 
+	{
+		Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue);
+
+		Expression<Func<T, bool>> MatchByIdExpression(object id);
+
+		DbContext DataContext { get; set; }
+
+		DbSet<T> ContextSet { get; set; }
 
 		Task<int> Save();
 	}

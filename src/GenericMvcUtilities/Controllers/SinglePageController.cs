@@ -7,23 +7,43 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
+using GenericMvcUtilities.Controllers;
+using GenericMvcUtilities.ViewModels.SinglePageApp;
 
 namespace GenericMvcUtilities.Controllers
 {
-	public abstract class SinglePageController<T, TKey> : BaseApiController<T, TKey>, ISinglePageController<T, TKey>
+	public abstract class SinglePageController<T, TKey> : BaseGraphController<T, TKey>, ISinglePageController<T, TKey>
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
+		//todo add static cache field
+	   //private static 
 
-		public SinglePageController(BaseRepository<T> repository, ILogger<T> logger) : base(repository, logger)
+		public SinglePageController(BaseEntityFrameworkRepository<T> repository, ILogger<T> logger) : base(repository, logger)
 		{
 
 		}
+
+		public SinglePageGraph ViewGraph { get; set; }
+
+		public abstract SinglePageGraph getViewGraph();
 
 		/// <summary>
 		/// Construct the Single Page View Hierarchy here then return it
 		/// </summary>
 		/// <returns>the Single Page View container with associate view data</returns>
-		public abstract Task<IActionResult> Index();
+		[Route("[controller]/[action]/")]
+		public Task<IActionResult> Index()
+		{
+			return Task.Run(() => {
+
+				if (ViewGraph == null)
+				{
+					this.ViewGraph = getViewGraph();
+				}
+
+				return this.SideMenuView(ViewGraph) as IActionResult;
+			});
+		}
 	}
 }
