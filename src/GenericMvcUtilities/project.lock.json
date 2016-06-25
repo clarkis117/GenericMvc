@@ -8425,8 +8425,8 @@
     },
     "MimeDetective/1.0.0-rc2": {
       "type": "project",
-      "path": "../../Mime-Detective/MimeDetective/project.json",
-      "msbuildProject": "../../Mime-Detective/MimeDetective/MimeDetective.xproj"
+      "path": "../../../Mime-Detective/MimeDetective/project.json",
+      "msbuildProject": "../../../Mime-Detective/MimeDetective/MimeDetective.xproj"
     }
   },
   "projectFileDependencyGroups": {

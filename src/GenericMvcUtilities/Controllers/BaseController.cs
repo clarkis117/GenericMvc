@@ -111,7 +111,7 @@ namespace GenericMvcUtilities.Controllers
 					}
 					else
 					{
-						//return HttpNotFound();
+						//return NotFound();
 						return RedirectToAction(nameof(this.Index));
 					}
 				}
@@ -194,7 +194,7 @@ namespace GenericMvcUtilities.Controllers
 					}
 					else
 					{
-						//return HttpNotFound();
+						//return NotFound();
 						return RedirectToAction(nameof(this.Index));
 					}
 				}
@@ -299,7 +299,7 @@ namespace GenericMvcUtilities.Controllers
 					}
 					else
 					{
-						//return HttpNotFound();
+						//return NotFound();
 						return RedirectToAction(nameof(this.Index));
 					}
 				}
@@ -343,7 +343,7 @@ namespace GenericMvcUtilities.Controllers
 					}
 					else
 					{
-						//return HttpNotFound();
+						//return NotFound();
 						return RedirectToAction(nameof(this.Index));
 					}
 				}
