@@ -9,9 +9,10 @@ using System.Linq.Expressions;
 
 namespace GenericMvcUtilities.Repositories
 {
+	//todo resolve error handling in insert and update, to use exceptions
 	public interface IRepository<T> where T : class
 	{
-		Task<bool> Exists(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
+		Task<bool> Any(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
 
 		Task<IEnumerable<T>> GetAll();
 
@@ -19,7 +20,7 @@ namespace GenericMvcUtilities.Repositories
 
 		Task<T> GetCompleteItem(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
 
-		Task<ICollection<T>> GetMultiple(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
+		Task<IEnumerable<T>> GetMultiple(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
 
 		Task<bool> Insert(T entity);
 
@@ -29,6 +30,35 @@ namespace GenericMvcUtilities.Repositories
 
 		Task<bool> Delete(T entity);
 	}
+
+
+	public interface IRepository2<TEntity> : IEnumerable<TEntity> where TEntity : class
+	{
+		Task<bool> Any(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
+
+		Task<IEnumerable<TEntity>> GetAll();
+
+		Task<TEntity> Get(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
+
+		Task<TEntity> Get(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate, bool WithNestedData = false);
+
+		Task<ICollection<TEntity>> GetMany(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
+
+		Task<ICollection<TEntity>> GetMany(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate, bool WithNestedData = false);
+
+		Task<TEntity> Create(TEntity entity);
+
+		Task<ICollection<TEntity>> CreateRange(ICollection<TEntity> entities);
+
+		Task<TEntity> Update(TEntity entity);
+
+		Task<ICollection<TEntity>> UpdateRange(ICollection<TEntity> entities);
+
+		Task<bool> Delete(TEntity entity);
+
+		Task<bool> DeleteRange(ICollection<TEntity> entities);
+	}
+
 
 	//public interface IBaseRepository
 

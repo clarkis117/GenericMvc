@@ -24,7 +24,7 @@ namespace GenericMvcUtilities.UserManager
 	[Route("[controller]/[action]/")]
 	public class AccountController<TKey, TUser, TPendingUser> : Controller
 		where TKey : IEquatable<TKey>
-		where TUser : IdentityUser<TKey>, IUserConstraints, new()
+		where TUser : IdentityUser<TKey>, IPrivilegedUserConstraints, new()
 		where TPendingUser : PendingUser<TKey>, new()
 	{
 		private readonly UserManager<TUser> _userManager;
@@ -257,7 +257,7 @@ namespace GenericMvcUtilities.UserManager
 		[HttpPost]
 		[AllowAnonymous]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+		public async Task<IActionResult> Login(PriviledgedLoginViewModel model, string returnUrl = null)
 		{
 			EnsureDatabaseCreated(_userRepository.DataContext);
 
@@ -340,6 +340,7 @@ namespace GenericMvcUtilities.UserManager
 			return View(model);
 		}
 
+		///todo remove
 		// POST: /Account/Login
 		/// <summary>
 		/// Logins to the API.
@@ -349,7 +350,7 @@ namespace GenericMvcUtilities.UserManager
 		//[Route("[controller]/[action]")]
 		[HttpPost]
 		[AllowAnonymous]
-		public async Task<IActionResult> LoginApi([FromBody]LoginViewModel model)
+		public async Task<IActionResult> LoginApi([FromBody]PriviledgedLoginViewModel model)
 		{
 			EnsureDatabaseCreated(_userRepository.DataContext);
 
@@ -383,6 +384,7 @@ namespace GenericMvcUtilities.UserManager
 			return new StatusCodeResult(500);
 		}
 
+		//todo remove
 		[HttpGet]
 		public IActionResult LoginTest()
 		{
@@ -416,7 +418,7 @@ namespace GenericMvcUtilities.UserManager
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Error hashing pending user password</exception>
 		[NonAction]
-		private TPendingUser CreatePendingUser(RegisterViewModel model)
+		private TPendingUser CreatePendingUser(PrivilegedRegisterViewModel model)
 		{
 			var pendingUser = new TPendingUser()
 			{
@@ -460,7 +462,7 @@ namespace GenericMvcUtilities.UserManager
 		[HttpPost]
 		[AllowAnonymous]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Register(RegisterViewModel model)
+		public async Task<IActionResult> Register(PrivilegedRegisterViewModel model)
 		{
 			EnsureDatabaseCreated(_userRepository.DataContext);
 

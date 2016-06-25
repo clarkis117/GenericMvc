@@ -28,26 +28,27 @@
 	"description": "GenericMvcUtilities a group of classes for speeding Asp.Net Core development",
 	"authors": [ "Joshua Clark" ],
 
-	"dependencies": {
-		"Microsoft.NETCore.Platforms": "1.0.1-rc2-24027",
-		"NETStandard.Library": "1.5.0-rc2-24027",
-		"Microsoft.AspNetCore.Authorization": "1.0.0-rc2-final",
-		"xunit": "2.1.0",
-		"Microsoft.EntityFrameworkCore": "1.0.0-rc2-final",
-		"Microsoft.AspNetCore.Identity": "1.0.0-rc2-final",
-		"Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.0.0-rc2-final",
-		"Microsoft.AspNetCore.Mvc": "1.0.0-rc2-final",
-		"Microsoft.AspNetCore.Mvc.TagHelpers": "1.0.0-rc2-final",
-		"Microsoft.AspNetCore.Server.Kestrel": "1.0.0-rc2-final",
-		"Microsoft.AspNetCore.StaticFiles": "1.0.0-rc2-final",
-		"Microsoft.AspNetCore.Razor": "1.0.0-rc2-final",
-		"Microsoft.Extensions.Logging": "1.0.0-rc2-final",
-		"Microsoft.Extensions.Logging.Console": "1.0.0-rc2-final",
-		"Microsoft.Extensions.Logging.Debug": "1.0.0-rc2-final",
-		"Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc2-final",
-		"Microsoft.AspNetCore.TestHost": "1.0.0-rc2-final",
-		"Rx-Main": "2.3.0-beta2"
-	},
+  "dependencies": {
+    "Microsoft.NETCore.Platforms": "1.0.1-rc2-24027",
+    "NETStandard.Library": "1.5.0-rc2-24027",
+    "Microsoft.AspNetCore.Authorization": "1.0.0-rc2-final",
+    "xunit": "2.1.0",
+    "Microsoft.EntityFrameworkCore": "1.0.0-rc2-final",
+    "Microsoft.AspNetCore.Identity": "1.0.0-rc2-final",
+    "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.0.0-rc2-final",
+    "Microsoft.AspNetCore.Mvc": "1.0.0-rc2-final",
+    "Microsoft.AspNetCore.Mvc.TagHelpers": "1.0.0-rc2-final",
+    "Microsoft.AspNetCore.Server.Kestrel": "1.0.0-rc2-final",
+    "Microsoft.AspNetCore.StaticFiles": "1.0.0-rc2-final",
+    "Microsoft.AspNetCore.Razor": "1.0.0-rc2-final",
+    "Microsoft.Extensions.Logging": "1.0.0-rc2-final",
+    "Microsoft.Extensions.Logging.Console": "1.0.0-rc2-final",
+    "Microsoft.Extensions.Logging.Debug": "1.0.0-rc2-final",
+    "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc2-final",
+    "Microsoft.AspNetCore.TestHost": "1.0.0-rc2-final",
+    "Rx-Main": "2.3.0-beta2",
+    "MimeDetective": "1.0.0-rc2"
+  },
 
 
 

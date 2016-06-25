@@ -25,7 +25,7 @@ namespace GenericMvcUtilities.UserManager
 	/// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
 	[Authorize(Roles = RoleHelper.SystemOwner + "," + RoleHelper.UserAdmin)]
 	public class UserManagerController<TUser, TPendingUser, TRole, TKey> : Controller
-		where TUser : IdentityUser<TKey>, IUserConstraints, new()
+		where TUser : IdentityUser<TKey>, IPrivilegedUserConstraints, new()
 		where TPendingUser : PendingUser<TKey>
 		where TRole : IdentityRole<TKey>
 		where TKey : IEquatable<TKey>

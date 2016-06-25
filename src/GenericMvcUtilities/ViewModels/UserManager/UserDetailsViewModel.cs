@@ -61,7 +61,7 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 	/// <seealso cref="GenericMvcUtilities.ViewModels.UserManager.IUserView" />
 	public class UserDetailsViewModel<TKey, TUser, TRole> : IUserView
 		where TKey : IEquatable<TKey>
-		where TUser : IdentityUser<TKey>, Models.IUserConstraints
+		where TUser : IdentityUser<TKey>, Models.IPrivilegedUserConstraints
 		where TRole : IdentityRole<TKey>
 	{
 		public object Id { get; set; }

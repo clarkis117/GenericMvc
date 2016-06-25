@@ -73,7 +73,7 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 	/// <seealso cref="GenericMvcUtilities.ViewModels.UserManager.IUserIndexView" />
 	public class UserIndexViewModel<TKey, TUser> : IUserIndexView
 		where TKey : IEquatable<TKey>
-		where TUser : IdentityUser<TKey>, Models.IUserConstraints
+		where TUser : IdentityUser<TKey>, Models.IPrivilegedUserConstraints
 	{
 		public object Id { get; set; }
 

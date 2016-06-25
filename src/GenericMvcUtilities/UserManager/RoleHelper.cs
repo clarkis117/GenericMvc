@@ -36,7 +36,7 @@ namespace GenericMvcUtilities.UserManager
 	}
 
 	public class SystemOwnerHelper<TUser, TRole, TKey>
-		where TUser : IdentityUser<TKey>, IUserConstraints, new()
+		where TUser : IdentityUser<TKey>, IPrivilegedUserConstraints, new()
 		where TRole : IdentityRole<TKey>
 		where TKey : IEquatable<TKey>
 	{

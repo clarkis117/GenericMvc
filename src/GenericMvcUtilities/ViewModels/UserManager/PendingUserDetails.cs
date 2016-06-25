@@ -40,7 +40,7 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 	/// <seealso cref="GenericMvcUtilities.ViewModels.UserManager.IPendingUserView" />
 	public class PendingUserDetails<TKey, TPendingUser> : IPendingUserView
 		where TKey : IEquatable<TKey>
-		where TPendingUser : PendingUser<TKey>, Models.IUserConstraints
+		where TPendingUser : PendingUser<TKey>, Models.IPrivilegedUserConstraints
 	{
 		public object Id { get; set; }
 

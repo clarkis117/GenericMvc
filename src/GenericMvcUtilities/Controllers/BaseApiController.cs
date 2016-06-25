@@ -79,7 +79,7 @@ namespace GenericMvcUtilities.Controllers
 					//todo: fix this, test fix
 					foreach (var item in items)
 					{
-						var doesItExist = await this.Repository.Exists(x => x.Id.Equals(item.Id));
+						var doesItExist = await this.Repository.Any(x => x.Id.Equals(item.Id));
 						//var doesItExist = await this.Repository.ContextSet.AnyAsync(x => x.Id.Equals(item.Id));
 
 						if (!doesItExist)
@@ -135,7 +135,7 @@ namespace GenericMvcUtilities.Controllers
 			{
 				if (id != null)
 				{
-					if (await Repository.Exists(x => x.Id.Equals(id)))
+					if (await Repository.Any(x => x.Id.Equals(id)))
 					{
 						var item = await Repository.GetCompleteItem(x => x.Id.Equals(id));
 
@@ -198,7 +198,7 @@ namespace GenericMvcUtilities.Controllers
 				{
 					if (ModelState.IsValid)
 					{
-						if (!(await Repository.Exists(x => x.Id.Equals(item.Id))))
+						if (!(await Repository.Any(x => x.Id.Equals(item.Id))))
 						{
 							//Attempt to Insert Item
 							if ((await Repository.Insert(item)) != false)
@@ -314,7 +314,7 @@ namespace GenericMvcUtilities.Controllers
 					if (ModelState.IsValid)
 					{
 						//Check for item existence
-						var exists = await Repository.Exists(x => x.Id.Equals(item.Id));
+						var exists = await Repository.Any(x => x.Id.Equals(item.Id));
 
 						//If Item Exists Update it
 						if (exists == true)

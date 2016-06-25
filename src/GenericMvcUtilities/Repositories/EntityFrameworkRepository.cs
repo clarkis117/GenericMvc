@@ -140,7 +140,7 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception"></exception>
-		public virtual Task<bool> Exists(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public virtual Task<bool> Any(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
 			try
 			{
@@ -239,7 +239,7 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Get Multi Failed:  + typeof(T).ToString()</exception>
-		public virtual async Task<ICollection<T>> GetMultiple(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public virtual async Task<IEnumerable<T>> GetMultiple(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
 			try
 			{
@@ -249,7 +249,7 @@ namespace GenericMvcUtilities.Repositories
 
 					token.ThrowIfCancellationRequested();
 
-					return await ContextSet.Where<T>(predicate).ToListAsync(token);
+					return (await ContextSet.Where(predicate).ToListAsync(token)).AsEnumerable();
 				}
 				else
 				{

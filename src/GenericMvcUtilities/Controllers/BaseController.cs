@@ -180,7 +180,7 @@ namespace GenericMvcUtilities.Controllers
 				if (ModelState.IsValid && item != null)
 				{
 					//If Item Exists Update it
-					if (await Repository.Exists(Repository.MatchByIdExpression(item.Id)))
+					if (await Repository.Any(Repository.MatchByIdExpression(item.Id)))
 					{
 						if (await Repository.Update(item))
 						{
@@ -244,7 +244,7 @@ namespace GenericMvcUtilities.Controllers
 				if (ModelState.IsValid && item != null)
 				{
 					//If Item Exists Update it
-					if (await Repository.Exists(Repository.MatchByIdExpression(item.Id)))
+					if (await Repository.Any(Repository.MatchByIdExpression(item.Id)))
 					{
 						if (await Repository.Insert(item))
 						{

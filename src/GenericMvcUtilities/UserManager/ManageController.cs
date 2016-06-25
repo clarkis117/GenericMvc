@@ -18,7 +18,7 @@ namespace GenericMvcUtilities.UserManager
 	[Route("[controller]/[action]/")]
 	public class ManageController<TKey, TUser> : Controller
 		where TKey : IEquatable<TKey>
-		where TUser : IdentityUser<TKey>, IUserConstraints, new()
+		where TUser : IdentityUser<TKey>, IPrivilegedUserConstraints, new()
 	{
 		private readonly UserManager<TUser> _userManager;
 		private readonly SignInManager<TUser> _signInManager;

@@ -116,7 +116,7 @@
 				<h4 class="modal-title text-danger" id="ModalLabel">Approve User</h4>
 			</div>
 			<hr class="shadow-z-1" />
-			<div asp-validation-summary="ValidationSummary.ModelOnly" class="text-danger"></div>
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<form asp-controller="UserManager" asp-action="ApproveUser" method="post" class="form-horizontal" role="form">
 				<div class="modal-body">
 					<input hidden asp-for="Id" />
@@ -140,7 +140,7 @@
 				<h4 class="modal-title text-danger" id="ModalLabel">Deny User</h4>
 			</div>
 			<hr class="shadow-z-1" />
-			<div asp-validation-summary="ValidationSummary.ModelOnly" class="text-danger"></div>
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<form asp-controller="UserManager" asp-action="DenyUser" method="post" class="form-horizontal" role="form">
 				<div class="modal-body">
 					<input hidden asp-for="Id" />
