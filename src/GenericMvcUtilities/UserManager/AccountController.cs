@@ -314,7 +314,7 @@ namespace GenericMvcUtilities.UserManager
 
 								var stampResult = await _pendingUserRepository.Update(pendingUser);;
 
-								if (stampResult)
+								if (stampResult != null)
 								{
 									return RedirectToAction(nameof(this.ConfirmUser),
 														new { PendingUserId = pendingUser.Id, secToken = await token.GenerateToken() });
@@ -472,9 +472,9 @@ namespace GenericMvcUtilities.UserManager
 
 				//var result = await _userManager.CreateAsync(user, model.Password);
 
-				var result = await _pendingUserRepository.Insert(pendingUser);
+				var result = await _pendingUserRepository.Create(pendingUser);
 
-				if (result)
+				if (result != null)
 				{
 					// For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
 					// Send an email with this link

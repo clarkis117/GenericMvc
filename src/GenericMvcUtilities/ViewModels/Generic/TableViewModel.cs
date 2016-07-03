@@ -21,6 +21,26 @@ namespace GenericMvcUtilities.ViewModels.Generic
 			ContainerName = "Table";
 		}
 
+
+		public TableViewModel(Controller context)
+		{
+			ContainerName = "Page";
+
+			ControllerName = context.RouteData.Values["controller"].ToString();
+
+
+			Action = context.RouteData.Values["action"].ToString();
+
+			/*
+			Action = actionContext.ActionDescriptor.Name;
+
+			ControllerName = actionContext.RouteData.Values["controller"].ToString();
+			*/
+
+			NestedView = this.Action;
+		}
+
+		/*
 		public TableViewModel(ActionContext actionContext)
 		{
 			ContainerName = "Table";
@@ -31,5 +51,6 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 			NestedView = this.Action;
 		}
+		*/
 	}
 }

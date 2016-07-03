@@ -13,7 +13,7 @@ namespace GenericMvcUtilities.Controllers
 	{
 		Task<IActionResult> Register([FromBody] BaseRegisterViewModel model);
 
-		Task<IActionResult> Login([FromBody] PriviledgedLoginViewModel model);
+		Task<IActionResult> Login([FromBody] BaseLoginViewModel model);
 
 		Task<IActionResult> Logout();
 	}
@@ -28,7 +28,7 @@ namespace GenericMvcUtilities.Controllers
 	/// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
 	/// <seealso cref="GenericMvcUtilities.Controllers.IAuthApiController" />
 	[Authorize]
-	[Route("[controller]/[action]/")]
+	[Route("/api/[controller]/[action]/")]
 	public class AuthApiController<TKey, TUser> : Controller, IAuthApiController
 		where TKey : IEquatable<TKey>
 		where TUser : IdentityUser<TKey>, new()
@@ -59,7 +59,7 @@ namespace GenericMvcUtilities.Controllers
 
 		[HttpPost]
 		[AllowAnonymous]
-		public async Task<IActionResult> Login([FromBody] PriviledgedLoginViewModel model)
+		public async Task<IActionResult> Login([FromBody] BaseLoginViewModel model)
 		{
 			//EnsureDatabaseCreated(_userRepository.DataContext);
 
@@ -67,7 +67,7 @@ namespace GenericMvcUtilities.Controllers
 			{
 				// This doesn't count login failures towards account lockout
 				// To enable password failures to trigger account lockout, set lockoutOnFailure: true
-				var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+				var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
 
 				if (result.Succeeded)
 				{
@@ -111,6 +111,7 @@ namespace GenericMvcUtilities.Controllers
 
 				user.UserName = model.UserName;
 
+				
 				if (model is IdentifyingRegisterViewModel)
 				{
 					user.Email = (model as IdentifyingRegisterViewModel).Email;

@@ -1,5 +1,4 @@
-﻿using GenericMvcUtilities.Models;
-using GenericMvcUtilities.ViewModels.UserManager.Account;
+﻿using GenericMvcUtilities.ViewModels.UserManager.Account;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,11 +6,23 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Client
 {
+	public class JsonContent : StringContent
+	{
+		public const string ContentType = "application/json";
+
+		public JsonContent(string content) : base(content)
+		{
+			this.Headers.ContentType = new MediaTypeHeaderValue(ContentType);
+		}
+	}
+
+
 	public interface IAuthClient
 	{
 		IEnumerable<string> Cookies { get; set; }
@@ -19,13 +30,12 @@ namespace GenericMvcUtilities.Client
 		string AuthToken { get; set; }
 
 		//routes, path
-		string ApiPath { get; }
 
 		string RegisterRoute { get; }
 
 		string LoginRoute { get; }
 
-		string LogOffRoute { get; }
+		string LogoutRoute { get; }
 
 		//param methods
 		//todo: fix
@@ -34,6 +44,32 @@ namespace GenericMvcUtilities.Client
 		Task<string> Login(BaseLoginViewModel model);
 
 		Task<bool> Logout();
+	}
+
+	public struct RouteInfo
+	{
+		public string Api;
+
+		public string ControllerName;
+
+		public string Login;
+
+		public string Register;
+
+		public string Logout;
+
+		public RouteInfo(string controllerName = "auth", string login = "login", string register = "register", string logout = "logout")
+		{
+			ControllerName = controllerName;
+
+			Login = login;
+
+			Register = register;
+
+			Logout = logout;
+
+			Api = "/api/";
+		}
 	}
 
 	/// <summary>
@@ -45,35 +81,38 @@ namespace GenericMvcUtilities.Client
 	{
 		private readonly HttpClient _client;
 
+		public readonly string MimeType = "application/json";
+
 		private readonly JsonSerializer _serailizer;
 
-		//private readonly JsonTextWriter _jsonTextWriter;
+		private readonly RouteInfo _info;
 
-		private readonly BaseLoginViewModel _loginInfo;
+		private BaseLoginViewModel _loginInfo;
 
 		private readonly bool _cacheLoginInfo;
 
-		public BaseLoginViewModel LoginInfo { get { return _loginInfo; }}
 
 		public IEnumerable<string> Cookies { get; set; }
 
 		public string AuthToken { get; set; }
 
-		public string ApiPath => "/account/";
+		public string RegisterRoute => _info.Api + _info.ControllerName + "/" + _info.Register;
 
-		public string RegisterRoute => ApiPath + "register";
+		public string LoginRoute => _info.Api + _info.ControllerName + "/" + _info.Login;
 
-		public string LoginRoute => ApiPath + "login";
+		public string LogoutRoute => _info.Api + _info.ControllerName + "/" + _info.Logout;
 
-		public string LogOffRoute => ApiPath + "logout";
-
-		public AuthClient(HttpClient client, bool cacheLoginInfo = false)
+		public AuthClient(RouteInfo routeInfo, HttpClient client, bool cacheLoginInfo = true)
 		{
 			if (client != null)
 			{
 				_client = client;
 
+				_info = routeInfo;
+
 				_serailizer = JsonSerializer.Create();
+
+				this._client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 			}
 			else
 			{
@@ -165,26 +204,36 @@ namespace GenericMvcUtilities.Client
 			}
 		}
 
-
 		public async Task<string> Login(BaseLoginViewModel model)
 		{
 			if (model != null)
 			{
+				_loginInfo = model;
+
 				//Create the cookie container our client
 				var cookieJar = new CookieContainer();
 
 				//Post Password and stuff to Rest Server, Response should contain the password token cookie
 				using (HttpResponseMessage response = await this._client.PostAsync(this.LoginRoute,
-													new StringContent(JsonConvert.SerializeObject(model))))
+													new JsonContent(JsonConvert.SerializeObject(model))))
 				{
-					//Grab the cookies
-					var cookies = response.Headers.GetValues("Set-Cookie"); //First(x => x.StartsWith(".AspNetCore.Microsoft.Identity.Application"));
+					if (response.IsSuccessStatusCode)
+					{
+						//Grab the cookies
+						var cookies = response.Headers.GetValues("Set-Cookie"); //First(x => x.StartsWith(".AspNetCore.Microsoft.Identity.Application"));
 
-					var processedCookie = ProcessCookies(CleanCookies(cookies));
+						var processedCookie = ProcessCookies(CleanCookies(cookies));
 
-					this.AuthToken = processedCookie;
+						//cache cookie
+						this.AuthToken = processedCookie;
 
-					return processedCookie;
+						//return ref to cookie
+						return processedCookie;
+					}
+					else
+					{
+						return null;
+					}
 				}
 			}
 			else
@@ -204,7 +253,7 @@ namespace GenericMvcUtilities.Client
 			if (registrationInfo != null)
 			{
 				using (HttpResponseMessage response = await this._client.PostAsync(this.RegisterRoute,
-													new StringContent(JsonConvert.SerializeObject(registrationInfo))))
+													new JsonContent(JsonConvert.SerializeObject(registrationInfo))))
 				{
 					if (response.IsSuccessStatusCode)
 					{
@@ -233,7 +282,8 @@ namespace GenericMvcUtilities.Client
 		{
 			try
 			{
-				using (HttpResponseMessage response = await this._client.PostAsync(this.LogOffRoute, new StringContent("Log me out")))
+				using (HttpResponseMessage response = await this._client.PostAsync(this.LogoutRoute,
+					new JsonContent("Log me out")))
 				{
 					if (response.IsSuccessStatusCode)
 					{
@@ -252,6 +302,7 @@ namespace GenericMvcUtilities.Client
 		}
 
 		#region IDisposable Support
+
 		private bool disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
@@ -285,6 +336,7 @@ namespace GenericMvcUtilities.Client
 			// TODO: uncomment the following line if the finalizer is overridden above.
 			// GC.SuppressFinalize(this);
 		}
-		#endregion
+
+		#endregion IDisposable Support
 	}
 }

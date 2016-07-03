@@ -98,7 +98,7 @@ namespace GenericMvcUtilities.Controllers
 			{
 				if (id != null)
 				{
-					var item = await Repository.GetCompleteItem(Repository.MatchByIdExpression(id));
+					var item = await Repository.Get(Repository.MatchByIdExpression(id));
 
 					if (item != null)
 					{
@@ -182,7 +182,9 @@ namespace GenericMvcUtilities.Controllers
 					//If Item Exists Update it
 					if (await Repository.Any(Repository.MatchByIdExpression(item.Id)))
 					{
-						if (await Repository.Update(item))
+						var updatedItem = await Repository.Update(item);
+
+						if (updatedItem != null)
 						{
 							return RedirectToAction(nameof(this.Index));
 						}
@@ -246,7 +248,9 @@ namespace GenericMvcUtilities.Controllers
 					//If Item Exists Update it
 					if (await Repository.Any(Repository.MatchByIdExpression(item.Id)))
 					{
-						if (await Repository.Insert(item))
+						var createdItem = await Repository.Create(item);
+
+						if (createdItem != null)
 						{
 							return RedirectToAction(nameof(this.Index));
 						}
@@ -286,7 +290,7 @@ namespace GenericMvcUtilities.Controllers
 			{
 				if (id != null)
 				{
-					var item = await Repository.GetCompleteItem(Repository.MatchByIdExpression(id));
+					var item = await Repository.Get(Repository.MatchByIdExpression(id));
 
 					if (item != null)
 					{

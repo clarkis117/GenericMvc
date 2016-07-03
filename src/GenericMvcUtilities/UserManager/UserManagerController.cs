@@ -614,7 +614,7 @@ namespace GenericMvcUtilities.UserManager
 
 						var result = await PendingUserRepository.Update(pendingUser);
 
-						if (result)
+						if (result != null)
 						{
 							//todo: change status message, to user request approved
 							return RedirectToAction(nameof(this.PendingUserIndex),

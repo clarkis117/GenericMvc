@@ -10,29 +10,8 @@ using System.Linq.Expressions;
 namespace GenericMvcUtilities.Repositories
 {
 	//todo resolve error handling in insert and update, to use exceptions
-	public interface IRepository<T> where T : class
-	{
-		Task<bool> Any(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
-
-		Task<IEnumerable<T>> GetAll();
-
-		Task<T> Get(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
-
-		Task<T> GetCompleteItem(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
-
-		Task<IEnumerable<T>> GetMultiple(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
-
-		Task<bool> Insert(T entity);
-
-		Task<bool> Inserts(ICollection<T> entities);
-
-		Task<bool> Update(T entity);
-
-		Task<bool> Delete(T entity);
-	}
-
-
-	public interface IRepository2<TEntity> : IEnumerable<TEntity> where TEntity : class
+	/*
+	public interface IRepository<TEntity> where TEntity : class
 	{
 		Task<bool> Any(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
 
@@ -40,23 +19,48 @@ namespace GenericMvcUtilities.Repositories
 
 		Task<TEntity> Get(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
 
+		Task<TEntity> Get(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate, bool WithNestedDate = false);
+
+		Task<IEnumerable<TEntity>> GetMany(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
+
+		Task<bool> Create(TEntity entity);
+
+		Task<bool> Creates(ICollection<TEntity> entities);
+
+		Task<bool> Update(TEntity entity);
+
+		Task<bool> Delete(TEntity entity);
+	}
+	*/
+
+	public interface IRepository<TEntity> : IEnumerable<TEntity> where TEntity : class
+	{
+		Task<bool> Any(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
+
+		//enumerable because entire store is not loaded
+		Task<IEnumerable<TEntity>> GetAll();
+
+		Task<TEntity> Get(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
+
 		Task<TEntity> Get(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate, bool WithNestedData = false);
 
-		Task<ICollection<TEntity>> GetMany(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
+		//list because loaded into memory
+		Task<IList<TEntity>> GetMany(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
 
-		Task<ICollection<TEntity>> GetMany(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate, bool WithNestedData = false);
+		//list because loaded into memory
+		Task<IList<TEntity>> GetMany(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate, bool WithNestedData = false);
 
 		Task<TEntity> Create(TEntity entity);
 
-		Task<ICollection<TEntity>> CreateRange(ICollection<TEntity> entities);
+		Task<IEnumerable<TEntity>> CreateRange(IEnumerable<TEntity> entities);
 
 		Task<TEntity> Update(TEntity entity);
 
-		Task<ICollection<TEntity>> UpdateRange(ICollection<TEntity> entities);
+		Task<IEnumerable<TEntity>> UpdateRange(IEnumerable<TEntity> entities);
 
 		Task<bool> Delete(TEntity entity);
 
-		Task<bool> DeleteRange(ICollection<TEntity> entities);
+		Task<bool> DeleteRange(IEnumerable<TEntity> entities);
 	}
 
 

@@ -13,7 +13,7 @@ namespace GenericMvcUtilities.Repositories
 	/// <summary>
 	/// currently does not allow modifications to folder structure
 	/// </summary>
-	public class FileRepository : IRepository2<File>
+	public class FileRepository : IRepository<File>
 	{
 		private readonly string RootFolder;
 
@@ -363,14 +363,14 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public async Task<ICollection<File>> GetMany(Expression<Func<File, bool>> predicate)
+		public async Task<IList<File>> GetMany(Expression<Func<File, bool>> predicate)
 		{
 			var IsMatch = this.checkAndCompilePredicate(predicate);
 
 			return await GetFilesObservable(IsMatch).ToList();
 		}
 
-		public async Task<ICollection<File>> GetMany(Expression<Func<File, bool>> predicate, bool WithNestedData = false)
+		public async Task<IList<File>> GetMany(Expression<Func<File, bool>> predicate, bool WithNestedData = false)
 		{
 			var IsMatch = checkAndCompilePredicate(predicate);
 
@@ -410,8 +410,9 @@ namespace GenericMvcUtilities.Repositories
 		/// File Should have already been Initialized and should have data
 		/// Containing folder should match folder repository is attached to or subdirectories
 		/// </summary>
-		/// <param name="entity"></param>
+		/// <param name="entity">The entity.</param>
 		/// <returns></returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
 
 		public async Task<File> Create(File entity)
 		{
@@ -444,9 +445,11 @@ namespace GenericMvcUtilities.Repositories
 		/// Files Should have already been Initialized and should have data
 		/// ContainingFolders should match folder repository is attached to or subdirectories
 		/// </summary>
-		/// <param name="entities"></param>
+		/// <param name="entities">The entities.</param>
 		/// <returns></returns>
-		public async Task<ICollection<File>> CreateRange(ICollection<File> entities)
+		/// <exception cref="AggregateException"></exception>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		public async Task<IEnumerable<File>> CreateRange(IEnumerable<File> entities)
 		{
 			if (entities != null)
 			{
@@ -458,10 +461,12 @@ namespace GenericMvcUtilities.Repositories
 					{
 						var result = await Create(entity);
 
+						/*
 						if (result == null)
 						{
 							entities.Remove(entity);
 						}
+						*/
 					}
 					catch (Exception e)
 					{
@@ -470,7 +475,7 @@ namespace GenericMvcUtilities.Repositories
 							exceptionLazyList.Value.Add(e);
 						}
 
-						entities.Remove(entity);
+						//entities.Remove(entity);
 					}
 
 				}
@@ -515,7 +520,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public async Task<ICollection<File>> UpdateRange(ICollection<File> entities)
+		public async Task<IEnumerable<File>> UpdateRange(IEnumerable<File> entities)
 		{
 			if (entities != null)
 			{
@@ -527,10 +532,12 @@ namespace GenericMvcUtilities.Repositories
 					{
 						var result = await Update(entity);
 
+						/*
 						if (result == null)
 						{
 							entities.Remove(entity);
 						}
+						*/
 					}
 					catch (Exception e)
 					{
@@ -539,7 +546,7 @@ namespace GenericMvcUtilities.Repositories
 							exceptionLazyList.Value.Add(e);
 						}
 
-						entities.Remove(entity);
+						//entities.Remove(entity);
 					}
 
 				}
@@ -583,7 +590,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public async Task<bool> DeleteRange(ICollection<File> entities)
+		public async Task<bool> DeleteRange(IEnumerable<File> entities)
 		{
 			var entityCount = entities.Count();
 
@@ -597,10 +604,12 @@ namespace GenericMvcUtilities.Repositories
 					{
 						var result = await Delete(entity);
 
+						/*
 						if (result == false)
 						{
 							entities.Remove(entity);
 						}
+						*/
 					}
 					catch (Exception e)
 					{
@@ -609,7 +618,9 @@ namespace GenericMvcUtilities.Repositories
 							exceptionLazyList.Value.Add(e);
 						}
 
+						/*
 						entities.Remove(entity);
+						*/
 					}
 
 				}

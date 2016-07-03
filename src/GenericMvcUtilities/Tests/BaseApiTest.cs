@@ -71,7 +71,7 @@ namespace GenericMvcUtilities.Tests
 				this.Converters = converters;
 
 				//get the client
-				this._client = new ApiClient<T, TKey>(fixture.TestServer.CreateClient(), fixture.AuthCookie, converters);
+				this._client = new ApiClient<T, TKey>(fixture.Client, fixture.AuthCookie, converters);
 
 				//setup serialized test data
 				this.SerializedTestData = this.GetTestData(this.TestDataPath).Result;

@@ -11,9 +11,7 @@ namespace GenericMvcUtilities.Tests
 {
 	public interface ITestFixture
 	{
-		TestServer TestServer { get; }
-
-		HttpClient TestClient { get; }
+		HttpClient Client { get; }
 
 		AuthClient AuthClient { get; }
 

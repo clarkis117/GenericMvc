@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Reactive;
 
 //ToDo: Add Eager Loading to this and IBaseRepository
 //Todo: reconcile this with changes in RC2
@@ -44,6 +44,9 @@ namespace GenericMvcUtilities.Repositories
 			{
 				if (dataContext != null)
 				{
+					//todo add check for entity based on one in graph controller
+
+					//dataContext.Model.GetEntityTypes().
 					/*
 					if(IsTypePresentInDataContext(ApplicationDbContext.TypeList))
 					{
@@ -142,9 +145,9 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception"></exception>
 		public virtual Task<bool> Any(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
-			try
+			if (predicate != null)
 			{
-				if (predicate != null)
+				try
 				{
 					var token = new CancellationToken();
 
@@ -152,14 +155,14 @@ namespace GenericMvcUtilities.Repositories
 
 					return this.ContextSet.AnyAsync(predicate, token);
 				}
-				else
+				catch (Exception ex)
 				{
-					throw new ArgumentNullException(nameof(predicate));
+					throw new Exception("Exists Failed: " + typeof(T).Name, ex);
 				}
 			}
-			catch (Exception ex)
+			else
 			{
-				throw new Exception("Exists Failed: " + typeof(T).Name, ex);
+				throw new ArgumentNullException(nameof(predicate));
 			}
 		}
 
@@ -169,7 +172,7 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception"></exception>
-		public virtual bool ExistsSync(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public virtual bool AnySync(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
 			try
 			{
@@ -179,6 +182,16 @@ namespace GenericMvcUtilities.Repositories
 			{
 				throw new Exception("Exists Sync Failed: " + typeof(T).Name, ex);
 			}
+		}
+
+		public IEnumerator<T> GetEnumerator()
+		{
+			return ContextSet.AsEnumerable().GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return ContextSet.AsEnumerable().GetEnumerator();
 		}
 
 		/// <summary>
@@ -202,6 +215,25 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
+		/*
+		protected virtual Task<T> GetCompleteItem(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		{
+			if (predicate != null)
+			{
+				throw new NotImplementedException();
+			}
+			else
+			{
+				throw new ArgumentNullException(nameof(predicate));
+			}
+		}
+		*/
+
+		protected virtual IQueryable<T> GetIncludeQuery()
+		{
+			return this.ContextSet;
+		}
+
 		/// <summary>
 		/// Gets the specified entity using the predicate.
 		/// </summary>
@@ -210,9 +242,9 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception">Get Failed:  + typeof(T).ToString()</exception>
 		public virtual Task<T> Get(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
-			try
+			if (predicate != null)
 			{
-				if (predicate != null)
+				try
 				{
 					System.Threading.CancellationToken token = new System.Threading.CancellationToken();
 
@@ -221,14 +253,51 @@ namespace GenericMvcUtilities.Repositories
 
 					return ContextSet.FirstOrDefaultAsync<T>(predicate, token);
 				}
-				else
+				catch (Exception ex)
 				{
-					throw new ArgumentNullException(nameof(predicate));
+					throw new Exception("Get Failed: " + typeof(T).Name, ex);
 				}
 			}
-			catch (Exception ex)
+			else
 			{
-				throw new Exception("Get Failed: " + typeof(T).Name, ex);
+				throw new ArgumentNullException(nameof(predicate));
+			}
+		}
+
+		/// <summary>
+		/// Gets the complete entity, this is meant to provide an interface for retrieving entities with multiple complex relationships/
+		/// </summary>
+		/// <param name="predicate">The predicate.</param>
+		/// <returns></returns>
+		/// <exception cref="System.Exception">Get Failed:  + typeof(T).ToString()</exception>
+		public virtual Task<T> Get(System.Linq.Expressions.Expression<Func<T, bool>> predicate, bool WithNestedData = false)
+		{
+			if (predicate != null)
+			{
+				if (WithNestedData)
+				{
+					try
+					{
+						System.Threading.CancellationToken token = new System.Threading.CancellationToken();
+
+						//Throw if query is Canceled
+						token.ThrowIfCancellationRequested();
+
+						return GetIncludeQuery().FirstOrDefaultAsync(predicate, token);
+					}
+					catch (Exception e)
+					{
+						throw new Exception("Get with Nested Data Failed", e);
+					}
+				}
+				else
+				{
+					return Get(predicate);
+				}
+			}
+			else
+			{
+				throw new ArgumentNullException(nameof(predicate));
 			}
 		}
 
@@ -239,56 +308,52 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Get Multi Failed:  + typeof(T).ToString()</exception>
-		public virtual async Task<IEnumerable<T>> GetMultiple(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public virtual Task<IList<T>> GetMany(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
-			try
+			if (predicate != null)
 			{
-				if (predicate != null)
+				try
 				{
 					CancellationToken token = new CancellationToken();
 
 					token.ThrowIfCancellationRequested();
 
-					return (await ContextSet.Where(predicate).ToListAsync(token)).AsEnumerable();
+					return ContextSet.Where(predicate).ToListAsync(token) as Task<IList<T>>;
 				}
-				else
+				catch (Exception ex)
 				{
-					throw new ArgumentNullException(nameof(predicate));
+					throw new Exception("Get Multi Failed: " + typeof(T).Name, ex);
 				}
 			}
-			catch (Exception ex)
+			else
 			{
-				throw new Exception("Get Multi Failed: " + typeof(T).Name, ex);
+				throw new ArgumentNullException(nameof(predicate));
 			}
 		}
 
-		/// <summary>
-		/// Gets the complete entity, this is meant to provide an interface for retrieving entities with multiple complex relationships/
-		/// </summary>
-		/// <param name="predicate">The predicate.</param>
-		/// <returns></returns>
-		/// <exception cref="System.Exception">Get Failed:  + typeof(T).ToString()</exception>
-		public virtual Task<T> GetCompleteItem(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public Task<IList<T>> GetMany(Expression<Func<T, bool>> predicate, bool WithNestedData = false)
 		{
-			try
+			if (predicate != null)
 			{
-				if (predicate != null)
+				if (WithNestedData)
 				{
-					System.Threading.CancellationToken token = new System.Threading.CancellationToken();
-
-					//Throw if query is canceled
-					token.ThrowIfCancellationRequested();
-
-					return ContextSet.FirstOrDefaultAsync<T>(predicate, token);
+					try
+					{
+						return GetIncludeQuery().Where(predicate).ToListAsync() as Task<IList<T>>;
+					}
+					catch (Exception e)
+					{
+						throw new Exception("Get Many with Nested Data Failed", e);
+					}
 				}
 				else
 				{
-					throw new ArgumentNullException(nameof(predicate));
+					return GetMany(predicate);
 				}
 			}
-			catch (Exception ex)
+			else
 			{
-				throw new Exception("Get Failed: " + typeof(T).Name, ex);
+				throw new ArgumentNullException(nameof(predicate));
 			}
 		}
 
@@ -298,31 +363,33 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="entity">The entity.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Insert Failed:  + typeof(T).ToString()</exception>
-		public virtual async Task<bool> Insert(T entity)
+		public virtual async Task<T> Create(T entity)
 		{
-			try
+			if (entity != null)
 			{
-				if (entity != null)
+				try
 				{
-					ContextSet.Add(entity);
+					var addedEntity = ContextSet.Add(entity);
 
 					if (await this.DataContext.SaveChangesAsync() > 0)
 					{
-						return true;
+						//return true;
+						return addedEntity.Entity;
 					}
 					else
 					{
-						return false;
+						//return false;
+						throw new Exception("Adding item to Database Failed");
 					}
 				}
-				else
+				catch (Exception ex)
 				{
-					return false;
+					throw new Exception("Insert Failed: " + typeof(T).Name, ex);
 				}
 			}
-			catch (Exception ex)
+			else
 			{
-				throw new Exception("Insert Failed: " + typeof(T).Name, ex);
+				throw new ArgumentNullException(nameof(entity));
 			}
 		}
 
@@ -332,31 +399,32 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="entities">The entities.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Inserts Failed:  + typeof(T).ToString()</exception>
-		public virtual async Task<bool> Inserts(ICollection<T> entities)
+		public virtual async Task<IEnumerable<T>> CreateRange(IEnumerable<T> entities)
 		{
-			try
+			if (entities != null)
 			{
-				if (entities != null && entities.Count > 0)
+				try
 				{
 					ContextSet.AddRange(entities);
 
 					if (await this.DataContext.SaveChangesAsync() > 0)
 					{
-						return true;
+						return entities;
 					}
 					else
 					{
-						return false;
+						//return false;
+						throw new Exception("Adding items to Database failed");
 					}
 				}
-				else
+				catch (Exception ex)
 				{
-					return false;
+					throw new Exception("Inserts Failed: " + typeof(T).Name, ex);
 				}
 			}
-			catch (Exception ex)
+			else
 			{
-				throw new Exception("Inserts Failed: " + typeof(T).Name, ex);
+				throw new ArgumentNullException(nameof(entities));
 			}
 		}
 
@@ -367,38 +435,71 @@ namespace GenericMvcUtilities.Repositories
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentNullException">Null Entity Argument</exception>
 		/// <exception cref="System.Exception">Update Failed: + typeof(T).ToString()</exception>
-		public virtual async Task<bool> Update(T entity)
+		public virtual async Task<T> Update(T entity)
 		{
-			try
+			if (entity != null)
 			{
-				if (entity != null)
+				try
 				{
+					//todo is this needed
+					/*
 					if (this.DataContext.Entry(entity).State == EntityState.Detached)
 					{
 						ContextSet.Attach(entity);
 					}
+					*/
 
-					ContextSet.Update(entity);
+					var updatedEntity = ContextSet.Update(entity);
 
 					//dataContext.Entry(entity).State = EntityState.Modified;
 
 					if (await this.DataContext.SaveChangesAsync() > 0)
 					{
-						return true;
+						return updatedEntity.Entity;
 					}
 					else
 					{
-						return false;
+						//return false;
+						throw new Exception("Updating item Failed");
 					}
 				}
-				else
+				catch (Exception ex)
 				{
-					throw new ArgumentNullException(nameof(entity));
+					throw new Exception("Update Failed: " + typeof(T).Name, ex);
 				}
 			}
-			catch (Exception ex)
+			else
 			{
-				throw new Exception("Update Failed:" + typeof(T).Name, ex);
+				throw new ArgumentNullException(nameof(entity));
+			}
+		}
+
+		public virtual async Task<IEnumerable<T>> UpdateRange(IEnumerable<T> entities)
+		{
+			if (entities != null)
+			{
+				try
+				{
+					ContextSet.UpdateRange(entities);
+
+					if (await this.DataContext.SaveChangesAsync() > 0)
+					{
+						return entities;
+					}
+					else
+					{
+						//return false;
+						throw new Exception("Updating item Failed");
+					}
+				}
+				catch (Exception e)
+				{
+					throw new Exception("Updating Range of Items Failed", e);
+				}
+			}
+			else
+			{
+				throw new ArgumentNullException(nameof(entities));
 			}
 		}
 
@@ -410,18 +511,21 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception">Delete Failed:  + typeof(T).ToString()</exception>
 		public virtual async Task<bool> Delete(T entity)
 		{
-			try
+			if (entity != null)
 			{
-				if (entity != null)
+				try
 				{
+					//todo is this needed
+					/*
 					if (this.DataContext.Entry(entity).State == EntityState.Detached)
 					{
 						this.ContextSet.Attach(entity);
 					}
+					*/
 
-					this.ContextSet.Remove(entity);
+					ContextSet.Remove(entity);
 
-					if (await this.DataContext.SaveChangesAsync() > 0)
+					if (await DataContext.SaveChangesAsync() > 0)
 					{
 						return true;
 					}
@@ -430,14 +534,50 @@ namespace GenericMvcUtilities.Repositories
 						return false;
 					}
 				}
-				else
+				catch (Exception ex)
 				{
-					throw new ArgumentNullException(nameof(entity));
+					throw new Exception("Delete Failed: " + typeof(T).Name, ex);
 				}
 			}
-			catch (Exception ex)
+			else
 			{
-				throw new Exception("Delete Failed: " + typeof(T).Name, ex);
+				throw new ArgumentNullException(nameof(entity));
+			}
+		}
+
+		public virtual async Task<bool> DeleteRange(IEnumerable<T> entities)
+		{
+			if (entities != null)
+			{
+				try
+				{
+					//todo is this needed
+					/*
+					if (this.DataContext.Entry(entity).State == EntityState.Detached)
+					{
+						this.ContextSet.Attach(entity);
+					}
+					*/
+
+					ContextSet.RemoveRange(entities);
+
+					if (await DataContext.SaveChangesAsync() > 0)
+					{
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				catch (Exception ex)
+				{
+					throw new Exception("Delete Failed: " + typeof(T).Name, ex);
+				}
+			}
+			else
+			{
+				throw new ArgumentNullException(nameof(entities));
 			}
 		}
 
@@ -446,11 +586,11 @@ namespace GenericMvcUtilities.Repositories
 		/// </summary>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Save Failed: +ex.Message</exception>
-		public async Task<int> Save()
+		public Task<int> Save()
 		{
 			try
 			{
-				return await this.DataContext.SaveChangesAsync();
+				return this.DataContext.SaveChangesAsync();
 			}
 			catch (Exception ex)
 			{

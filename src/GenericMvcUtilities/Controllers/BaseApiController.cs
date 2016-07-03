@@ -21,7 +21,7 @@ namespace GenericMvcUtilities.Controllers
 		//Maybe One Day using Logger<T> instead
 		protected readonly ILogger<T> Logger;
 
-		public BaseApiController(BaseEntityFrameworkRepository<T> repository, ILogger<T> logger)
+		public BaseApiController(IRepository<T> repository, ILogger<T> logger)
 		{
 			try
 			{
@@ -137,7 +137,7 @@ namespace GenericMvcUtilities.Controllers
 				{
 					if (await Repository.Any(x => x.Id.Equals(id)))
 					{
-						var item = await Repository.GetCompleteItem(x => x.Id.Equals(id));
+						var item = await Repository.Get(x => x.Id.Equals(id), WithNestedData: true);
 
 						if (item != null)
 						{
@@ -201,7 +201,9 @@ namespace GenericMvcUtilities.Controllers
 						if (!(await Repository.Any(x => x.Id.Equals(item.Id))))
 						{
 							//Attempt to Insert Item
-							if ((await Repository.Insert(item)) != false)
+							var createdItem = await Repository.Create(item);
+
+							if (createdItem != null)
 							{
 								//Send 201 Response
 								return CreatedAtAction("create", item);
@@ -267,11 +269,11 @@ namespace GenericMvcUtilities.Controllers
 
 						if (differental != null && differental.Count > 0)
 						{
-							await Repository.Inserts(differental);
+							var createdRange = await Repository.CreateRange(differental);
 
 							//Repository.Save().Wait();
 							//Send 201 Response
-							return CreatedAtAction("creates", differental);
+							return CreatedAtAction("creates", createdRange);
 						}
 						else
 						{
@@ -319,10 +321,12 @@ namespace GenericMvcUtilities.Controllers
 						//If Item Exists Update it
 						if (exists == true)
 						{
-							if ((await Repository.Update((item)) != false))
+							var updatedItem = await Repository.Update(item);
+
+							if (updatedItem != null)
 							{
 								//Send 201 Response if success full
-								return new JsonResult(item);
+								return new JsonResult(updatedItem);
 							}
 							else
 							{
@@ -369,7 +373,7 @@ namespace GenericMvcUtilities.Controllers
 				if (id != null)
 				{
 					//Get Item, this causes EF to begin tracking it
-					var item = await Repository.GetCompleteItem(x => x.Id.Equals(id));
+					var item = await Repository.Get(x => x.Id.Equals(id));
 
 					if (item != null)
 					{
