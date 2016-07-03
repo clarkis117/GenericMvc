@@ -50,8 +50,6 @@
     "Microsoft.Extensions.FileProviders.Embedded": "1.0.0"
   },
 
-
-
   "frameworks": {
     "netstandard1.6": {
       "imports": [
