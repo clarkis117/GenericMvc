@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using GenericMvcUtilities.Models;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace GenericMvcUtilities.Repositories
 {
@@ -66,15 +67,19 @@ namespace GenericMvcUtilities.Repositories
 
 	//public interface IBaseRepository
 
-	public interface IEntityFrameworkRepository<T> : IRepository<T>  where T : class 
+	public interface IEntityFrameworkRepository<T> : IRepository<T> where T : class
 	{
 		Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue);
 
 		Expression<Func<T, bool>> MatchByIdExpression(object id);
 
-		DbContext DataContext { get; set; }
+		DbContext DataContext { get; }
 
-		DbSet<T> ContextSet { get; set; }
+		IEnumerable<IEntityType> EntityTypes { get; }
+
+		DbSet<T> ContextSet { get; }
+
+		Task<bool> DeleteChild(object child);
 
 		Task<int> Save();
 	}

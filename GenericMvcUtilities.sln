@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{76C8C261-C3E5-4708-A352-41C0510CB3A0}"
 EndProject
@@ -14,9 +14,11 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvcUtilities", "src\
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MimeDetective", "Mime-Detective\MimeDetective\MimeDetective.xproj", "{970E6686-CD6B-4B58-BC13-F6A9A5F7D2DB}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvcUtilitiesTests", "src\GenericMvcUtilitiesTests\GenericMvcUtilitiesTests.xproj", "{362A372D-56C5-4F97-8681-9C9FF40CE30A}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvcUtilities.Tests", "src\GenericMvcUtilitiesTests\GenericMvcUtilities.Tests.xproj", "{362A372D-56C5-4F97-8681-9C9FF40CE30A}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MimeDetectiveTests", "Mime-Detective\MimeDetectiveTests\MimeDetectiveTests.xproj", "{CB3A9BEA-C247-4FEB-8670-98E3034FC214}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvcUtilities.Test.Lib", "src\GenericMvcUtilities.Test.Lib\GenericMvcUtilities.Test.Lib.xproj", "{9074F401-5C1C-47E7-B209-878F57FC8928}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +42,10 @@ Global
 		{CB3A9BEA-C247-4FEB-8670-98E3034FC214}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB3A9BEA-C247-4FEB-8670-98E3034FC214}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB3A9BEA-C247-4FEB-8670-98E3034FC214}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9074F401-5C1C-47E7-B209-878F57FC8928}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9074F401-5C1C-47E7-B209-878F57FC8928}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9074F401-5C1C-47E7-B209-878F57FC8928}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9074F401-5C1C-47E7-B209-878F57FC8928}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,5 +55,6 @@ Global
 		{970E6686-CD6B-4B58-BC13-F6A9A5F7D2DB} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
 		{362A372D-56C5-4F97-8681-9C9FF40CE30A} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
 		{CB3A9BEA-C247-4FEB-8670-98E3034FC214} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
+		{9074F401-5C1C-47E7-B209-878F57FC8928} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
 	EndGlobalSection
 EndGlobal

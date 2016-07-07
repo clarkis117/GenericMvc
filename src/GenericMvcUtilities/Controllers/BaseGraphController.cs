@@ -16,12 +16,10 @@ namespace GenericMvcUtilities.Controllers
 	{
 		protected new BaseEntityFrameworkRepository<T> Repository;
 
-		public BaseGraphController(BaseEntityFrameworkRepository<T> repository, ILogger<T> logger) : base(repository, logger)
+		public BaseGraphController(IEntityFrameworkRepository<T> repository, ILogger<T> logger) : base(repository, logger)
 		{
 			Repository = base.Repository as BaseEntityFrameworkRepository<T>;
 		}
-
-		private static IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IEntityType> EntityTypes;
 
 		//todo more design work
 		//todo: finish
@@ -36,15 +34,9 @@ namespace GenericMvcUtilities.Controllers
 				{
 					if (ModelState.IsValid)
 					{
-						//first make sure type isn't the root of the object graph, in this case type T
-						if (EntityTypes == null)
-						{
-							EntityTypes = Repository.DataContext.Model.GetEntityTypes();
-						}
-
 						object dbObj = null;
 
-						foreach (var type in EntityTypes)
+						foreach (var type in Repository.EntityTypes)
 						{
 							//EntityTypes.Any(x => x.ClrType.FullName == child["$type"].ToString())
 							if (type.ClrType.FullName == child["$type"].ToString())
@@ -54,38 +46,15 @@ namespace GenericMvcUtilities.Controllers
 							}
 						}
 
-						//EntityTypes.Any(x => x.ClrType == child.GetType())
-						if (dbObj != null)
+						if (await Repository.DeleteChild(dbObj))
 						{
-							if (Repository.DataContext.Entry(dbObj).State == EntityState.Detached)
-							{
-								Repository.DataContext.Attach(dbObj);
-							}
-
-							Repository.DataContext.Remove(dbObj);
-
-							if (await Repository.DataContext.SaveChangesAsync() > 0)
-							{
-								return new NoContentResult();
-							}
-							else
-							{
-								throw new Exception("Object was not removed from DB");
-							}
+							return NoContent();
 						}
 						else
 						{
-							return NotFound("Object Must Support a '$type' field or property");
+							throw new Exception("Object was not removed from DB");
 						}
 
-						//todo: maybe cache entity types in a field?
-						//todo: check type T in controller constructor as well
-						//todo: check type T in repository constructor as well
-						//Second make sure the type is present in the data-context 
-						//One possibility
-						//third delete the object
-						//Repository.DataContext.
-						//forth save changes
 					}
 				}
 

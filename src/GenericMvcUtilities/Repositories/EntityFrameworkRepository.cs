@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -384,7 +385,7 @@ namespace GenericMvcUtilities.Repositories
 				}
 				catch (Exception ex)
 				{
-					throw new Exception("Insert Failed: " + typeof(T).Name, ex);
+					throw new Exception("Creating Item Failed: " + typeof(T).Name, ex);
 				}
 			}
 			else
@@ -634,6 +635,65 @@ namespace GenericMvcUtilities.Repositories
 		{
 			this.Dispose(true);
 			GC.SuppressFinalize(this);
+		}
+
+		private IEnumerable<IEntityType> _entityTypes;
+
+		public IEnumerable<IEntityType> EntityTypes
+		{
+			get
+			{
+				if (_entityTypes != null)
+				{
+					return _entityTypes;
+				}
+				else
+				{
+					return _entityTypes = DataContext.Model.GetEntityTypes();
+				}
+			}
+		}
+
+		//todo: maybe cache entity types in a field?
+		//todo: check type T in controller constructor as well
+		//todo: check type T in repository constructor as well
+		//Second make sure the type is present in the data-context
+		//One possibility
+		//third delete the object
+		//Repository.DataContext.
+		//forth save changes
+		public async Task<bool> DeleteChild(object child)
+		{
+			if (child != null)
+			{
+				try
+				{
+					//EntityTypes.Any(x => x.ClrType == child.GetType())
+					if (DataContext.Entry(child).State == EntityState.Detached)
+					{
+						DataContext.Attach(child);
+					}
+
+					DataContext.Remove(child);
+
+					if (await DataContext.SaveChangesAsync() > 0)
+					{
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				catch (Exception e)
+				{
+					throw new Exception("Failed to delete child object", e);
+				}
+			}
+			else
+			{
+				throw new ArgumentNullException(nameof(child));
+			}
 		}
 	}
 }

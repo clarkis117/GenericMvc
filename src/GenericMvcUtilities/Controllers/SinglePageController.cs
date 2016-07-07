@@ -16,10 +16,7 @@ namespace GenericMvcUtilities.Controllers
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
-		//todo add static cache field
-	   //private static 
-
-		public SinglePageController(BaseEntityFrameworkRepository<T> repository, ILogger<T> logger) : base(repository, logger)
+		public SinglePageController(IEntityFrameworkRepository<T> repository, ILogger<T> logger) : base(repository, logger)
 		{
 
 		}
