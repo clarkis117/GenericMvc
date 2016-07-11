@@ -11,30 +11,6 @@ using GenericMvcUtilities.Models;
 
 namespace GenericMvcUtilities.UserManager
 {
-	public class AuthorizeUserManaging: AuthorizeAttribute
-	{
-		public AuthorizeUserManaging()
-		{
-			Roles = $"{RoleHelper.SystemOwner},{RoleHelper.UserAdmin}";
-		}
-	}
-
-	public class AuthorizeContentCRUD : AuthorizeAttribute
-	{
-		public AuthorizeContentCRUD()
-		{
-			Roles = $"{RoleHelper.SystemOwner},{RoleHelper.UserAdmin},{RoleHelper.ContentAdmin}";
-		}
-	}
-
-	public class AuthorizeContentViewing : AuthorizeAttribute
-	{
-		public AuthorizeContentViewing()
-		{
-			Roles = $"{RoleHelper.SystemOwner},{RoleHelper.UserAdmin},{RoleHelper.ContentAdmin},{RoleHelper.ContentViewer}";
-		}
-	}
-
 	/// <summary>
 	/// Class also defines roles
 	/// </summary>
