@@ -16,7 +16,7 @@ namespace GenericMvcUtilities.Controllers
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
-		public SinglePageController(IEntityFrameworkRepository<T> repository, ILogger<T> logger) : base(repository, logger)
+		public SinglePageController(IGraphRepository<T> repository, ILogger<T> logger) : base(repository, logger)
 		{
 
 		}

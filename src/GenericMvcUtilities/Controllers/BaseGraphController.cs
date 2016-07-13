@@ -16,7 +16,7 @@ namespace GenericMvcUtilities.Controllers
 	{
 		protected new BaseEntityFrameworkRepository<T> Repository;
 
-		public BaseGraphController(IEntityFrameworkRepository<T> repository, ILogger<T> logger) : base(repository, logger)
+		public BaseGraphController(IGraphRepository<T> repository, ILogger<T> logger) : base(repository, logger)
 		{
 			Repository = base.Repository as BaseEntityFrameworkRepository<T>;
 		}
@@ -39,9 +39,9 @@ namespace GenericMvcUtilities.Controllers
 						foreach (var type in Repository.EntityTypes)
 						{
 							//EntityTypes.Any(x => x.ClrType.FullName == child["$type"].ToString())
-							if (type.ClrType.FullName == child["$type"].ToString())
+							if (type.FullName == child["$type"].ToString())
 							{
-								dbObj = child.ToObject(type.ClrType);
+								dbObj = child.ToObject(type);
 								break;
 							}
 						}

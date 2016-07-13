@@ -65,9 +65,16 @@ namespace GenericMvcUtilities.Repositories
 	}
 
 
+	public interface IGraphRepository<T> : IRepository<T> where T : class
+	{
+		IEnumerable<Type> EntityTypes { get; }
+
+		Task<bool> DeleteChild(object child);
+	}
+
 	//public interface IBaseRepository
 
-	public interface IEntityFrameworkRepository<T> : IRepository<T> where T : class
+	public interface IEntityFrameworkRepository<T> : IGraphRepository<T> where T : class
 	{
 		Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue);
 
@@ -75,11 +82,7 @@ namespace GenericMvcUtilities.Repositories
 
 		DbContext DataContext { get; }
 
-		IEnumerable<IEntityType> EntityTypes { get; }
-
 		DbSet<T> ContextSet { get; }
-
-		Task<bool> DeleteChild(object child);
 
 		Task<int> Save();
 	}

@@ -639,17 +639,18 @@ namespace GenericMvcUtilities.Repositories
 
 		private IEnumerable<IEntityType> _entityTypes;
 
-		public IEnumerable<IEntityType> EntityTypes
+		public IEnumerable<Type> EntityTypes
 		{
 			get
 			{
-				if (_entityTypes != null)
+				if (_entityTypes == null)
 				{
-					return _entityTypes;
+					_entityTypes = DataContext.Model.GetEntityTypes();
 				}
-				else
+
+				foreach (var type in _entityTypes)
 				{
-					return _entityTypes = DataContext.Model.GetEntityTypes();
+					yield return type.ClrType;
 				}
 			}
 		}
