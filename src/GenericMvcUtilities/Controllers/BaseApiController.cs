@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -52,6 +53,20 @@ namespace GenericMvcUtilities.Controllers
 
 				throw new Exception(message, ex);
 			}
+		}
+
+		/// <summary>
+		/// Matches the by identifier expression.
+		/// </summary>
+		/// <param name="id">The identifier.</param>
+		/// <returns></returns>
+		[NonAction]
+		public Expression<Func<IModel<TKey>, bool>> MatchByIdExpression(object id)
+		{
+			var parameterExpression = Expression.Parameter(typeof(IModel<TKey>));
+			var propertyOrField = Expression.PropertyOrField(parameterExpression, "Id");
+			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(id));
+			return Expression.Lambda<Func<IModel<TKey>, bool>>(binaryExpression, parameterExpression);
 		}
 
 		[NonAction]
@@ -198,27 +213,29 @@ namespace GenericMvcUtilities.Controllers
 				{
 					if (ModelState.IsValid)
 					{
-						if (!(await Repository.Any(x => x.Id.Equals(item.Id))))
-						{
+						//var id = item.Id;
+
+						//if (!(await Repository.Any(x => x.Id.Equals(id))))
+						//{
 							//Attempt to Insert Item
 							var createdItem = await Repository.Create(item);
 
 							if (createdItem != null)
 							{
 								//Send 201 Response
-								return CreatedAtAction("create", item);
+								return CreatedAtAction("create", createdItem);
 							}
 							else
 							{
 								//Send 500 Response, and throw so the failure is logged
 								throw new Exception("Insert Failed for unknown reasons");
 							}
-						}
-						else
-						{
+						//}
+						//else
+						//{
 							//Send conflict response
-							return new StatusCodeResult((int)HttpStatusCode.Conflict);
-						}
+							//return new StatusCodeResult((int)HttpStatusCode.Conflict);
+						//}
 					}
 					else
 					{
@@ -315,8 +332,11 @@ namespace GenericMvcUtilities.Controllers
 					//Validate Model
 					if (ModelState.IsValid)
 					{
+						//since some things like "consts"
+
+
 						//Check for item existence
-						var exists = await Repository.Any(x => x.Id.Equals(item.Id));
+						var exists = await Repository.Any(x => x.Id.Equals(id));
 
 						//If Item Exists Update it
 						if (exists == true)

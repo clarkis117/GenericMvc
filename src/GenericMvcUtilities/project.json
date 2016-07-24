@@ -1,35 +1,36 @@
 {
-  "packOptions": {
-    "summary": "GenericMvcUtilities",
-    "tags": [ "mvc", "ef", "generic", "utilities" ],
-    "owners": [ "clarkis117" ],
-    "projectUrl": "https://github.com/clarkis117/GenericMvcUtilities",
-    "licenseUrl": "https://github.com/clarkis117/GenericMvcUtilities/blob/master/License.txt",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/clarkis117/GenericMvcUtilities.git"
-    },
-    "files": [  ]
-  },
+	"packOptions": {
+		"summary": "GenericMvcUtilities",
+		"tags": [ "mvc", "ef", "generic", "utilities" ],
+		"owners": [ "clarkis117" ],
+		"projectUrl": "https://github.com/clarkis117/GenericMvcUtilities",
+		"licenseUrl": "https://github.com/clarkis117/GenericMvcUtilities/blob/master/License.txt",
+		"repository": {
+			"type": "git",
+			"url": "https://github.com/clarkis117/GenericMvcUtilities.git"
+		},
+		"files": []
+	},
 
-  "buildOptions": {
-    "warningsAsErrors": false,
-      "preserveCompilationContext": true,
-      "embed": [
-        "Views/**",
-        "Views/Shared/**",
-        "Views/Account/**",
-        "Views/UserManager/**",
-        "Views/Manage/**"
-      ]
-  },
+	"buildOptions": {
+		"warningsAsErrors": false,
+		"preserveCompilationContext": true,
+		"embed": [
+			"Views/**",
+			"Views/Shared/**",
+			"Views/Account/**",
+			"Views/UserManager/**",
+			"Views/Manage/**"
+		]
+	},
 
-  "version": "1.0.1",
-  "description": "GenericMvcUtilities a group of classes for speeding Asp.Net Core development",
-  "authors": [ "Joshua Clark" ],
+	"version": "1.0.1",
+	"description": "GenericMvcUtilities a group of classes for speeding Asp.Net Core development",
+	"authors": [ "Joshua Clark" ],
 
   "dependencies": {
     "NETStandard.Library": "1.6.0",
+    "AutoMapper": "5.0.2",
     "Microsoft.AspNetCore.Authorization": "1.0.0",
     "xunit": "2.1.0",
     "Microsoft.EntityFrameworkCore": "1.0.0",
@@ -46,17 +47,15 @@
     "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.TestHost": "1.0.0",
     "Rx-Main": "2.3.0-beta2",
-    "MimeDetective": "1.0.0",
-    "Microsoft.Extensions.FileProviders.Embedded": "1.0.0"
+    "Microsoft.Extensions.FileProviders.Embedded": "1.0.0",
+    "MimeDetective": "1.0.0"
   },
 
-  "frameworks": {
-    "netstandard1.6": {
-      "imports": [
-        "portable-net451+win8"
-      ]
-    }
-  }
-
+	"frameworks": {
+		"netstandard1.6": {
+			"imports": [
+				"portable-net451+win8"
+			]
+		}
+	}
 }
-

@@ -13,7 +13,7 @@ using GenFu;
 
 namespace GenericMvcUtilities.Tests.Repositories
 {
-	public class EntityFramework : BaseEntityFramework<Blog, BlogDbContext> 
+	public class EntityFramework : IRepositoryTests<Blog, BlogRepo, BlogDbContext, DataBaseFixture<BlogDbContext>>
 	{
 		public EntityFramework() : base()
 		{

@@ -1,0 +1,51 @@
+﻿<script>
+	window.page = window.location.hash || "#Module";
+
+	$(document).ready(function () {
+
+		if (window.page != "#About") {
+			$(".menu").find("li[data-target=" + window.page + "]").trigger("click");
+		}
+	});
+
+	$(window).on("resize load", function () {
+
+		let windowHeight = $(window).height();
+		let headerHeight = $(".header-panel").outerHeight();
+		let footerHeight = $("footer.navbar-fixed-bottom").outerHeight();
+
+		$("html, body").height(windowHeight);
+
+		$(".main").height(windowHeight - headerHeight);
+
+		$(".menu").height(windowHeight - (headerHeight + footerHeight));
+
+		$(".pages").height(windowHeight);
+
+	}).trigger("resize");
+
+	$(".menu ul.nava li").click(function () {
+		// Menu
+		if (!$(this).data("target")) return;
+		if ($(this).is(".active")) return;
+		$(".menu ul.nava li").not($(this)).removeClass("active");
+		$(".page").not(page).removeClass("active").hide();
+		window.page = $(this).data("target");
+		var page = $(window.page);
+		window.location.hash = window.page;
+		$(this).addClass("active");
+
+		page.show();
+
+		var totop = setInterval(function () {
+			$(".pages").animate({ scrollTop: 0 }, 0);
+		}, 1);
+
+		setTimeout(function () {
+			page.addClass("active");
+			setTimeout(function () {
+				clearInterval(totop);
+			}, 1000);
+		}, 100);
+	});
+</script>

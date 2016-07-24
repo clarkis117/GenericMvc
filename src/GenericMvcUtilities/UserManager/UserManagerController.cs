@@ -34,16 +34,16 @@ namespace GenericMvcUtilities.UserManager
 
 		protected readonly RoleManager<TRole> RoleManager;
 
-		protected readonly BaseEntityFrameworkRepository<TUser> UserRepository;
+		protected readonly BaseEntityRepository<TUser> UserRepository;
 
-		protected readonly BaseEntityFrameworkRepository<TPendingUser> PendingUserRepository;
+		protected readonly BaseEntityRepository<TPendingUser> PendingUserRepository;
 
 		protected readonly ILogger<UserManagerController<TUser, TPendingUser, TRole, TKey>> Logger;
 		
 		public UserManagerController( UserManager<TUser> userManager,
 			RoleManager<TRole> roleManager,
-			BaseEntityFrameworkRepository<TUser> userRepository,
-			BaseEntityFrameworkRepository<TPendingUser> pendingUserRepository,
+			BaseEntityRepository<TUser> userRepository,
+			BaseEntityRepository<TPendingUser> pendingUserRepository,
 			ILogger<UserManagerController<TUser, TPendingUser,TRole, TKey>> logger)
 		{
 			try

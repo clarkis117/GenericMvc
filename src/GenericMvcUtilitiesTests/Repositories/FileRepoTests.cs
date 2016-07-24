@@ -30,7 +30,7 @@ namespace GenericMvcUtilitiesTests
 
 		}
 
-		private void TestInitializedFile(File file)
+		private void TestInitializedFile(DataFile file)
 		{
 			Assert.NotNull(file);
 
@@ -43,7 +43,7 @@ namespace GenericMvcUtilitiesTests
 			Assert.True(TestName == file.Name);
 		}
 
-		private void TestInitializedFileWithData(File file)
+		private void TestInitializedFileWithData(DataFile file)
 		{
 			Assert.NotNull(file);
 
@@ -56,7 +56,7 @@ namespace GenericMvcUtilitiesTests
 			//Assert.True(TestName == file.Name);
 		}
 
-		private void TestMultipleFiles(IEnumerable<File> files)
+		private void TestMultipleFiles(IEnumerable<DataFile> files)
 		{
 			Assert.NotEmpty(files);
 
@@ -141,13 +141,13 @@ namespace GenericMvcUtilitiesTests
 			TestMultipleFiles(files);
 		}
 		
-		private async Task testAndCreatedFile(File file)
+		private async Task testAndCreatedFile(DataFile file)
 		{
 			TestInitializedFileWithData(file);
 
 			file.Name = "test2" + file._fileInfo.Extension;
 
-			file.Id = System.IO.Path.Combine(file.ContainingFolder, file.Name);
+			file.Id = System.IO.Path.Combine(file.Name);
 
 			file._fileInfo = null;
 
@@ -205,7 +205,7 @@ namespace GenericMvcUtilitiesTests
 
 			file.Name = "test2" + file._fileInfo.Extension;
 
-			file.Id = System.IO.Path.Combine(file.ContainingFolder, file.Name);
+			file.Id = System.IO.Path.Combine(file.Name);
 
 			file._fileInfo = null;
 

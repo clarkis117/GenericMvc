@@ -13,11 +13,10 @@ namespace GenericMvcUtilities.Models
 	}
 
 	
-	public interface IModel2 //<TKey> where TKey : class
+	public interface IModelWithFile<TKey> : IModel<TKey>
+		where TKey : IEquatable<TKey>
 	{
-		ValueType Id { get; set; }
-
-		//string JsonType { get; }
+		DataFile File { get; set; }
 	}
 	
 }

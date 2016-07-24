@@ -1,4 +1,5 @@
-﻿using GenericMvcUtilities.Test.Lib.Models;
+﻿using GenericMvcUtilities.Repositories;
+using GenericMvcUtilities.Test.Lib.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -29,14 +30,6 @@ namespace GenericMvcUtilities.Test.Lib.Contexts
 
 			return builder.Options;
 		}
-
-		public static TContext New<TContext>() where TContext : InMemoryDbContext
-		{
-			var options = CreateNewContextOptions<TContext>();
-
-			return (TContext)Activator.CreateInstance(typeof(TContext), options);
-		}
-
 
 		public InMemoryDbContext(DbContextOptions options) : base(options)
 		{

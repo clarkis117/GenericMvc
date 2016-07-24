@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Test.Lib
 {
-	public interface IDatabaseTestFixture<TEntity> : IDisposable where TEntity : class, new()
+	public interface IDatabaseTestFixture<TEntity, TRepository> : IDisposable
+		where TEntity : class
+		where TRepository : IRepository<TEntity>
 	{
-		BaseEntityFrameworkRepository<TEntity> Repository { get; }
+		TRepository Repository { get; }
 	}
 }

@@ -15,9 +15,20 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 		//<div class="well page" id="about">About</div>
 		//<div class="well page" id="Id">@View goes here</div>
 
+		/// <summary>
+		/// value for HTML Id
+		/// </summary>
 		public virtual string Id { get; set; }
 
+		/// <summary>
+		/// File Name
+		/// </summary>
 		public virtual string Name { get; set; }
+
+		/// <summary>
+		/// Gets or sets the display name.
+		/// </summary>
+		public virtual string DisplayName { get; set; }
 
 		public virtual string ViewPath
 		{
@@ -35,6 +46,17 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 
 		}
 
+		public string GetDisplayName()
+		{
+			if (this.DisplayName != null)
+			{
+				return this.DisplayName;
+			}
+			else
+			{
+				return this.Name;
+			}
+		}
 	}
 
 	//page with conventions
@@ -92,7 +114,7 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 	{
 		public BasicEditor()
 		{
-			//Much wow I so cheat
+			//Much wow, I so cheat
 			this.Data = this;
 		}
 

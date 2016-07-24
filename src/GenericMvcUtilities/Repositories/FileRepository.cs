@@ -1,19 +1,18 @@
 ﻿using GenericMvcUtilities.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using System.Collections;
 
 namespace GenericMvcUtilities.Repositories
 {
-
 	/// <summary>
 	/// currently does not allow modifications to folder structure
 	/// </summary>
-	public class FileRepository : IRepository<File>
+	public class FileRepository : IRepository<DataFile>
 	{
 		private readonly string RootFolder;
 
@@ -77,39 +76,40 @@ namespace GenericMvcUtilities.Repositories
 
 			this.InludedNestedDirectories = includeNestedDirectories;
 
-
 			//this.Enumerator = this.EnumerateFiles().GetEnumerator();
 			//this.DirectorySeparator = System.IO.Path.DirectorySeparatorChar;
 		}
 
-		private Task<File> FileInitSwitch(File entity)
+		private Task<DataFile> FileInitSwitch(DataFile entity)
 		{
 			switch (DefaultLoadingSettings)
 			{
 				case FileLoading.JustFileInfo:
-					return Task.FromResult(entity.Initialize());
+					return Task.FromResult(entity.Initialize(path:""));
+
 				case FileLoading.WithMime:
-					return entity.InitializeWithMime();
+					return entity.Initialize(false, FileEncodingType);
+
 				case FileLoading.WithMimeAndData:
 					return entity.Initialize(true, FileEncodingType);
 
 				default:
-					return Task.FromResult(entity.Initialize());
+					return Task.FromResult(entity.Initialize(path:""));
 			}
 		}
 
-		private IObservable<File> GetFilesObservable(Func<File, bool> matchFunc, bool completeOnFirst = false)
+		private IObservable<DataFile> GetFilesObservable(Func<DataFile, bool> matchFunc, bool completeOnFirst = false)
 		{
-			return Observable.Create<File>(async obs =>
+			return Observable.Create<DataFile>(async obs =>
 			{
 				using (var enumerator = EnumerateFiles().GetEnumerator())
 				{
 					while (await enumerator.MoveNext())
 					{
 						//do work
-						var file = new File(enumerator.Current);
+						var file = new DataFile(enumerator.Current);
 
-						if (matchFunc(await file.InitializeWithMime()))
+						if (matchFunc(await FileInitSwitch(file)))
 						{
 							obs.OnNext(file);
 
@@ -119,7 +119,6 @@ namespace GenericMvcUtilities.Repositories
 								return;
 							}
 						}
-
 					}
 				}
 
@@ -128,16 +127,15 @@ namespace GenericMvcUtilities.Repositories
 			});
 		}
 
-
-		private IObservable<File> GetAllFilesObservable()
+		private IObservable<DataFile> GetAllFilesObservable()
 		{
-			return Observable.Create<File>(async obs =>
+			return Observable.Create<DataFile>(async obs =>
 			{
 				using (var enumerator = EnumerateFiles().GetEnumerator())
 				{
 					while (await enumerator.MoveNext())
 					{
-						obs.OnNext(await new File(enumerator.Current).InitializeWithMime());
+						obs.OnNext(await FileInitSwitch(new DataFile(enumerator.Current)));
 					}
 
 					obs.OnCompleted();
@@ -151,17 +149,17 @@ namespace GenericMvcUtilities.Repositories
 		/// </summary>
 		/// <param name="predicate"></param>
 		/// <returns></returns>
-		private Func<File, bool> checkAndCompilePredicate(Expression<Func<File, bool>> predicate)
+		private Func<DataFile, bool> checkAndCompilePredicate(Expression<Func<DataFile, bool>> predicate)
 		{
 			if (predicate != null)
 			{
 				if (predicate.CanReduce)
 				{
-					Expression<Func<File, bool>> reducedPredicate = predicate;
+					Expression<Func<DataFile, bool>> reducedPredicate = predicate;
 
 					while (reducedPredicate.CanReduce)
 					{
-						reducedPredicate = (Expression<Func<File, bool>>)reducedPredicate.ReduceAndCheck();
+						reducedPredicate = (Expression<Func<DataFile, bool>>)reducedPredicate.ReduceAndCheck();
 					}
 
 					return reducedPredicate.Compile();
@@ -177,30 +175,22 @@ namespace GenericMvcUtilities.Repositories
 
 		/// <summary>
 		/// File should not exist on disk
-		/// Specified parent Directory should exist
 		/// </summary>
 		/// <param name="file"></param>
 		/// <returns></returns>
-		private Exception checkFileForCreation(File file)
+		private Exception checkFileForCreation(DataFile file)
 		{
 			if (file.Data != null)
 			{
-				var dirInfo = new System.IO.DirectoryInfo(file.ContainingFolder);
+				//var dirInfo = new System.IO.DirectoryInfo(file.ContainingFolder);
 
-				if (dirInfo.Exists)
+				if (_directoryInfo.GetFiles(file.Name).Count() == 0)
 				{
-					if (dirInfo.GetFiles(file.Name).Count() == 0)
-					{
-						return null;
-					}
-					else
-					{
-						return new System.IO.IOException("File Already Exists");
-					}
+					return null;
 				}
 				else
 				{
-					return new System.IO.DirectoryNotFoundException(nameof(file.ContainingFolder) + " refers to one or more directories");
+					return new System.IO.IOException("File Already Exists");
 				}
 			}
 			else
@@ -216,11 +206,11 @@ namespace GenericMvcUtilities.Repositories
 		/// File should not exist on disk
 		/// </summary>
 		/// <returns></returns>
-		private async Task createFile(File entity)
+		private async Task createFile(DataFile entity)
 		{
 			if (entity._fileInfo == null)
 			{
-				entity.Initialize();
+				entity.Initialize(path: this._directoryInfo.FullName);
 			}
 
 			//check data, if both path and data valid make file
@@ -253,27 +243,20 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		private Exception checkFileForUpdate(File file)
+		private Exception checkFileForUpdate(DataFile file)
 		{
 			if (file.Data != null)
 			{
 				//Make sure directory exists
-				var dirInfo = new System.IO.DirectoryInfo(file.ContainingFolder);
+				//var dirInfo = new System.IO.DirectoryInfo(file.ContainingFolder);
 
-				if (dirInfo.Exists)
+				if (_directoryInfo.GetFiles(file.Name).Count() == 1)
 				{
-					if (dirInfo.GetFiles(file.Name).Count() == 1)
-					{
-						return null;
-					}
-					else
-					{
-						return new System.IO.IOException("File does not Exist");
-					}
+					return null;
 				}
 				else
 				{
-					return new System.IO.DirectoryNotFoundException(nameof(file.ContainingFolder) + " refers to one or more directories");
+					return new System.IO.IOException("File does not Exist");
 				}
 			}
 			else
@@ -282,11 +265,11 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		private async Task updateFile(File entity)
+		private async Task updateFile(DataFile entity)
 		{
 			if (entity._fileInfo == null)
 			{
-				entity.Initialize();
+				entity.Initialize(path:"");
 			}
 
 			//if (System.IO.Directory.Exists(ContainingFolder) && this._fileInfo.Exists)
@@ -323,14 +306,14 @@ namespace GenericMvcUtilities.Repositories
 			return this._directoryInfo.EnumerateFiles("*", _searchOption).ToAsyncEnumerable();
 		}
 
-		public async Task<bool> Any(Expression<Func<File, bool>> predicate)
+		public async Task<bool> Any(Expression<Func<DataFile, bool>> predicate)
 		{
 			var IsMatch = this.checkAndCompilePredicate(predicate);
 
 			return await GetFilesObservable(IsMatch).Any();
 		}
 
-		public Task<IEnumerable<File>> GetAll()
+		public Task<IEnumerable<DataFile>> GetAll()
 		{
 			return Task.FromResult(GetAllFilesObservable().ToEnumerable());
 		}
@@ -342,7 +325,7 @@ namespace GenericMvcUtilities.Repositories
 		/// </summary>
 		/// <param name="predicate"></param>
 		/// <returns>First Match Found</returns>
-		public async Task<File> Get(Expression<Func<File, bool>> predicate)
+		public async Task<DataFile> Get(Expression<Func<DataFile, bool>> predicate)
 		{
 			var IsMatch = this.checkAndCompilePredicate(predicate);
 
@@ -351,7 +334,7 @@ namespace GenericMvcUtilities.Repositories
 			//return new File(await this.EnumerateFiles().First(async x => IsMatch( (await(new File(x).Initialize())) ) == true));
 		}
 
-		public Task<File> Get(Expression<Func<File, bool>> predicate, bool WithNestedData = false)
+		public Task<DataFile> Get(Expression<Func<DataFile, bool>> predicate, bool WithNestedData = false)
 		{
 			if (WithNestedData)
 			{
@@ -363,14 +346,14 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public async Task<IList<File>> GetMany(Expression<Func<File, bool>> predicate)
+		public async Task<IList<DataFile>> GetMany(Expression<Func<DataFile, bool>> predicate)
 		{
 			var IsMatch = this.checkAndCompilePredicate(predicate);
 
 			return await GetFilesObservable(IsMatch).ToList();
 		}
 
-		public async Task<IList<File>> GetMany(Expression<Func<File, bool>> predicate, bool WithNestedData = false)
+		public async Task<IList<DataFile>> GetMany(Expression<Func<DataFile, bool>> predicate, bool WithNestedData = false)
 		{
 			var IsMatch = checkAndCompilePredicate(predicate);
 
@@ -397,7 +380,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		private async Task<File> GetCompleteItem(Expression<Func<File, bool>> predicate)
+		private async Task<DataFile> GetCompleteItem(Expression<Func<DataFile, bool>> predicate)
 		{
 			var IsMatch = this.checkAndCompilePredicate(predicate);
 
@@ -414,7 +397,7 @@ namespace GenericMvcUtilities.Repositories
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentNullException"></exception>
 
-		public async Task<File> Create(File entity)
+		public async Task<DataFile> Create(DataFile entity)
 		{
 			if (entity != null)
 			{
@@ -449,7 +432,7 @@ namespace GenericMvcUtilities.Repositories
 		/// <returns></returns>
 		/// <exception cref="AggregateException"></exception>
 		/// <exception cref="System.ArgumentNullException"></exception>
-		public async Task<IEnumerable<File>> CreateRange(IEnumerable<File> entities)
+		public async Task<IEnumerable<DataFile>> CreateRange(IEnumerable<DataFile> entities)
 		{
 			if (entities != null)
 			{
@@ -477,7 +460,6 @@ namespace GenericMvcUtilities.Repositories
 
 						//entities.Remove(entity);
 					}
-
 				}
 
 				if (exceptionLazyList.Value.Count > 0)
@@ -493,7 +475,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public async Task<File> Update(File entity)
+		public async Task<DataFile> Update(DataFile entity)
 		{
 			if (entity != null)
 			{
@@ -520,7 +502,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public async Task<IEnumerable<File>> UpdateRange(IEnumerable<File> entities)
+		public async Task<IEnumerable<DataFile>> UpdateRange(IEnumerable<DataFile> entities)
 		{
 			if (entities != null)
 			{
@@ -548,7 +530,6 @@ namespace GenericMvcUtilities.Repositories
 
 						//entities.Remove(entity);
 					}
-
 				}
 
 				if (exceptionLazyList.Value.Count > 0)
@@ -564,7 +545,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public Task<bool> Delete(File entity)
+		public Task<bool> Delete(DataFile entity)
 		{
 			if (entity != null)
 			{
@@ -572,7 +553,7 @@ namespace GenericMvcUtilities.Repositories
 				{
 					if (entity._fileInfo == null)
 					{
-						entity.Initialize();
+						entity.Initialize(path:"");
 					}
 
 					entity._fileInfo.Delete();
@@ -590,7 +571,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public async Task<bool> DeleteRange(IEnumerable<File> entities)
+		public async Task<bool> DeleteRange(IEnumerable<DataFile> entities)
 		{
 			var entityCount = entities.Count();
 
@@ -622,7 +603,6 @@ namespace GenericMvcUtilities.Repositories
 						entities.Remove(entity);
 						*/
 					}
-
 				}
 
 				if (exceptionLazyList.Value.Count > 0)
@@ -645,7 +625,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public IEnumerator<File> GetEnumerator()
+		public IEnumerator<DataFile> GetEnumerator()
 		{
 			return GetAllFilesObservable().ToEnumerable().GetEnumerator();
 		}

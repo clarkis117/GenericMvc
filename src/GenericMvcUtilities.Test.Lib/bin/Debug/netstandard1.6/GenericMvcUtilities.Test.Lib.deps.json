@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETStandard,Version=v1.6/",
-    "signature": "fa2eb662d5176e478a1a6d505f745273a837a4bb"
+    "signature": "a0bcb60d49604b55764ef578434342205a753a40"
   },
   "compilationOptions": {},
   "targets": {
@@ -11,15 +11,27 @@
         "dependencies": {
           "xunit": "2.2.0-beta2-build3300",
           "NETStandard.Library": "1.6.0",
-          "MimeDetective": "1.0.0",
-          "GenericMvcUtilities": "1.0.1",
           "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0",
           "Microsoft.EntityFrameworkCore.InMemory": "1.0.0",
           "GenFu": "1.1.1",
-          "Microsoft.EntityFrameworkCore": "1.0.0"
+          "Microsoft.EntityFrameworkCore": "1.0.0",
+          "GenericMvcUtilities": "1.0.1"
         },
         "runtime": {
           "GenericMvcUtilities.Test.Lib.dll": {}
+        }
+      },
+      "AutoMapper/5.0.2": {
+        "dependencies": {
+          "Microsoft.CSharp": "4.0.1",
+          "NETStandard.Library": "1.6.0",
+          "System.Collections.Specialized": "4.0.1",
+          "System.ComponentModel.TypeConverter": "4.1.0",
+          "System.Dynamic.Runtime": "4.0.11",
+          "System.Linq.Queryable": "4.0.1"
+        },
+        "runtime": {
+          "lib/netstandard1.3/AutoMapper.dll": {}
         }
       },
       "GenFu/1.1.1": {
@@ -2501,6 +2513,7 @@
       "GenericMvcUtilities/1.0.1": {
         "dependencies": {
           "NETStandard.Library": "1.6.0",
+          "AutoMapper": "5.0.2",
           "Microsoft.AspNetCore.Authorization": "1.0.0",
           "xunit": "2.2.0-beta2-build3300",
           "Microsoft.EntityFrameworkCore": "1.0.0",
@@ -2517,8 +2530,8 @@
           "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
           "Microsoft.AspNetCore.TestHost": "1.0.0",
           "Rx-Main": "2.3.0-beta2",
-          "MimeDetective": "1.0.0",
-          "Microsoft.Extensions.FileProviders.Embedded": "1.0.0"
+          "Microsoft.Extensions.FileProviders.Embedded": "1.0.0",
+          "MimeDetective": "1.0.0"
         },
         "runtime": {
           "GenericMvcUtilities.dll": {}
@@ -2540,6 +2553,11 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "AutoMapper/5.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-eHfVW+cn4X7c8iMUKqqR81PN7hOiT+WTSx5oW6cs+W8vlGrwkZp/SYLvalcUTxhbf5tF8VaW9s2gzWJTYj3DKA=="
     },
     "GenFu/1.1.1": {
       "type": "package",

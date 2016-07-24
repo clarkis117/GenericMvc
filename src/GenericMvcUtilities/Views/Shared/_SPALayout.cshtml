@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>@ViewData["Title"] - Learn This!</title>
+	<title>@ViewData["Title"]</title>
 	<!-- Material Design fonts -->
 	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -12,6 +12,8 @@
 		<link rel="stylesheet" href="~/lib/bootstrap-touch-carousel/dist/css/bootstrap-touch-carousel.css" />
 		<link rel="stylesheet" href="~/css/material-dist/bootstrap-material-design.css" />
 		<link rel="stylesheet" href="~/lib/bootstrap-material-design/dist/css/ripples.css" />
+		<link rel="stylesheet" href="~/lib/snackbarjs/dist/snackbar.css"/>
+		<link rel="stylesheet" href="~/lib/snackbarjs/themes-css/material.css"/>
 		@*<link rel="stylesheet" href="~/css/SpaStyles.css" />*@
 		@await Html.PartialAsync("~/Views/Shared/SpaStyles.cshtml")
 		@await RenderSectionAsync("stylesheets", false)
@@ -22,7 +24,7 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-xs-5">
-					<h1>Data Manager</h1>
+					<h1>@ViewData["Title"]</h1>
 				</div>
 			</div>
 		</div>
@@ -43,6 +45,7 @@
 		<script src="~/lib/knockout-mapping/knockout.mapping.js"></script>
 		<script src="~/lib/knockout-file-bindings/knockout-file-bindings.js"></script>
 		<script src="~/lib/knockout-typescript-components-clarkis117/dist/ko-component.js"></script>
+		<script src="~/lib/snackbarjs/dist/snackbar.min.js"></script>
 	</environment>
 	@await RenderSectionAsync("scripts", required: true)
 	@*Render document scripts*@

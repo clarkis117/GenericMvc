@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Http;
+using GenericMvcUtilities.Models;
 
 namespace GenericMvcUtilities.ViewModels.Generic
 {
@@ -44,6 +45,10 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 	public class BasicViewModel : PageViewModel
 	{
+		public object Id { get; set; }
+
+		public const string BasicMvc = "BasicMvc/";
+
 		protected static string depluralizeController(string controllerName)
 		{
 			string conName = "";
@@ -76,8 +81,12 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 	public class IndexViewModel : BasicViewModel
 	{
+		private const string IndexContainer = "Index";
+
 		public IndexViewModel(Controller context) : base(context)
 		{
+			ContainerName = BasicMvc + IndexContainer;
+
 			Title = ControllerName;
 
 			Description = $"All {ControllerName} in the Database";
@@ -86,8 +95,12 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 	public class DetailsViewModel : BasicViewModel
 	{
+		private const string DetailsContainer = "Details";
+
 		public DetailsViewModel(Controller context): base(context)
 		{
+			ContainerName = BasicMvc + DetailsContainer;
+
 			var deplural = depluralizeController(ControllerName) ?? ControllerName;
 
 			Title = deplural;
@@ -96,7 +109,36 @@ namespace GenericMvcUtilities.ViewModels.Generic
 		}
 	}
 
-	public class CreateViewModel : BasicViewModel
+
+	public class CreateEditViewModel : BasicViewModel
+	{
+		protected const string CreateEditFieldset = "CreateEdit";
+
+		/*
+		public string CreateEditPath
+		{
+			get { return ($"~/Views/{ControllerName}/{CreateEditFieldset}.cshtml"); }
+		}
+		*/
+
+		/*
+		public override string NestedViewPath
+		{
+			get
+			{
+				 return ($"~/Views/{ContainerFolder}/{NestedView}Container.cshtml"); 
+			}
+		}
+		*/
+
+		public CreateEditViewModel(Controller context) : base(context)
+		{
+			ContainerName = BasicMvc+CreateEditFieldset;
+			NestedView = CreateEditFieldset;
+		}
+	}
+
+	public class CreateViewModel : CreateEditViewModel
 	{
 		public CreateViewModel(Controller context) : base(context)
 		{
@@ -108,7 +150,7 @@ namespace GenericMvcUtilities.ViewModels.Generic
 		}
 	}
 
-	public class EditViewModel : BasicViewModel
+	public class EditViewModel : CreateEditViewModel
 	{
 		public EditViewModel(Controller context) : base(context)
 		{
@@ -122,13 +164,17 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 	public class DeleteViewModel : BasicViewModel
 	{
+		private const string DeleteContainer = "Delete";
+
 		public DeleteViewModel(Controller context) : base(context)
 		{
+			ContainerName = BasicMvc + DeleteContainer;
+
 			var deplural = depluralizeController(ControllerName) ?? ControllerName;
 
 			Title = deplural;
 
-			Description = $"Are you sure you want to delete this, {deplural}";
+			Description = $"Are you sure you want to delete this {deplural}?";
 		}
 	}
 }

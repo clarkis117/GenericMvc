@@ -29,7 +29,7 @@ namespace GenericMvcUtilities.Models
 	/// For File Retrieval: this is basically a lazy wrapper around file info
 	/// For File Creation/Update: This is a data object not a wrapper, file repo assumes it's correct
 	/// </summary>
-	public class File : IModel<string>
+	public class DataFile : IModel<string>
 	{
 		[JsonIgnore]
 		public System.IO.FileInfo _fileInfo;
@@ -37,7 +37,7 @@ namespace GenericMvcUtilities.Models
 		[JsonIgnore]
 		public MimeDetective.FileType _fileType;
 
-		public File()
+		public DataFile()
 		{
 		}
 
@@ -74,7 +74,7 @@ namespace GenericMvcUtilities.Models
 		///
 		/// </summary>
 		/// <param name="fileInfo"></param>
-		public File(System.IO.FileInfo fileInfo)
+		public DataFile(System.IO.FileInfo fileInfo)
 		{
 			if (fileInfo != null && fileInfo.Exists)
 			{
@@ -98,14 +98,20 @@ namespace GenericMvcUtilities.Models
 		/// Initializes as file facade
 		/// </summary>
 		/// <returns></returns>
-		public virtual File Initialize()
+		public virtual DataFile Initialize(string path = "")
 		{
 			//default constructor handling
 			if (_fileInfo == null)
 			{
-				if (Id != null && Name != null)
+				if (path != "" && this.Name != null)
 				{
-					this._fileInfo = new System.IO.FileInfo(Id);
+					var filePath = System.IO.Path.Combine(path, this.Name);
+
+					this._fileInfo = new System.IO.FileInfo(filePath);
+				}
+				else if (Id != null)
+				{
+					this._fileInfo = new System.IO.FileInfo(this.Id);
 				}
 				else
 				{
@@ -118,7 +124,7 @@ namespace GenericMvcUtilities.Models
 
 			Name = _fileInfo.Name;
 
-			ContainingFolder = _fileInfo.Directory.FullName;
+			//ContainingFolder = _fileInfo.Directory.FullName;
 
 			return this;
 		}
@@ -130,9 +136,9 @@ namespace GenericMvcUtilities.Models
 		/// Initializes as file facade
 		/// </summary>
 		/// <returns></returns>
-		public async virtual Task<File> InitializeWithMime()
+		public async virtual Task<DataFile> InitializeWithMime()
 		{
-			Initialize();
+			this.Initialize(path: "");
 
 			if (!_fileInfo.Exists)
 			{
@@ -142,7 +148,15 @@ namespace GenericMvcUtilities.Models
 			//set properties
 			_fileType = await _fileInfo.GetFileTypeAsync();
 
-			ContentType = _fileType.Mime;
+			//ie this mean we couldn't find the file type
+			if (_fileType == null)
+			{
+				ContentType = "";
+			}
+			else
+			{
+				ContentType = _fileType.Mime;
+			}
 
 			return this;
 		}
@@ -154,7 +168,7 @@ namespace GenericMvcUtilities.Models
 		/// <param name="loadFile"></param>
 		/// <param name="encodingType"></param>
 		/// <returns></returns>
-		public virtual async Task<File> Initialize(bool loadFile = false, EncodingType encodingType = EncodingType.RawBytes)
+		public virtual async Task<DataFile> Initialize(bool loadFile = false, EncodingType encodingType = EncodingType.RawBytes)
 		{
 			await InitializeWithMime();
 
@@ -194,7 +208,6 @@ namespace GenericMvcUtilities.Models
 		/// path to file plus name and extension
 		/// wrapper for FileInfo.FullName
 		/// </summary>
-		[Required]
 		public string Id { get; set; }
 
 		/// <summary>
@@ -203,13 +216,6 @@ namespace GenericMvcUtilities.Models
 		/// </summary>
 		[Required]
 		public string Name { get; set; }
-
-		/// <summary>
-		/// delimited by separator
-		/// wrapper for FileInfo.Directory.FullName;
-		/// </summary>
-		[Required]
-		public string ContainingFolder { get; set; }
 
 		/// <summary>
 		/// mime content type
@@ -221,12 +227,11 @@ namespace GenericMvcUtilities.Models
 		/// needed to decode data from over the wire transmissions
 		/// </summary>
 		[JsonConverter(typeof(StringEnumConverter))]
-		public EncodingType EncodingType { get; set; }
+		public EncodingType EncodingType { get; set; } = EncodingType.Base64;
 
 		/// <summary>
 		/// if file facade this will be null
 		/// </summary>
-		[Required]
 		public byte[] Data { get; set; }
 	}
 }

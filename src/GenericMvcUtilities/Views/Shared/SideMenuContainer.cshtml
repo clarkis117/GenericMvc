@@ -3,6 +3,11 @@
 }
 @using GenericMvcUtilities.ViewModels.SinglePageApp
 @model SinglePageGraph
+
+@{
+	ViewData["Title"] = Model.Title;
+}
+
 @section StyleSheets {
 	<link rel="stylesheet" href="~/css/TableStyle.css" />
 }
@@ -14,14 +19,37 @@
 		<ul class="nava">
 			@foreach (var page in Model.Pages)
 			{
-				<li class="withripple" data-target="#@page.Id">@page.Name</li>
+				<li class="withripple" data-target="#@page.Id">
+					@Html.Raw(page.GetDisplayName())
+				</li>
 			}
 		</ul>
 		<ul class="list-inline">
-			<li><button class="btn btn-success" data-bind="click: SaveItem">Save Changes</button></li>
-			<li><button class="btn btn-warning" data-bind="click: CreateItem">Create New</button></li>
-			<li><button class="btn btn-primary" data-bind="click: ExportItemToJson">Export JSON</button></li>
-			<li><button class="btn btn-danger" data-bind="click: DeleteItem">Delete</button></li>
+			<li>
+				<button title="Saves the current Item" class="btn btn-success" data-bind="click: SaveItem">
+					<i class="material-icons">save</i> Save Changes
+				</button>
+			</li>
+			<li>
+				<button title="Creates a new Item" class="btn btn-warning" data-bind="click: CreateItem">
+					<i class="material-icons">create</i> Create New
+				</button>
+			</li>
+			<li>
+				<button title="Exports current Item to File as JSON" class="btn btn-primary" data-bind="click: ExportItemToJson">
+					<i class="material-icons">file_download</i> Export JSON
+				</button>
+			</li>
+			<li>
+				<button title="Refresh Item List" class="btn btn-primary" data-bind="click: RefreshList">
+					<i class="material-icons">refresh</i> Refresh List
+				</button>
+			</li>
+			<li>
+				<button title="Deletes current Item" class="btn btn-danger" data-bind="click: DeleteItem">
+					<i class="material-icons">delete_forever</i> Delete
+				</button>
+			</li>
 		</ul>
 		<h4 class="text-primary">Items</h4>
 		<ul class="list-group" data-bind="foreach: $root.ItemList">
@@ -36,7 +64,6 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<p class="navbar-text" data-bind="text: $root.StatusMessage, css: $root.StatusStyle">Status Message Status Message Status Message</p>
 				</div>
 				<div class="navbar-collapse collapse">
 					@await Html.PartialAsync("_LoginPartial")
@@ -58,57 +85,44 @@
 	</div>
 </div>
 
-@section Modals {
+@section modals {
 	@*- Modal Views for objects with one to many options -*@
 	@foreach (var modal in Model.Modals)
 	{
 		@await Html.PartialAsync(modal.ViewPath, modal.Data)
 	}
 
-@*Status Message modal for error prompts*@
-<div class="modal fade" id="StatusMessageModal" tabindex="-1" role="dialog" aria-labelledby="StatusMessageModal-label" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="StatusMessageModal-label">Modal title</h4>
-			</div>
-			<div class="modal-body">
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary">Save</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-
-<div class="modal fade" id="DeletionConfirmation" tabindex="-1" role="dialog" aria-labelledby="DeletionConfirmation-label" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-body">
-				<h4 class="text-danger">Are you sure? This Item and all it's children in the database will be Deleted!</h4>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
-				<button type="button" class="btn btn-danger" data-bind="click: $root.deleteCurrentItem">Yes</button>
+	<div class="modal fade" id="DeletionConfirmation" tabindex="-1" role="dialog" aria-labelledby="DeletionConfirmation-label" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<h4 class="text-danger">Are you sure? This Item and all it's children in the database will be Deleted!</h4>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">
+						<i class="material-icons">cancel</i> No
+					</button>
+					<button type="button" class="btn btn-danger" data-bind="click: $root.deleteCurrentItem">
+						<i class="material-icons">delete_forever</i> Yes
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-@*Lost Changes Confirmation modal*@
-
-
+	@*Status Message Snack bar here*@
+	<span id="StatusMessageId"
+		  data-toggle=snackbar
+		  data-style="toast"
+		  data-html-allowed="true"
+		  data-bind="attr: {'data-content': $root.StatusMessageView}">
+	</span>
 }
 
 @section Scripts {
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
 		await Html.RenderPartialAsync("~/Views/ModelViews/SpaScripts.cshtml");
-		<script src="~/js/SpaNav.js"></script>
-
+		await Html.RenderPartialAsync("~/Views/Shared/SpaNav.cshtml");
 	}
 }

@@ -10,16 +10,14 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
-// For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace GenericMvcUtilities.Controllers
 {
-	[Authorize(Roles = RoleHelper.SystemOwner + "," + RoleHelper.UserAdmin + "," + RoleHelper.ContentAdmin)]
-	public class BaseController<TKey, T> : Controller, IBaseController<TKey, T>
+	//this should be handled in derived classes: [Authorize(Roles = RoleHelper.SystemOwner + "," + RoleHelper.UserAdmin + "," + RoleHelper.ContentAdmin)]
+	public abstract class BaseController<TKey, T> : Controller, IBaseController<TKey, T>
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
-		protected readonly BaseEntityFrameworkRepository<T> Repository;
+		protected readonly IEntityRepository<T> Repository;
 
 		protected readonly ILogger<T> Logger;
 
@@ -27,7 +25,7 @@ namespace GenericMvcUtilities.Controllers
 		/// Initializes a new instance of the <see cref="BaseController{T}" /> class.
 		/// </summary>
 		/// <param name="repository">The repo.</param>
-		public BaseController(BaseEntityFrameworkRepository<T> repository, ILogger<T> logger)
+		public BaseController(IEntityRepository<T> repository, ILogger<T> logger)
 		{
 			try
 			{
@@ -104,6 +102,7 @@ namespace GenericMvcUtilities.Controllers
 					{
 						var detailsViewModel = new DetailsViewModel(this)
 						{
+							Id = item.Id,
 							Data = item
 						};
 
@@ -144,6 +143,7 @@ namespace GenericMvcUtilities.Controllers
 					{
 						var editViewModel = new EditViewModel(this)
 						{
+							Id = item.Id,
 							Data = item
 						};
 
@@ -223,6 +223,7 @@ namespace GenericMvcUtilities.Controllers
 			{
 				var createViewModel = new CreateViewModel(this)
 				{
+					Data = Activator.CreateInstance<T>()
 				};
 
 				return this.ViewFromModel(createViewModel);
@@ -296,6 +297,7 @@ namespace GenericMvcUtilities.Controllers
 					{
 						var deleteViewModel = new DeleteViewModel(this)
 						{
+							Id = item.Id,
 							Data = item
 						};
 
@@ -322,7 +324,7 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
-		[HttpPost("{id}"), ActionName("Delete"), Route("[controller]/[action]/")]
+		[HttpPost("{id}"), ActionName("DeleteConfirmed"), Route("[controller]/[action]/")]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> DeleteConfirmed(TKey id)
 		{

@@ -74,7 +74,7 @@ namespace GenericMvcUtilities.Repositories
 
 	//public interface IBaseRepository
 
-	public interface IEntityFrameworkRepository<T> : IGraphRepository<T> where T : class
+	public interface IEntityRepository<T> : IGraphRepository<T> where T : class
 	{
 		Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue);
 

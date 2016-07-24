@@ -4,6 +4,8 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 {
 	public class SinglePageGraph
 	{
+		public string Title { get; set; }
+
 		public List<Page> Pages { get; set; }
 
 		public List<Page> Modals { get; set; }

@@ -14,11 +14,11 @@ namespace GenericMvcUtilities.Controllers
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
-		protected new BaseEntityFrameworkRepository<T> Repository;
+		protected new BaseEntityRepository<T> Repository;
 
 		public BaseGraphController(IGraphRepository<T> repository, ILogger<T> logger) : base(repository, logger)
 		{
-			Repository = base.Repository as BaseEntityFrameworkRepository<T>;
+			Repository = base.Repository as BaseEntityRepository<T>;
 		}
 
 		//todo more design work

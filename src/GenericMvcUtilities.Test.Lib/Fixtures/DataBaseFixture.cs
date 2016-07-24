@@ -10,29 +10,21 @@ using GenericMvcUtilities.Repositories;
 
 namespace GenericMvcUtilities.Test.Lib.Fixtures
 {
-	public class InMemoryDataBaseFixture<TEntity, TContext> :
-		IDatabaseTestFixture<TEntity>, IDisposable where TEntity : class, new()
-		where TContext : InMemoryDbContext
+	public class DataBaseFixture<TContext> :
+		IDisposable
+		where TContext : DbContext
 	{
 
 		public TContext DbContext { get; set; }
 
-		BaseEntityFrameworkRepository<TEntity> Repo { get; set; }
-
-
-		public BaseEntityFrameworkRepository<TEntity> Repository
+		public TContext New()
 		{
-			get
-			{
-				return Repo;
-			}
+			return (TContext)Activator.CreateInstance(typeof(TContext));
 		}
 
-		public InMemoryDataBaseFixture()
+		public DataBaseFixture()
 		{
-			DbContext = InMemoryDbContext.New<TContext>();
-
-			Repo = new BaseEntityFrameworkRepository<TEntity>(DbContext);
+			DbContext = New();
 		}
 
 		#region IDisposable Support

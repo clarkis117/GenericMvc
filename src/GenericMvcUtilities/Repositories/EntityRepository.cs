@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using GenericMvcUtilities.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections;
@@ -13,11 +14,21 @@ using System.Threading.Tasks;
 //Todo: add an additional generic type constraint of TKey
 namespace GenericMvcUtilities.Repositories
 {
+	public class InjectEntityRepo<T, TContext> : BaseEntityRepository<T>
+		where T : class
+		where TContext : DbContext
+	{
+		public InjectEntityRepo(TContext context) : base(context)
+		{
+
+		}
+	}
+
 	/// <summary>
 	/// Base Repository for accessing the Entity Framework Context
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public class BaseEntityFrameworkRepository<T> : IEntityFrameworkRepository<T>, IDisposable
+	public class BaseEntityRepository<T> : IEntityRepository<T>, IDisposable
 		where T : class
 	{
 		/// <summary>
@@ -34,12 +45,12 @@ namespace GenericMvcUtilities.Repositories
 		public DbSet<T> ContextSet { get; set; }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="BaseEntityFrameworkRepository{T}"/> class.
+		/// Initializes a new instance of the <see cref="BaseEntityRepository{T}"/> class.
 		/// </summary>
 		/// <param name="dataContext">The data context.</param>
 		/// <exception cref="System.ArgumentNullException">Null Data Context:  + DataContext.ToString()</exception>
 		/// <exception cref="System.Exception">BaseRepository Constructor Failed:  + typeof(T).ToString()</exception>
-		public BaseEntityFrameworkRepository(DbContext dataContext)
+		public BaseEntityRepository(DbContext dataContext)
 		{
 			try
 			{
@@ -136,6 +147,19 @@ namespace GenericMvcUtilities.Repositories
 			var propertyOrField = Expression.PropertyOrField(parameterExpression, "Id");
 			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(id));
 			return Expression.Lambda<Func<T, bool>>(binaryExpression, parameterExpression);
+		}
+
+		/// <summary>
+		/// Matches the by identifier expression.
+		/// </summary>
+		/// <param name="id">The identifier.</param>
+		/// <returns></returns>
+		public Expression<Func<IModel<TKey>, bool>> MatchByIdExpression<TKey>(object id) where TKey : IEquatable<TKey>
+		{
+			var parameterExpression = Expression.Parameter(typeof(IModel<TKey>));
+			var propertyOrField = Expression.PropertyOrField(parameterExpression, "Id");
+			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(id));
+			return Expression.Lambda<Func<IModel<TKey>, bool>>(binaryExpression, parameterExpression);
 		}
 
 		/// <summary>
@@ -309,7 +333,7 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Get Multi Failed:  + typeof(T).ToString()</exception>
-		public virtual Task<IList<T>> GetMany(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public async virtual Task<IList<T>> GetMany(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
 			if (predicate != null)
 			{
@@ -319,7 +343,9 @@ namespace GenericMvcUtilities.Repositories
 
 					token.ThrowIfCancellationRequested();
 
-					return ContextSet.Where(predicate).ToListAsync(token) as Task<IList<T>>;
+					var list = await ContextSet.Where(predicate).ToListAsync(token);
+						
+					return list;
 				}
 				catch (Exception ex)
 				{

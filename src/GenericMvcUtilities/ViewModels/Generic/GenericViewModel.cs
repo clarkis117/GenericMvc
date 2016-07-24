@@ -29,7 +29,7 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 		public virtual string NestedView { get; set; }
 
-		public object Data { get; set; }
+		public virtual object Data { get; set; }
 
 		/*
 		public GenericViewModel(string controllerName)

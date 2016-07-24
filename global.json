@@ -1,5 +1,5 @@
 {
-  "projects": [ "src", "test", "Mime-Detective" ],
+  "projects": [ "src", "test", "Mime-Detective", "../Mime-Detective" ],
 	"sdk": {
 		"version": "1.0.0-preview1-002702"
 	}

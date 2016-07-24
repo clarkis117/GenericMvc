@@ -1,0 +1,49 @@
+﻿@model GenericMvcUtilities.ViewModels.Generic.CreateEditViewModel
+
+@{
+	var typeName = Model.Data.GetType().Name;
+	ViewData["Title"] = Model.Action + " " + typeName;
+}
+
+<section class="well">
+	<header>
+		<ul class="list-inline">
+			<li><h2 class="text-primary">@Model.Title</h2></li>
+			@if (Model.DisplayAction)
+			{
+				<li class="pull-right"><h2 class="text-primary"><i class="material-icons">mode_edit</i> @Model.Action</h2></li>
+			}
+		</ul>
+		<ul class="list-inline">
+			<li><h4>@Model.Description</h4></li>
+		</ul>
+		<hr class="shadow-z-1 primarycolor" />
+	</header>
+	<div>
+		<form asp-action="@Model.Action">
+			<div class="form-horizontal">
+				@await Html.PartialAsync(Model.NestedViewPath, Model.Data)
+				<div class="form-group">
+					<div class="col-md-offset-2 col-md-10">
+						<button type="submit" class="btn btn-success"><i class="material-icons">save</i> Save</button>|
+						<a class="btn btn-default" asp-action="Index"><i class="material-icons">list</i> Back to List</a>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<footer>
+		<hr class="shadow-z-1 primarycolor" />
+		<ul class="list-inline">
+			<li><h5 class="text-primary">@Model.Title</h5></li>
+			@if (Model.DisplayAction)
+			{
+				<li class="pull-right"><h5 class="text-capitalize"><i class="material-icons">mode_edit</i> @Model.Action</h5></li>
+			}
+		</ul>
+	</footer>
+</section>
+
+@section Scripts {
+	@{ await Html.PartialAsync("_ValidationScriptsPartial"); }
+}
