@@ -18,9 +18,9 @@ namespace GenericMvcUtilities.Repositories
 	/// <seealso cref="GenericMvcUtilities.Repositories.IRepository{TViewModel}" />
 	public abstract class PairedRepository<TKey, TViewModel, TEntity, TEntityRepo, TFileRepo> : IRepository<TViewModel>
 		where TKey : IEquatable<TKey>
-		where TViewModel : class, IModelWithFile<TKey>
-		where TEntity : class, IModel<TKey>
-		where TFileRepo : FileRepository
+		where TViewModel : class, IFile<TKey>, new()
+		where TEntity : class, IModelWithFilename<TKey>
+		where TFileRepo : IFileRepository<TViewModel,TKey>
 		where TEntityRepo : IRepository<TEntity>
 	{
 		protected TEntityRepo _entityRepo;
@@ -74,57 +74,36 @@ namespace GenericMvcUtilities.Repositories
 			return _mapper.Map<Expression<Func<TEntity, bool>>>(predicate);
 		}
 
-		protected abstract TViewModel ConvertProperties(TEntity entity);
-
-		/*
+		//maps the file portion of the view model
+		protected TViewModel addFileSection(TViewModel viewModel, TViewModel filePortion)
 		{
-			var viewModel = new Document();
+			viewModel.Name = filePortion.Name;
+			viewModel.ContentType = filePortion.ContentType;
+			viewModel.EncodingType = filePortion.EncodingType;
+			viewModel.Path = filePortion.Path;
 
-			viewModel.Id = doc.Id;
-
-			viewModel.Title = doc.Title;
-
-			viewModel.Description = doc.Description;
+			if (filePortion.Data != null)
+			{
+				viewModel.Data = filePortion.Data;
+			}
 
 			return viewModel;
 		}
-		*/
+
+		/// <summary>
+		/// Maps the properties, for operations where the file needs dealt with first
+		/// instead of the sql database
+		/// </summary>
+		/// <param name="viewModelWithFileData">The view model with file data.</param>
+		/// <param name="updatedEntity">The updated entity.</param>
+		/// <returns></returns>
+		protected abstract TViewModel addEntitySection(TViewModel viewModelWithFileData, TEntity updatedEntity);
+
+		protected abstract TViewModel ConvertProperties(TEntity entity);
 
 		protected abstract Task<TViewModel> Convert(TEntity entity, bool WithData = false);
 
-		/*
-	{
-		var viewModel = Convert(doc);
-
-		viewModel.File = await _fileRepo.Get(x => x.Name == doc.Filename);
-
-		return viewModel;
-	}
-	*/
-
-		/// <summary>
-		/// !!!File will still need save seperately
-		/// Converts the specified document.
-		/// </summary>
-		/// <param name="doc">The document.</param>
-		/// <returns></returns>
 		protected abstract TEntity Convert(TViewModel viewModel);
-
-		/*
-	{
-		var model = new Models.Content.Documents();
-
-		model.Id = doc.Id;
-
-		model.Title = doc.Title;
-
-		model.Description = doc.Description;
-
-		model.Filename = doc.File.Name;
-
-		return model;
-	}
-	*/
 
 		private IObservable<TViewModel> GetViewModelsObservable()
 		{
@@ -302,23 +281,22 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public virtual async Task<TViewModel> Create(TViewModel entity)
+		//this needs to retrun the proper id with the view model
+		public virtual async Task<TViewModel> Create(TViewModel viewModel)
 		{
-			if (entity != null)
+			if (viewModel != null)
 			{
 				try
 				{
-					var dbEntity = Convert(entity);
+					var dbEntity = Convert(viewModel);
 
-					var dbResult = await _entityRepo.Create(dbEntity);
+					var createdEntity = await _entityRepo.Create(dbEntity);
 
-					var fileResult = await _fileRepo.Create(entity.File);
+					viewModel = await _fileRepo.Create(viewModel);
 
-					if (dbResult != null && fileResult != null)
+					if (createdEntity != null && viewModel != null)
 					{
-						var viewModel = ConvertProperties(dbResult);
-
-						viewModel.File = fileResult;
+						viewModel = addEntitySection(viewModel, createdEntity);
 
 						return viewModel;
 					}
@@ -334,7 +312,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(entity));
+				throw new ArgumentNullException(nameof(viewModel));
 			}
 		}
 
@@ -364,6 +342,16 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
+		/// <summary>
+		/// Deletes the specified view model.
+		/// Entities with relationships to other tables should override this to deal with those relationships
+		/// i.e. if the entity is still related to other entities do not delete it just remove the association to the 
+		/// current context in which it is being deleted
+		/// </summary>
+		/// <param name="viewModel">The view model.</param>
+		/// <returns></returns>
+		/// <exception cref="System.Exception"></exception>
+		/// <exception cref="System.ArgumentNullException"></exception>
 		public virtual async Task<bool> Delete(TViewModel viewModel)
 		{
 			if (viewModel != null)
@@ -372,9 +360,11 @@ namespace GenericMvcUtilities.Repositories
 				{
 					var entity = Convert(viewModel);
 
-					var dbResult = await _entityRepo.Delete(entity);
+					//File Should be deleted first
+					var fileResult = await _fileRepo.Delete(viewModel);
 
-					var fileResult = await _fileRepo.Delete(viewModel.File);
+
+					var dbResult = await _entityRepo.Delete(entity);
 
 					if (dbResult && fileResult)
 					{
@@ -429,25 +419,49 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
+		//photo repo should just have to override this to generate md5 based name
+		//todo update the photo repo to work with this
+		//if the actual file changed delete it then create a new one
 		public virtual async Task<TViewModel> Update(TViewModel viewModel)
 		{
 			if (viewModel != null)
 			{
 				try
 				{
-					var entity = Convert(viewModel);
+					//if underlying file changed delete it and create a new one
+					//if it didn't use the regular file repo update method
+					//check to see if the underlying file changed on us
+					var oldEntity = await _entityRepo.Get(x=> x.Id.Equals(viewModel.Id));
 
-					var dbResult = await _entityRepo.Update(entity);
-
-					var fileResult = await _fileRepo.Update(viewModel.File);
-
-					if (dbResult != null && fileResult != null)
+					//check to see if file changed
+					if (viewModel.Name == oldEntity.Filename)
 					{
-						var newViewModel = ConvertProperties(dbResult);
+						//use regular file repo update
+						//then try to update the file
+						viewModel = await _fileRepo.Update(viewModel);
+					}
+					else // delete file and make a new one
+					{
+						var deleteResult = await _fileRepo.Delete(await Convert(oldEntity));
 
-						newViewModel.File = fileResult;
+						if (deleteResult)
+						{
+							viewModel = await _fileRepo.Create(viewModel);
+						}
+						else
+						{
+							throw new System.IO.IOException("Could not delete old file");
+						}
+					}
 
-						return newViewModel;
+					//Now update sql data model if the file op was successfull
+					var updatedEntity = await _entityRepo.Update(Convert(viewModel));
+
+					var updatedViewModel = addEntitySection(viewModel, updatedEntity);
+
+					if (updatedViewModel != null)
+					{
+						return updatedViewModel;
 					}
 					else
 					{
