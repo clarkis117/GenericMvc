@@ -735,7 +735,7 @@ namespace GenericMvcUtilities.Repositories
 
 					return Task.FromResult(true);
 				}
-				catch (Exception e)
+				catch (Exception)
 				{
 					return Task.FromResult(false);
 				}

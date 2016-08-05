@@ -23,9 +23,9 @@ namespace GenericMvcUtilities.Repositories
 		where TFileRepo : IFileRepository<TViewModel,TKey>
 		where TEntityRepo : IRepository<TEntity>
 	{
-		protected TEntityRepo _entityRepo;
+		public TEntityRepo _entityRepo;
 
-		protected TFileRepo _fileRepo;
+		public TFileRepo _fileRepo;
 
 		protected IMapper _mapper;
 
@@ -360,11 +360,10 @@ namespace GenericMvcUtilities.Repositories
 				{
 					var entity = Convert(viewModel);
 
-					//File Should be deleted first
-					var fileResult = await _fileRepo.Delete(viewModel);
-
-
 					var dbResult = await _entityRepo.Delete(entity);
+
+					//todo entity Should be deleted first
+					var fileResult = await _fileRepo.Delete(viewModel);
 
 					if (dbResult && fileResult)
 					{

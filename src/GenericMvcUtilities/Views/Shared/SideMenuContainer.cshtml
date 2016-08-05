@@ -24,6 +24,10 @@
 				</li>
 			}
 		</ul>
+		<h4 class="text-primary">Additional Pages</h4>
+		<ul class="nava">
+			<li class="withripple" data-target="#@Model.PageListView.Id"><i class="material-icons">list</i> @Model.PageListView.GetDisplayName()</li>
+		</ul>
 		<ul class="list-inline">
 			<li>
 				<button title="Saves the current Item" class="btn btn-success" data-bind="click: SaveItem">
@@ -80,18 +84,19 @@
 						@await Html.PartialAsync(page.ViewPath, page.Data)
 					</div>
 				}
+				<div class="well page" id="@Model.PageListView.Id">
+					@await Html.PartialAsync(Model.PageListView.ViewPath, Model.PageListView.Data)
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
-
 @section modals {
 	@*- Modal Views for objects with one to many options -*@
 	@foreach (var modal in Model.Modals)
 	{
 		@await Html.PartialAsync(modal.ViewPath, modal.Data)
 	}
-
 	<div class="modal fade" id="DeletionConfirmation" tabindex="-1" role="dialog" aria-labelledby="DeletionConfirmation-label" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -109,7 +114,6 @@
 			</div>
 		</div>
 	</div>
-
 	@*Status Message Snack bar here*@
 	<span id="StatusMessageId"
 		  data-toggle=snackbar
@@ -118,7 +122,6 @@
 		  data-bind="attr: {'data-content': $root.StatusMessageView}">
 	</span>
 }
-
 @section Scripts {
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");

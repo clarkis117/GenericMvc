@@ -276,7 +276,7 @@ namespace GenericMvcUtilities.Repositories
 					//Throw if query is Canceled
 					token.ThrowIfCancellationRequested();
 
-					return ContextSet.FirstOrDefaultAsync<T>(predicate, token);
+					return ContextSet.AsNoTracking().FirstOrDefaultAsync<T>(predicate, token);
 				}
 				catch (Exception ex)
 				{
@@ -552,7 +552,7 @@ namespace GenericMvcUtilities.Repositories
 
 					ContextSet.Remove(entity);
 
-					if (await DataContext.SaveChangesAsync() > 0)
+					if (await DataContext.SaveChangesAsync() >= 0)
 					{
 						return true;
 					}

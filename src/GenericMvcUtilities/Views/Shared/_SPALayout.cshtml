@@ -9,12 +9,17 @@
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<environment names="Development,Staging,Production">
 		<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-		<link rel="stylesheet" href="~/lib/bootstrap-touch-carousel/dist/css/bootstrap-touch-carousel.css" />
 		<link rel="stylesheet" href="~/css/material-dist/bootstrap-material-design.css" />
 		<link rel="stylesheet" href="~/css/material-dist/ripples.css" />
 		<link rel="stylesheet" href="~/lib/snackbarjs/dist/snackbar.css"/>
 		<link rel="stylesheet" href="~/lib/snackbarjs/themes-css/material.css"/>
 		@*<link rel="stylesheet" href="~/css/SpaStyles.css" />*@
+
+	</environment>
+	<environment names="Staging,Production">
+
+	</environment>
+	<environment names="Development,Staging,Production">
 		@await Html.PartialAsync("~/Views/Shared/SpaStyles.cshtml")
 		@await RenderSectionAsync("stylesheets", false)
 	</environment>
@@ -37,32 +42,36 @@
 		<script src="~/lib/jquery/dist/jquery.js"></script>
 		<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
 		<script src="~/lib/hammer.js/hammer.js"></script>
-		<script src="~/lib/bootstrap-touch-carousel/dist/js/bootstrap-touch-carousel.js"></script>
 		<script src="~/lib/arrive/src/arrive.js"></script>
 		<script src="~/lib/bootstrap-material-design/dist/js/ripples.js"></script>
 		<script src="~/lib/bootstrap-material-design/dist/js/material.js"></script>
 		<script src="~/lib/knockout/dist/knockout.debug.js"></script>
+	</environment>
+	<environment names="Staging,Production">
+		<script src="~/lib/jquery/dist/jquery.min.js"></script>
+		<script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="~/lib/hammer.js/hammer.min.js"></script>
+		<script src="~/lib/arrive/src/minified/arrive.min.js"></script>
+		<script src="~/lib/bootstrap-material-design/dist/js/ripples.min.js"></script>
+		<script src="~/lib/bootstrap-material-design/dist/js/material.min.js"></script>
+		<script src="~/lib/knockout/dist/knockout.js"></script>
+	</environment>
+	<environment names="Development,Staging,Production">
 		<script src="~/lib/knockout-mapping/knockout.mapping.js"></script>
 		<script src="~/lib/knockout-file-bindings/knockout-file-bindings.js"></script>
 		<script src="~/lib/knockout-typescript-components-clarkis117/dist/ko-component.js"></script>
 		<script src="~/lib/snackbarjs/dist/snackbar.min.js"></script>
+		<script src="~/lib/jquery-autosize/dist/autosize.min.js"></script>
+		@await RenderSectionAsync("scripts", required: true)
 	</environment>
-	@await RenderSectionAsync("scripts", required: true)
-	@*Render document scripts*@
+	@section scripts {
 	<script>
 		$(document).ready(function () {
-			// This command is used to initialize some elements and make them work properly
-			/*
-			$.material.options = {
-				"withRipples": ".btn:not(.btn-link), .card-image, .navbar a:not(.withoutripple), .nav-tabs a:not(.withoutripple), .withripple",
-				"inputElements": "input.form-control, select.form-control",
-				"checkboxElements": ".checkbox > label > input[type=checkbox]",
-				"radioElements": ".radio > label > input[type=radio]"
-			}
-			*/
-
 			$.material.init();
+
+			autosize(document.querySelectorAll('textarea'));
 		});
 	</script>
+	}
 </body>
 </html>

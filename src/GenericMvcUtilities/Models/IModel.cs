@@ -23,6 +23,7 @@ namespace GenericMvcUtilities.Models
 	public interface IModelWithFilename<TKey> : IModel<TKey>
 	where TKey : IEquatable<TKey>
 	{
+		[AutoMapper.Configuration.Conventions.MapTo("Name")]
 		string Filename { get; set; }
 	}
 
@@ -37,32 +38,43 @@ namespace GenericMvcUtilities.Models
 
 		//replaces Id in File... this is the path to the file
 		//equal directory name
+		[AutoMapper.IgnoreMap]
 		string Path { get; set; }
 
 		//file name as it appears on disk
+		[AutoMapper.Configuration.Conventions.MapTo("Filename")]
 		string Name { get; set; }
 
 		/// <summary>
 		/// mime content type
 		/// </summary>
+		[AutoMapper.IgnoreMap]
 		string ContentType { get; set; }
 
 		/// <summary>
 		/// encoding type
 		/// needed to decode data from over the wire transmissions
 		/// </summary>
+		[AutoMapper.IgnoreMap]
 		EncodingType EncodingType { get; set; }
 
 		/// <summary>
 		/// if file facade this will be null
 		/// </summary>
+		[AutoMapper.IgnoreMap]
 		byte[] Data { get; set; }
 
-
+		[AutoMapper.IgnoreMap]
 		FileInfo FileInfo { get; set; }
 
 		bool IsFileBacked();
 
 		//FileInfo GetFileInfo();
+	}
+
+	public interface IRelatedFile<TKey> : IFile<TKey>
+		where TKey : IEquatable<TKey>
+	{
+		TKey ParentObjectId { get; set; }
 	}
 }

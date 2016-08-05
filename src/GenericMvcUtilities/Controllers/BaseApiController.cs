@@ -2,6 +2,7 @@
 using GenericMvcUtilities.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -81,6 +82,19 @@ namespace GenericMvcUtilities.Controllers
 		{
 			return (this.GetType().Name + ": " + message + ": " + typeof(T));
 		}
+
+		[NonAction]
+		public virtual Task<bool> IsValid(T Model, ModelStateDictionary ModelState, bool updating = false)
+		{
+			return Task.FromResult(ModelState.IsValid);
+		}
+
+		[NonAction]
+		public virtual Task<bool> IsValid(T[] Models, ModelStateDictionary ModelState, bool updating = false)
+		{
+			return Task.FromResult(ModelState.IsValid);
+		}
+
 
 		[NonAction]
 		protected virtual async Task<ICollection<T>> DifferentalExistance(ICollection<T> items)
@@ -211,7 +225,7 @@ namespace GenericMvcUtilities.Controllers
 			{
 				if (item != null)
 				{
-					if (ModelState.IsValid)
+					if (await IsValid(item, ModelState))
 					{
 						//var id = item.Id;
 
@@ -280,7 +294,7 @@ namespace GenericMvcUtilities.Controllers
 			{
 				if (items != null)
 				{
-					if (ModelState.IsValid)
+					if (await IsValid(items, ModelState))
 					{
 						ICollection<T> differental = await this.DifferentalExistance(items);
 
@@ -330,9 +344,9 @@ namespace GenericMvcUtilities.Controllers
 				if (id != null && item != null)
 				{
 					//Validate Model
-					if (ModelState.IsValid)
+					if (await IsValid(item, ModelState, updating: true))
 					{
-						//since some things like "consts"
+						//since some things like "consts" use id arg for query
 
 
 						//Check for item existence

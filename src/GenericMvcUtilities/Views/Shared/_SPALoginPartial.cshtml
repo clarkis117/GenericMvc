@@ -1,13 +1,14 @@
 ﻿@using System.Security.Claims
+@inject UserManager<BaseUser> manager
 
 @if (User.Identity.IsAuthenticated)
 {
 	<form asp-controller="Account" asp-action="LogOff" method="post" id="logoutForm" class="navbar-right">
 		<ul class="nav navbar-nav navbar-right">
 			<li>
-				<a asp-controller="Manage" asp-action="Index" title="Manage">Hello @User.GetUserName()!</a>
+				<a asp-controller="Manage" asp-action="Index" title="Manage">@manager.GetUserName(User)</a>
 			</li>
-			<li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+			<li><button class="btn btn-link navbar-btn navbar-link" type="submit">Log off</button></li>
 		</ul>
 	</form>
 }

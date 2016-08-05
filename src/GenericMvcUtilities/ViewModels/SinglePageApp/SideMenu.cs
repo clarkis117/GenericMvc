@@ -4,6 +4,10 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 {
 	public class SinglePageGraph
 	{
+		public SinglePageGraph()
+		{
+		}
+
 		public string Title { get; set; }
 
 		public List<Page> Pages { get; set; }
@@ -11,6 +15,8 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 		public List<Page> Modals { get; set; }
 
 		public Page MenuListViewModel { get; set; }
+
+		public Page PageListView { get; set; }
 	}
 
 	public static class SinglePage
