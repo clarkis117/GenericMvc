@@ -32,8 +32,6 @@ namespace GenericMvcUtilities.UserManager
 		/// <returns></returns>
 		public static IEnumerable<SelectListItem> SelectableRoleList()
 		{
-			var roleListViewModel = new List<SelectListItem>();
-
 			foreach (var role in RoleHelper.MutableRoles)
 			{
 				var listItem = new SelectListItem()
@@ -42,10 +40,17 @@ namespace GenericMvcUtilities.UserManager
 					Value = role
 				};
 
-				roleListViewModel.Add(listItem);
+				yield return listItem;
 			}
 
-			return roleListViewModel;
+			var defaultOption = new SelectListItem()
+			{
+				Selected = true,
+				Text = "Change User Role",
+				Value = ""
+			};
+
+			yield return defaultOption;
 		}
 	}
 }

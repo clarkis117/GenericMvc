@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GenericMvcUtilities.ViewModels.Generic
+namespace GenericMvcUtilities.ViewModels.Basic
 {
-	public class GenericViewModel
+	public class BaseViewModel
 	{
 		public string ControllerName { get; set; }
 
@@ -41,12 +41,12 @@ namespace GenericMvcUtilities.ViewModels.Generic
 
 	public static class ViewModelHelper
 	{
-		public static Microsoft.AspNetCore.Mvc.ViewResult ViewFromModel(this Microsoft.AspNetCore.Mvc.Controller controller, GenericViewModel viewModel)
+		public static Microsoft.AspNetCore.Mvc.ViewResult ViewFromModel(this Microsoft.AspNetCore.Mvc.Controller controller, BaseViewModel viewModel)
 		{
 			return controller.View(viewModel.ViewContainerPath, viewModel);
 		}
 
-		public static Microsoft.AspNetCore.Mvc.ViewResult ViewFromModels(this Microsoft.AspNetCore.Mvc.Controller controller, IList<GenericViewModel> viewModels)
+		public static Microsoft.AspNetCore.Mvc.ViewResult ViewFromModels(this Microsoft.AspNetCore.Mvc.Controller controller, IList<BaseViewModel> viewModels)
 		{
 			return controller.View("~/Views/Shared/MultiPageContainer.cshtml", viewModels);
 		}

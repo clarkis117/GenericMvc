@@ -56,6 +56,7 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
+		/*
 		/// <summary>
 		/// Matches the by identifier expression.
 		/// </summary>
@@ -69,6 +70,7 @@ namespace GenericMvcUtilities.Controllers
 			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(id));
 			return Expression.Lambda<Func<IModel<TKey>, bool>>(binaryExpression, parameterExpression);
 		}
+		*/
 
 		[NonAction]
 		protected string FormatLogMessage(string message, Microsoft.AspNetCore.Http.HttpRequest request)
@@ -134,9 +136,7 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
-		[AllowAnonymous]
-		[Route("[controller]/[action]/")]
-		[HttpGet]
+		[Route("[controller]/[action]/"), HttpGet]
 		public virtual async Task<IEnumerable<T>> GetAll()
 		{
 			try
@@ -155,9 +155,7 @@ namespace GenericMvcUtilities.Controllers
 		}
 
 		//todo change back to mvc style
-		[AllowAnonymous]
-		[Route("[controller]/[action]/")]
-		[HttpGet("{id}")]
+		[Route("[controller]/[action]/"), HttpGet("{id}")]
 		public virtual async Task<T> Get(TKey id)
 		{
 			try
@@ -217,8 +215,7 @@ namespace GenericMvcUtilities.Controllers
 		/// or
 		/// </exception>
 		//[AllowAnonymous] //Testing only
-		[Route("[controller]/[action]/")]
-		[HttpPost]
+		[Route("[controller]/[action]/"), HttpPost]
 		public virtual async Task<IActionResult> Create([FromBody] T item)
 		{
 			try
@@ -285,9 +282,7 @@ namespace GenericMvcUtilities.Controllers
 		/// Inserting items failed
 		/// or
 		/// </exception>
-		//[AllowAnonymous] //testing only
-		[Route("[controller]/[action]/")]
-		[HttpPost]
+		[Route("[controller]/[action]/"), HttpPost]
 		public virtual async Task<IActionResult> Creates([FromBody] T[] items)
 		{
 			try
@@ -335,8 +330,7 @@ namespace GenericMvcUtilities.Controllers
 		}
 
 		//todo: add behavior for returning updated section
-		[Route("[controller]/[action]/")]
-		[HttpPost("{id}")]
+		[Route("[controller]/[action]/"), HttpPost("{id}")]
 		public virtual async Task<IActionResult> Update(TKey id, [FromBody] T item)
 		{
 			try
@@ -398,8 +392,7 @@ namespace GenericMvcUtilities.Controllers
 
 
 		//fixed: fix design oversight to have whole object deleted
-		[Route("[controller]/[action]/")]
-		[HttpDelete("{id}")]
+		[Route("[controller]/[action]/"), HttpDelete("{id}")]
 		public virtual async Task<IActionResult> Delete(TKey id)
 		{
 			try

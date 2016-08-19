@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Reflection;
+using GenericMvcUtilities.ViewModels.Basic;
 
 namespace GenericMvcUtilities.ViewModels.UserManager
 {
@@ -27,28 +28,32 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 		[Display(Name ="Email")]
 		string Email { get; set; }
 
-		[Display(Name =	"Confirmed?")]
+		[Display(Name =	"Is Email Confirmed?")]
 		bool EmailConfirmed { get; set; }
 
 		[Display(Name = "Phone Number")]
 		string PhoneNumber { get; set; }
 
-		[Display(Name = "Confirmed?")]
+		[Display(Name = "Is Phone Number Confirmed?")]
 		bool PhoneNumberConfirmed { get; set; }
 
-		[Display(Name = "Failed Login Attempts:")]
+		[Display(Name = "Failed Login Attempts")]
 		int AccessFailedCount { get; set; }
 
 		[Display(Name ="Is the Account Locked?")]
 		bool LockoutEnabled { get; set; }
 
-		[Display(Name ="Locked out Until:")]
+		[Display(Name ="Locked out Until")]
 		DateTimeOffset LockoutEnd { get; set; }
 
 		[Display(Name ="Two-Factor Enabled?")]
 		bool TwoFactorEnabled { get; set; }
 
 		ICollection<string> Roles { get; }
+
+		bool ShowActions { get; set; }
+
+		MessageViewModel Message { get; set; }
 	}
 
 
@@ -89,6 +94,10 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 		public bool TwoFactorEnabled { get; set; }
 
 		public ICollection<string> Roles { get; }
+
+		public bool ShowActions { get; set; } = true;
+
+		public MessageViewModel Message { get; set; }
 
 		//public ICollection<IdentityUserRole<TKey>> Roles { get; }
 

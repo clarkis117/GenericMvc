@@ -6,24 +6,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-//ToDo: Add Eager Loading to this and IBaseRepository
-//Todo: reconcile this with changes in RC2
-//Todo: add an additional generic type constraint of TKey
 namespace GenericMvcUtilities.Repositories
 {
-	public class InjectEntityRepo<T, TContext> : BaseEntityRepository<T>
-		where T : class
-		where TContext : DbContext
-	{
-		public InjectEntityRepo(TContext context) : base(context)
-		{
-
-		}
-	}
-
+	//todo fix number of changes saved can equal zero, this is a valid value
 	/// <summary>
 	/// Base Repository for accessing the Entity Framework Context
 	/// </summary>
@@ -44,83 +33,146 @@ namespace GenericMvcUtilities.Repositories
 		/// </summary>
 		public DbSet<T> ContextSet { get; set; }
 
+		private static readonly Type typeofT = typeof(T);
+
+		private static IEnumerable<IEntityType> entityTypes;
+
+		private static bool hasGenericTypeBeenChecked = false;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BaseEntityRepository{T}"/> class.
 		/// </summary>
-		/// <param name="dataContext">The data context.</param>
+		/// <param name="dbContext">The data context.</param>
 		/// <exception cref="System.ArgumentNullException">Null Data Context:  + DataContext.ToString()</exception>
 		/// <exception cref="System.Exception">BaseRepository Constructor Failed:  + typeof(T).ToString()</exception>
-		public BaseEntityRepository(DbContext dataContext)
+		public BaseEntityRepository(DbContext dbContext)
 		{
 			try
 			{
-				if (dataContext != null)
+				if (dbContext != null)
 				{
-					//todo add check for entity based on one in graph controller
+					if (entityTypes == null)
+						entityTypes = dbContext.Model.GetEntityTypes();
 
-					//dataContext.Model.GetEntityTypes().
-					/*
-					if(IsTypePresentInDataContext(ApplicationDbContext.TypeList))
+					//check for entity based on one in graph controller
+					if(hasGenericTypeBeenChecked || IsTypePresentInDataContext(typeofT))
 					{
-						dataContext = DataContext;
+						//set data base context
+						this.DataContext = dbContext;
 
-						this.ContextSet = dataContext.Set<T>();
+						//set the working set
+						this.ContextSet = this.DataContext.Set<T>();
+
+						if (!hasGenericTypeBeenChecked)
+							hasGenericTypeBeenChecked = true;
 					}
 					else
 					{
 						throw new ArgumentException(this.GetType().ToString() + ": Not Member of Current DbContext.");
 					}
-					*/
-
-					//set data base context
-					this.DataContext = dataContext;
-
-					//set the working set
-					this.ContextSet = this.DataContext.Set<T>();
 				}
 				else
 				{
-					throw new ArgumentNullException(nameof(dataContext));
+					throw new ArgumentNullException(nameof(dbContext));
 				}
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("BaseRepository Constructor Failed: " + typeof(T).Name, ex);
+				throw new Exception("BaseRepository Constructor Failed: " + typeofT.Name, ex);
 			}
 		}
 
-		/*
-		private bool IsTypePresentInDataContext(List<Type> TypeList)
+		public IEnumerable<Type> EntityTypes
 		{
-			try
+			get
+			{
+				foreach (var type in entityTypes)
+				{
+					yield return type.ClrType;
+				}
+			}
+		}
+
+		public IEntityType Model
+		{
+			get
+			{
+				IEntityType typeofModel = null;
+
+				foreach (var type in entityTypes)
+				{
+					if (type.ClrType == type)
+						return typeofModel = type;
+				}
+
+				return typeofModel;
+			}
+		}
+
+		protected bool IsTypePresentInDataContext(Type typeParam)
+		{
+			if (typeParam != null)
 			{
 				bool IsTypePresent = false;
 
-				Type param = typeof(T);
-
-				if (TypeList != null)
+				foreach (var type in EntityTypes)
 				{
-					foreach (var type in TypeList)
+					if (type == typeParam)
 					{
-						if (type == param)
-						{
-							return (IsTypePresent = true);
-						}
+						return (IsTypePresent = true);
 					}
-				}
-				else
-				{
-					throw new ArgumentNullException(TypeList.GetType().ToString());
 				}
 
 				return IsTypePresent;
 			}
-			catch(Exception ex)
+			else
 			{
-				throw new Exception("IsTypePresentInDataContext Failed," + typeof(T).ToString() + " not present in DBContext", ex);
+				throw new ArgumentNullException(nameof(typeParam));
 			}
 		}
-		*/
+
+		protected bool IsTypePresentInModel(Type typeParam, IEntityType entityType)
+		{
+			bool isPresent = false;
+
+			var navprops = entityType.GetNavigations();
+
+			foreach (var prop in navprops)
+			{
+				if (prop.GetTargetType().ClrType == typeParam)
+					return isPresent = true;
+			}
+
+			return isPresent;
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="propertyName"></param>
+		/// <param name="propertyValue"></param>
+		/// <returns></returns>
+		public Expression<Func<T, bool>> SearchExpression(string propertyName, object propertyValue)
+		{
+			var typeofString = typeof(string);
+
+			if (propertyValue.GetType() == typeofString)
+			{
+				//see this SO Answer: http://stackoverflow.com/questions/278684/how-do-i-create-an-expression-tree-to-represent-string-containsterm-in-c
+
+				var parameterExp = Expression.Parameter(typeofT);
+				var propertyExp = Expression.Property(parameterExp, propertyName);
+				MethodInfo method = typeofString.GetMethod("Contains", new[] { typeofString });
+				var someValue = Expression.Constant(propertyValue, typeofString);
+				var containsMethodExp = Expression.Call(propertyExp, method, someValue);
+
+				return Expression.Lambda<Func<T, bool>>(containsMethodExp, parameterExp);
+			}
+			else
+			{
+				return IsMatchedExpression(propertyName, propertyValue);
+			}
+		}
 
 		/// <summary>
 		/// Determines whether [is matched expression] [the specified property name].
@@ -130,9 +182,10 @@ namespace GenericMvcUtilities.Repositories
 		/// <returns></returns>
 		public Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue)
 		{
-			var parameterExpression = Expression.Parameter(typeof(T));
+			var parameterExpression = Expression.Parameter(typeofT);
 			var propertyOrField = Expression.PropertyOrField(parameterExpression, propertyName);
-			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(propertyValue));
+			var typeConversion = Expression.Convert(propertyOrField, propertyValue.GetType());
+			var binaryExpression = Expression.Equal(typeConversion, Expression.Constant(propertyValue));
 			return Expression.Lambda<Func<T, bool>>(binaryExpression, parameterExpression);
 		}
 
@@ -143,12 +196,13 @@ namespace GenericMvcUtilities.Repositories
 		/// <returns></returns>
 		public Expression<Func<T, bool>> MatchByIdExpression(object id)
 		{
-			var parameterExpression = Expression.Parameter(typeof(T));
+			var parameterExpression = Expression.Parameter(typeofT);
 			var propertyOrField = Expression.PropertyOrField(parameterExpression, "Id");
 			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(id));
 			return Expression.Lambda<Func<T, bool>>(binaryExpression, parameterExpression);
 		}
 
+		/*
 		/// <summary>
 		/// Matches the by identifier expression.
 		/// </summary>
@@ -161,6 +215,7 @@ namespace GenericMvcUtilities.Repositories
 			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(id));
 			return Expression.Lambda<Func<IModel<TKey>, bool>>(binaryExpression, parameterExpression);
 		}
+		*/
 
 		/// <summary>
 		/// Checks for the existence using the specified predicate.
@@ -178,11 +233,11 @@ namespace GenericMvcUtilities.Repositories
 
 					token.ThrowIfCancellationRequested();
 
-					return this.ContextSet.AnyAsync(predicate, token);
+					return this.ContextSet.AsNoTracking().AnyAsync(predicate, token);
 				}
 				catch (Exception ex)
 				{
-					throw new Exception("Exists Failed: " + typeof(T).Name, ex);
+					throw new Exception("Exists Failed: " + typeofT.Name, ex);
 				}
 			}
 			else
@@ -201,12 +256,21 @@ namespace GenericMvcUtilities.Repositories
 		{
 			try
 			{
-				return this.ContextSet.Any(predicate);
+				return this.ContextSet.AsNoTracking().Any(predicate);
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Exists Sync Failed: " + typeof(T).Name, ex);
+				throw new Exception("Exists Sync Failed: " + typeofT.Name, ex);
 			}
+		}
+
+		public Task<long> Count()
+		{
+			var token = new CancellationToken();
+
+			token.ThrowIfCancellationRequested();
+
+			return ContextSet.AsNoTracking().LongCountAsync(token);
 		}
 
 		public IEnumerator<T> GetEnumerator()
@@ -232,27 +296,13 @@ namespace GenericMvcUtilities.Repositories
 
 				token.ThrowIfCancellationRequested();
 
-				return await ContextSet.ToListAsync(token);
+				return await ContextSet.AsNoTracking().ToListAsync(token);
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Get All Failed: " + typeof(T).Name, ex);
+				throw new Exception("Get All Failed: " + typeofT.Name, ex);
 			}
 		}
-
-		/*
-		protected virtual Task<T> GetCompleteItem(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
-		{
-			if (predicate != null)
-			{
-				throw new NotImplementedException();
-			}
-			else
-			{
-				throw new ArgumentNullException(nameof(predicate));
-			}
-		}
-		*/
 
 		protected virtual IQueryable<T> GetIncludeQuery()
 		{
@@ -280,7 +330,7 @@ namespace GenericMvcUtilities.Repositories
 				}
 				catch (Exception ex)
 				{
-					throw new Exception("Get Failed: " + typeof(T).Name, ex);
+					throw new Exception("Get Failed: " + typeofT.Name, ex);
 				}
 			}
 			else
@@ -308,7 +358,7 @@ namespace GenericMvcUtilities.Repositories
 						//Throw if query is Canceled
 						token.ThrowIfCancellationRequested();
 
-						return GetIncludeQuery().FirstOrDefaultAsync(predicate, token);
+						return GetIncludeQuery().AsNoTracking().FirstOrDefaultAsync(predicate, token);
 					}
 					catch (Exception e)
 					{
@@ -343,13 +393,13 @@ namespace GenericMvcUtilities.Repositories
 
 					token.ThrowIfCancellationRequested();
 
-					var list = await ContextSet.Where(predicate).ToListAsync(token);
-						
+					var list = await ContextSet.AsNoTracking().Where(predicate).ToListAsync(token);
+
 					return list;
 				}
 				catch (Exception ex)
 				{
-					throw new Exception("Get Multi Failed: " + typeof(T).Name, ex);
+					throw new Exception("Get Multi Failed: " + typeofT.Name, ex);
 				}
 			}
 			else
@@ -366,7 +416,7 @@ namespace GenericMvcUtilities.Repositories
 				{
 					try
 					{
-						return GetIncludeQuery().Where(predicate).ToListAsync() as Task<IList<T>>;
+						return GetIncludeQuery().AsNoTracking().Where(predicate).ToListAsync() as Task<IList<T>>;
 					}
 					catch (Exception e)
 					{
@@ -411,7 +461,7 @@ namespace GenericMvcUtilities.Repositories
 				}
 				catch (Exception ex)
 				{
-					throw new Exception("Creating Item Failed: " + typeof(T).Name, ex);
+					throw new Exception("Creating Item Failed: " + typeofT.Name, ex);
 				}
 			}
 			else
@@ -446,7 +496,7 @@ namespace GenericMvcUtilities.Repositories
 				}
 				catch (Exception ex)
 				{
-					throw new Exception("Inserts Failed: " + typeof(T).Name, ex);
+					throw new Exception("Inserts Failed: " + typeofT.Name, ex);
 				}
 			}
 			else
@@ -478,8 +528,6 @@ namespace GenericMvcUtilities.Repositories
 
 					var updatedEntity = ContextSet.Update(entity);
 
-					//dataContext.Entry(entity).State = EntityState.Modified;
-
 					if (await this.DataContext.SaveChangesAsync() > 0)
 					{
 						return updatedEntity.Entity;
@@ -492,7 +540,7 @@ namespace GenericMvcUtilities.Repositories
 				}
 				catch (Exception ex)
 				{
-					throw new Exception("Update Failed: " + typeof(T).Name, ex);
+					throw new Exception("Update Failed: " + typeofT.Name, ex);
 				}
 			}
 			else
@@ -563,7 +611,7 @@ namespace GenericMvcUtilities.Repositories
 				}
 				catch (Exception ex)
 				{
-					throw new Exception("Delete Failed: " + typeof(T).Name, ex);
+					throw new Exception("Delete Failed: " + typeofT.Name, ex);
 				}
 			}
 			else
@@ -588,7 +636,7 @@ namespace GenericMvcUtilities.Repositories
 
 					ContextSet.RemoveRange(entities);
 
-					if (await DataContext.SaveChangesAsync() > 0)
+					if (await DataContext.SaveChangesAsync() >= 0)
 					{
 						return true;
 					}
@@ -599,12 +647,52 @@ namespace GenericMvcUtilities.Repositories
 				}
 				catch (Exception ex)
 				{
-					throw new Exception("Delete Failed: " + typeof(T).Name, ex);
+					throw new Exception("Delete Failed: " + typeofT.Name, ex);
 				}
 			}
 			else
 			{
 				throw new ArgumentNullException(nameof(entities));
+			}
+		}
+
+		//Second make sure the type is present in the data-context
+		//One possibility
+		//third delete the object
+		//Repository.DataContext.
+		//forth save changes
+		public async Task<bool> DeleteChild(object child)
+		{
+			if (child != null)
+			{
+				try
+				{
+					if (IsTypePresentInModel(typeofT, Model))
+					{
+						DataContext.Remove(child);
+
+						if (await DataContext.SaveChangesAsync() > 0)
+						{
+							return true;
+						}
+						else
+						{
+							return false;
+						}
+					}
+					else
+					{
+						throw new Exception($"Type of {nameof(child)}:{child.GetType().Name} is not present in model {typeofT.Name}");
+					}
+				}
+				catch (Exception e)
+				{
+					throw new Exception("Failed to delete child object", e);
+				}
+			}
+			else
+			{
+				throw new ArgumentNullException(nameof(child));
 			}
 		}
 
@@ -650,7 +738,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Dispose Failed: " + typeof(T).Name, ex);
+				throw new Exception("Dispose Failed: " + typeofT.Name, ex);
 			}
 		}
 
@@ -661,66 +749,6 @@ namespace GenericMvcUtilities.Repositories
 		{
 			this.Dispose(true);
 			GC.SuppressFinalize(this);
-		}
-
-		private IEnumerable<IEntityType> _entityTypes;
-
-		public IEnumerable<Type> EntityTypes
-		{
-			get
-			{
-				if (_entityTypes == null)
-				{
-					_entityTypes = DataContext.Model.GetEntityTypes();
-				}
-
-				foreach (var type in _entityTypes)
-				{
-					yield return type.ClrType;
-				}
-			}
-		}
-
-		//todo: maybe cache entity types in a field?
-		//todo: check type T in controller constructor as well
-		//todo: check type T in repository constructor as well
-		//Second make sure the type is present in the data-context
-		//One possibility
-		//third delete the object
-		//Repository.DataContext.
-		//forth save changes
-		public async Task<bool> DeleteChild(object child)
-		{
-			if (child != null)
-			{
-				try
-				{
-					//EntityTypes.Any(x => x.ClrType == child.GetType())
-					if (DataContext.Entry(child).State == EntityState.Detached)
-					{
-						DataContext.Attach(child);
-					}
-
-					DataContext.Remove(child);
-
-					if (await DataContext.SaveChangesAsync() > 0)
-					{
-						return true;
-					}
-					else
-					{
-						return false;
-					}
-				}
-				catch (Exception e)
-				{
-					throw new Exception("Failed to delete child object", e);
-				}
-			}
-			else
-			{
-				throw new ArgumentNullException(nameof(child));
-			}
 		}
 	}
 }

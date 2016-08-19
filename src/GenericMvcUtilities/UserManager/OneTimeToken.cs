@@ -19,19 +19,19 @@ namespace GenericMvcUtilities.UserManager
 	/// </summary>
 	public class OneTimeToken : IDisposable
 	{
-		private HMACSHA256 _hmacSha;
+		private readonly HMACSHA256 _hmacSha;
 
-		private RandomNumberGenerator _rng;
+		private readonly RandomNumberGenerator _rng;
 
-		private DateTimeOffset _issueTime;
+		public byte[] TokenStamp { get; private set; }
 
-		public byte[] TokenStamp { get; set; }
+		private readonly DateTimeOffset _issueTime;
 
 		public DateTimeOffset ExpirationDate {
 			get { return _issueTime.AddHours(1); }
 		}
 
-		public byte[] Value { get; set; }
+		public string Value { get; private set; }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="OneTimeToken"/> class.
@@ -123,6 +123,7 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
+		/*
 		private Task<bool> VerifyRawToken(byte[] token)
 		{
 			return Task.Run(() => {
@@ -140,8 +141,9 @@ namespace GenericMvcUtilities.UserManager
 				return Value.SequenceEqual(token);
 			});
 		}
+		*/
 
-		public async Task<bool> VerifyToken(string utf8Token, DateTimeOffset expiration)
+		public async Task<bool> VerifyToken(string hexToken, DateTimeOffset expiration)
 		{
 			//if expired return false
 			if (IsTokenExpried(expiration))
@@ -150,20 +152,21 @@ namespace GenericMvcUtilities.UserManager
 			}
 
 			//if not null check token
-			if (utf8Token != null)
+			if (hexToken != null)
 			{
 				if (Value != null && Value.Length > 0)
 				{
-					return (System.Text.Encoding.UTF8.GetString(Value) == utf8Token);
+					//todo use hex instead
+					return (Value == hexToken);
 				}
 				else
 				{
-					return (utf8Token == (await GenerateToken()));
+					return (hexToken == (await GenerateToken()));
 				}
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(utf8Token));
+				throw new ArgumentNullException(nameof(hexToken));
 			}
 		}
 
@@ -171,28 +174,28 @@ namespace GenericMvcUtilities.UserManager
 		private Task<byte[]> GenerateRawToken()
 		{
 			return Task.Run(() => {
-				
-				//todo: maybe utf 8 bytes instead?
+
+				byte[] tokenBytes;
+
 				var counter = GetBytes(ExpirationDate.ToString());
 				
 				int mergeSize = counter.Length + TokenStamp.Length;
 
 				//set up memory stream for array merge
-				MemoryStream merge = new MemoryStream(new byte[mergeSize], 0, mergeSize, true, true);
+				using (MemoryStream merge = new MemoryStream(new byte[mergeSize], 0, mergeSize, true, true))
+				{
+					merge.Write(TokenStamp, 0, TokenStamp.Length);
 
-				merge.Write(TokenStamp, 0, TokenStamp.Length);
+					merge.Write(counter, 0, counter.Length);
 
-				merge.Write(counter, 0, counter.Length);
-
-				Value = _hmacSha.ComputeHash(merge.ToArray());
+					tokenBytes = _hmacSha.ComputeHash(merge.ToArray());
+				}
 
 				//todo: make this into a unit test
 				//var value2 = _hmacSha.ComputeHash(merge.ToArray());
 				//var ver = VerifyToken(value2).Result;
 
-				merge.Dispose();
-
-				return Value;
+				return tokenBytes;
 			});
 		}
 
@@ -201,7 +204,11 @@ namespace GenericMvcUtilities.UserManager
 		{
 			var rawToken = GenerateRawToken();
 
-			return System.Text.Encoding.UTF8.GetString(await rawToken);
+			var hex = BitConverter.ToString(await rawToken);
+
+			Value = hex;
+
+			return hex.Replace("-", "");
 		}
 
 		#region IDisposable Support

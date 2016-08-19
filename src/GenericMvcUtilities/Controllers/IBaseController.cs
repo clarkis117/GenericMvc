@@ -13,23 +13,31 @@ namespace GenericMvcUtilities.Controllers
 		where T : class
 		where TKey : IEquatable<TKey>
 	{
-		Task<IActionResult> Index();
+		//http get
+		Task<IActionResult> Index(Message? message);
 
-		Task<IActionResult> Details(TKey id);
+		//http get
+		Task<IActionResult> Search(string PropertyName, string Value);
 
-		//Create Pair
-		IActionResult Create();
+		//http get
+		Task<IActionResult> Details(TKey id, Message? message);
 
+		//http get
+		IActionResult Create(Message? message);
+
+		//http post
 		Task<IActionResult> Create(T item);
 
-		//Edit Pair
-		Task<IActionResult> Edit(TKey id);
+		//http get
+		Task<IActionResult> Edit(TKey id, Message? message);
 
+		//http post
 		Task<IActionResult> Edit(T item);
 
-		
-		Task<IActionResult> Delete(TKey id);
+		//http get
+		Task<IActionResult> Delete(TKey id, Message? message);
 
+		//http post
 		Task<IActionResult> DeleteConfirmed(TKey id);
 	}
 }

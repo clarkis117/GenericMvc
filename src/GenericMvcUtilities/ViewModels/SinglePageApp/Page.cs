@@ -120,7 +120,7 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 
 		public BasicPage ParentForm { get; set; }
 
-		public List<BasicPage> ChildForms { get; set; }
+		public BasicPage[] ChildForms { get; set; }
 
 		public override string Id
 		{

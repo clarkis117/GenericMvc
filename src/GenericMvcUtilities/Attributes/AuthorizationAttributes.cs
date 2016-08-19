@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Attributes
 {
-	public class AuthorizeUserManaging : AuthorizeAttribute
+	public class AuthorizeUserAdmin : AuthorizeAttribute
 	{
-		public AuthorizeUserManaging()
+		public AuthorizeUserAdmin()
 		{
 			Roles = $"{RoleHelper.SystemOwner},{RoleHelper.UserAdmin}";
 		}

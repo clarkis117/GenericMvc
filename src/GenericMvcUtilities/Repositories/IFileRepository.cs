@@ -809,5 +809,10 @@ namespace GenericMvcUtilities.Repositories
 		{
 			return GetAllFilesObservable().ToEnumerable().GetEnumerator();
 		}
+
+		public Task<long> Count()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

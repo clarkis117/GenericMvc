@@ -1,78 +1,158 @@
 ﻿using GenericMvcUtilities.Models;
-using GenericMvcUtilities.Repositories;
-using GenericMvcUtilities.UserManager;
-using GenericMvcUtilities.ViewModels.Generic;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Net;
+using System.Linq;
 using System.Threading.Tasks;
+using GenericMvcUtilities.Repositories;
+using GenericMvcUtilities.ViewModels.Basic;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 
 namespace GenericMvcUtilities.Controllers
 {
-	//this should be handled in derived classes: [Authorize(Roles = RoleHelper.SystemOwner + "," + RoleHelper.UserAdmin + "," + RoleHelper.ContentAdmin)]
-	public abstract class BaseController<TKey, T> : Controller, IBaseController<TKey, T>
+	public enum Message
+	{
+		ItemHasBeenCreated,
+		ItemHasBeenEdited,
+		ItemHasBeenRetrived, //normal use don't need this
+		ItemHasBeenDeleted,
+		//error messages
+		ItemNotFound,
+		ItemCouldNotBeCreated,
+		ItemCouldNotBeEdited,
+		ItemCouldNotBeRetrived, //same as not found
+		ItemIsNotValidAndChangesHaveNotBeenSaved,
+		ErrorProcessingRequest,
+
+		ErrorExecutingQuery,
+		InvalidQuery
+	}
+
+	public abstract class BaseController<TKey, T> : Controller
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
-		protected readonly IEntityRepository<T> Repository;
+		protected IEntityRepository<T> Repository;
 
 		protected readonly ILogger<T> Logger;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="BaseController{T}" /> class.
-		/// </summary>
-		/// <param name="repository">The repo.</param>
+		protected static Microsoft.EntityFrameworkCore.Metadata.IEntityType DataModel;
+
+
+
 		public BaseController(IEntityRepository<T> repository, ILogger<T> logger)
 		{
 			try
 			{
-				if (repository != null && logger != null)
+				if (repository != null)
 				{
-					//Set repo to repo field
-					this.Repository = repository;
+					Repository = repository;
 
-					this.Logger = logger;
+					if (DataModel == null)
+					{
+						var model = Repository.DataContext.Model.FindEntityType(typeof(T).FullName);
+
+						if (model == null)
+							throw new ArgumentException($"Generic parameter {typeof(T).FullName} is not a member of the DB Context used by {typeof(BaseEntityRepository<T>)}");
+
+						DataModel = model;
+					}
 				}
 				else
 				{
-					throw new ArgumentNullException("Repository or Logger argument is null");
+					throw new ArgumentNullException(nameof(repository));
+				}
+
+				if (logger != null)
+				{
+					Logger = logger;
+				}
+				else
+				{
+					throw new ArgumentNullException(nameof(logger));
 				}
 			}
-			catch (Exception ex)
+			catch (Exception e)
 			{
-				string message = this.FormatExceptionMessage("Creation of Controller Failed");
+				string message = FormatExceptionMessage(this, $"Creation of {this.GetType().Name} Failed");
 
-				this.Logger.LogCritical(message, ex);
+				this.Logger.LogCritical(message, e);
 
-				throw new Exception(message, ex);
+				throw new Exception(message, e);
 			}
 		}
 
 		[NonAction]
-		protected string FormatLogMessage(string message, Microsoft.AspNetCore.Http.HttpRequest request)
+		protected static string FormatLogMessage(string message, Microsoft.AspNetCore.Http.HttpRequest request)
 		{
 			return (message + ": \nHTTP Request: \n" + "Header: " + request.Headers.ToString() + "\nBody: " + request.Body.ToString());
 		}
 
 		[NonAction]
-		protected string FormatExceptionMessage(string message)
+		protected static string FormatExceptionMessage(Controller controller, string message)
 		{
-			return (this.GetType().ToString() + ": " + message + ": " + typeof(T).ToString());
+			return (controller.GetType().ToString() + ": " + message + ": " + typeof(T).ToString());
 		}
 
-		// GET: /<controller>/
-		[Route("[controller]/[action]/")]
-		[HttpGet]
-		public virtual async Task<IActionResult> Index()
+		[NonAction]
+		public IEnumerable<SelectListItem> GetSearchSelectList()
 		{
+			foreach (var property in DataModel.GetProperties())
+			{
+				var option = new SelectListItem()
+				{
+					Text = property.Name,
+					Value = property.Name
+				};
+
+				yield return option;
+			}
+
+			var defaultItem = new SelectListItem()
+			{
+				Text = "Select Property",
+				Value = "",
+				Selected = true
+			};
+
+			yield return defaultItem;
+		}
+
+		//todo also add in action for unique name validation
+		[Route("[controller]/[action]/"), HttpGet]
+		public virtual async Task<IActionResult> Index(Message? message)
+		{
+			/*
+			var error = Error == SearchErrorMessages.InvalidQuery ?
+				new MessageViewModel()
+				{
+					MessageType = MessageType.Danger,
+					Text = "Invalid Search Query, use another query and try again"
+				}
+				: Error == SearchErrorMessages.ErrorExecutingQuery ?
+				new MessageViewModel()
+				{
+					MessageType = MessageType.Danger,
+					Text = "An Error occurred while executing the query, please try a different query"
+				}
+				: null;
+
+			*/
 			try
 			{
+				var results = await Repository.GetAll();
+
 				var indexViewModel = new IndexViewModel(this)
 				{
-					Data = await Repository.GetAll()
+					Data = results,
+					Count = results.LongCount(),
+					//Message = error ?? new MessageViewModel(),
+					SearchViewModel = new SearchViewModel()
+					{
+						SelectPropertyList = GetSearchSelectList()
+					}
 				};
 
 				//return view
@@ -82,289 +162,57 @@ namespace GenericMvcUtilities.Controllers
 			{
 				string Message = "Get All / Index Failed";
 
-				Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				Logger.LogError(FormatLogMessage(Message, this.Request), ex);
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				throw new Exception(FormatExceptionMessage(this, Message), ex);
 			}
 		}
 
-		[Route("[controller]/[action]/")]
-		[HttpGet("{id}")]
-		public virtual async Task<IActionResult> Details(TKey id)
+		[HttpGet("[controller]/Index/[action]/")]
+		public virtual async Task<IActionResult> Search([FromQuery] string PropertyName, [FromQuery] string Value)
 		{
 			try
 			{
-				if (id != null)
+				if (PropertyName != null && Value != null && ModelState.IsValid)
 				{
-					var item = await Repository.Get(Repository.MatchByIdExpression(id));
-
-					if (item != null)
+					var property = DataModel.FindProperty(PropertyName);
+					//validate property
+					if (property != null)
 					{
-						var detailsViewModel = new DetailsViewModel(this)
+						var typeConverter = TypeDescriptor.GetConverter(property.ClrType);
+
+						object convertedValue = typeConverter.ConvertFromString(Value);
+
+						var results = await Repository.GetMany(Repository.SearchExpression(property.Name, convertedValue));
+
+						//create index view model and return view
+						var indexViewModel = new IndexViewModel(this)
 						{
-							Id = item.Id,
-							Data = item
+							Action = "Index",
+							NestedView = "Index",
+							Data = results,
+							Count = results.LongCount(),
+							Description = "Search Results for Query",
+							Message = new MessageViewModel(),
+							SearchViewModel = new SearchViewModel()
+							{
+								SelectPropertyList = GetSearchSelectList()
+							}
 						};
 
-						return this.ViewFromModel(detailsViewModel);
-					}
-					else
-					{
-						//return NotFound();
-						return RedirectToAction(nameof(this.Index));
+						return this.ViewFromModel(indexViewModel);
 					}
 				}
-				else
-				{
-					return BadRequest();
-				}
+
+				return RedirectToAction(nameof(Index), new { message = Message.InvalidQuery });
 			}
-			catch (Exception ex)
+			catch (Exception e)
 			{
-				string Message = "Detailed View Failed";
+				var message = "Index Search Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				Logger.LogError(FormatLogMessage(message, this.Request), e);
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
-			}
-		}
-
-		[Route("[controller]/[action]/")]
-		[HttpGet("{id}")]
-		public virtual async Task<IActionResult> Edit(TKey id)
-		{
-			try
-			{
-				if (id != null)
-				{
-					var item = await Repository.Get(Repository.MatchByIdExpression(id));
-
-					if (item != null)
-					{
-						var editViewModel = new EditViewModel(this)
-						{
-							Id = item.Id,
-							Data = item
-						};
-
-						return this.ViewFromModel(editViewModel);
-					}
-					else
-					{
-						//httpnotfound
-						return RedirectToAction(nameof(this.Index));
-					}
-				}
-				else
-				{
-					return BadRequest();
-				}
-			}
-			catch (Exception ex)
-			{
-				string Message = "Edit View / Get By Id Failed";
-
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
-
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
-			}
-		}
-
-		[Route("[controller]/[action]/")]
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public virtual async Task<IActionResult> Edit(T item)
-		{
-			try
-			{
-				if (ModelState.IsValid && item != null)
-				{
-					//If Item Exists Update it
-					if (await Repository.Any(Repository.MatchByIdExpression(item.Id)))
-					{
-						var updatedItem = await Repository.Update(item);
-
-						if (updatedItem != null)
-						{
-							return RedirectToAction(nameof(this.Index));
-						}
-						else
-						{
-							//Send 500 Response if update fails
-							throw new Exception("Update Item Failed");
-						}
-					}
-					else
-					{
-						//return NotFound();
-						return RedirectToAction(nameof(this.Index));
-					}
-				}
-				else
-				{
-					//send bad request response with model state errors
-					return BadRequest(ModelState);
-				}
-			}
-			catch (Exception ex)
-			{
-				string Message = "Posting Edit Failed";
-
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
-
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
-			}
-		}
-
-		[HttpGet, Route("[controller]/[action]/")]
-		public virtual IActionResult Create()
-		{
-			try
-			{
-				var createViewModel = new CreateViewModel(this)
-				{
-					Data = Activator.CreateInstance<T>()
-				};
-
-				return this.ViewFromModel(createViewModel);
-			}
-			catch (Exception ex)
-			{
-				string Message = "Get Create View Failed";
-
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
-
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
-			}
-		}
-
-		[HttpPost, Route("[controller]/[action]/")]
-		[ValidateAntiForgeryToken]
-		public virtual async Task<IActionResult> Create(T item)
-		{
-			try
-			{
-				if (ModelState.IsValid && item != null)
-				{
-					//If Item Exists Update it
-					if (await Repository.Any(Repository.MatchByIdExpression(item.Id)))
-					{
-						var createdItem = await Repository.Create(item);
-
-						if (createdItem != null)
-						{
-							return RedirectToAction(nameof(this.Index));
-						}
-						else
-						{
-							//Send 500 Response if update fails
-							throw new Exception("Creating Item Failed");
-						}
-					}
-					else
-					{
-						//Send conflict response
-						return new StatusCodeResult((int)HttpStatusCode.Conflict);
-					}
-				}
-				else
-				{
-					//send bad request response with model state errors
-					return BadRequest(ModelState);
-				}
-			}
-			catch (Exception ex)
-			{
-				string Message = "Created New item Failed";
-
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
-
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
-			}
-		}
-
-		// Delete View GET: /Delete/5
-		[HttpGet("{id}"), ActionName("Delete"), Route("[controller]/[action]/")]
-		public async Task<IActionResult> Delete(TKey id)
-		{
-			try
-			{
-				if (id != null)
-				{
-					var item = await Repository.Get(Repository.MatchByIdExpression(id));
-
-					if (item != null)
-					{
-						var deleteViewModel = new DeleteViewModel(this)
-						{
-							Id = item.Id,
-							Data = item
-						};
-
-						return this.ViewFromModel(deleteViewModel);
-					}
-					else
-					{
-						//return NotFound();
-						return RedirectToAction(nameof(this.Index));
-					}
-				}
-				else
-				{
-					return BadRequest();
-				}
-			}
-			catch (Exception ex)
-			{
-				string Message = "Detailed View Failed";
-
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
-
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
-			}
-		}
-
-		[HttpPost("{id}"), ActionName("DeleteConfirmed"), Route("[controller]/[action]/")]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> DeleteConfirmed(TKey id)
-		{
-			try
-			{
-				if (id != null)
-				{
-					var item = await Repository.Get(Repository.MatchByIdExpression(id));
-
-					if (item != null)
-					{
-						var result = await Repository.Delete(item);
-
-						if (result)
-						{
-							return RedirectToAction(nameof(this.Index));
-						}
-						else
-						{
-							return BadRequest();
-						}
-					}
-					else
-					{
-						//return NotFound();
-						return RedirectToAction(nameof(this.Index));
-					}
-				}
-				else
-				{
-					return BadRequest();
-				}
-			}
-			catch (Exception ex)
-			{
-				string Message = "Delete by Id Failed";
-
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
-
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				return RedirectToAction(nameof(Index), new { message = Message.ErrorExecutingQuery });
 			}
 		}
 	}

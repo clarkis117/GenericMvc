@@ -1,0 +1,51 @@
+﻿@using GenericMvcUtilities.ViewModels.UserManager
+@model LockViewModel
+
+<!-- Lock Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="LockModalLabel" id="LockModal">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title text-danger" id="LockModalLabel">
+					<i class="material-icons">lock</i> Lock User
+				</h4>
+			</div>
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<form asp-controller="User" asp-action="LockUser" method="post" class="form-horizontal" role="form">
+				<div class="modal-body">
+					<input hidden asp-for="Id" />
+					<h3 class="text-danger text-center">You are about to lock this User! If you want to continue please select lockout end time!</h3>
+					<div class="block-center">
+						<div class="form-group">
+							<label class="control-label col-md-3" asp-for="LockOutTime"></label>
+							<div class="col-md-9">
+								<div class="input-group date" id="datetimepicker1">
+									<input asp-for="LockOutTime" class="form-control" />
+									<span class="input-group-addon">
+										<i class="material-icons">date_range</i>
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3" asp-for="UTCTimeOffset"></label>
+							<div class="col-md-9">
+								<input asp-for="UTCTimeOffset" class="form-control" />
+							</div>
+						</div>
+					</div>
+				</div>
+				<hr class="shadow-z-1" />
+				<div class="modal-footer">
+					<button type="button" class="btn btn-raised" data-dismiss="modal">
+						<i class="material-icons">cancel</i> Close
+					</button>
+					<button type="submit" class="btn btn-raised btn-danger">
+						<i class="material-icons">lock</i> Lock User
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

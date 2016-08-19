@@ -34,7 +34,7 @@
 					@Html.DisplayFor(modelItem => item.DateRegistered)
 				</td>
 				<td>
-					<a asp-controller="UserManager" asp-action="UserDetails" asp-route-Id="@item.Id" class="text-primary">Details</a>
+					<a asp-controller="User" asp-action="Details" asp-route-Id="@item.Id" class="text-primary">Details</a>
 				</td>
 			</tr>
 			}

@@ -38,6 +38,8 @@ namespace GenericMvcUtilities.Repositories
 	{
 		Task<bool> Any(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
 
+		Task<long> Count();
+
 		//enumerable because entire store is not loaded
 		Task<IEnumerable<TEntity>> GetAll();
 
@@ -77,6 +79,8 @@ namespace GenericMvcUtilities.Repositories
 	public interface IEntityRepository<T> : IGraphRepository<T> where T : class
 	{
 		Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue);
+
+		Expression<Func<T, bool>> SearchExpression(string propertyName, object propertyValue);
 
 		Expression<Func<T, bool>> MatchByIdExpression(object id);
 

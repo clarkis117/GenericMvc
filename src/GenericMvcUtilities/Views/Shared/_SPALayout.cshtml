@@ -7,22 +7,19 @@
 	<!-- Material Design fonts -->
 	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 	<environment names="Development,Staging,Production">
 		<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
 		<link rel="stylesheet" href="~/css/material-dist/bootstrap-material-design.css" />
 		<link rel="stylesheet" href="~/css/material-dist/ripples.css" />
 		<link rel="stylesheet" href="~/lib/snackbarjs/dist/snackbar.css"/>
 		<link rel="stylesheet" href="~/lib/snackbarjs/themes-css/material.css"/>
-		@*<link rel="stylesheet" href="~/css/SpaStyles.css" />*@
-
 	</environment>
 	<environment names="Staging,Production">
 
 	</environment>
-	<environment names="Development,Staging,Production">
 		@await Html.PartialAsync("~/Views/Shared/SpaStyles.cshtml")
 		@await RenderSectionAsync("stylesheets", false)
-	</environment>
 </head>
 <body>
 	<div class="header-panel shadow-z-2">
@@ -38,7 +35,7 @@
 		@RenderBody()
 	</div>
 	@await RenderSectionAsync("modals", required: true)
-	<environment names="Development,Staging,Production">
+	<environment names="Development">
 		<script src="~/lib/jquery/dist/jquery.js"></script>
 		<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
 		<script src="~/lib/hammer.js/hammer.js"></script>
@@ -56,15 +53,12 @@
 		<script src="~/lib/bootstrap-material-design/dist/js/material.min.js"></script>
 		<script src="~/lib/knockout/dist/knockout.js"></script>
 	</environment>
-	<environment names="Development,Staging,Production">
 		<script src="~/lib/knockout-mapping/knockout.mapping.js"></script>
 		<script src="~/lib/knockout-file-bindings/knockout-file-bindings.js"></script>
 		<script src="~/lib/knockout-typescript-components-clarkis117/dist/ko-component.js"></script>
 		<script src="~/lib/snackbarjs/dist/snackbar.min.js"></script>
 		<script src="~/lib/jquery-autosize/dist/autosize.min.js"></script>
-		@await RenderSectionAsync("scripts", required: true)
-	</environment>
-	@section scripts {
+	@await RenderSectionAsync("scripts", required: true)
 	<script>
 		$(document).ready(function () {
 			$.material.init();
@@ -72,6 +66,5 @@
 			autosize(document.querySelectorAll('textarea'));
 		});
 	</script>
-	}
 </body>
 </html>

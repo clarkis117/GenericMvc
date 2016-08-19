@@ -8,6 +8,8 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 	/// </summary>
 	public class RoleChangeViewModel
 	{
+		public bool Inline { get; set; } = false;
+
 		[Required]
 		public string UserId { get; set; }
 
@@ -42,9 +44,11 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 
 		}
 
-		public RoleChangeViewModel(object userId)
+		public RoleChangeViewModel(object userId, bool inline = false)
 		{
 			UserId = userId.ToString();
+
+			Inline = inline;
 		}
 	}
 }

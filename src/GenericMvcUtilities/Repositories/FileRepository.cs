@@ -634,5 +634,10 @@ namespace GenericMvcUtilities.Repositories
 		{
 			return GetAllFilesObservable().ToEnumerable().GetEnumerator();
 		}
+
+		public Task<long> Count()
+		{
+			return Task.FromResult(_directoryInfo.GetFiles().LongCount());
+		}
 	}
 }

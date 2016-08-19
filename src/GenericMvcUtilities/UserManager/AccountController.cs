@@ -1,5 +1,5 @@
 ﻿using GenericMvcUtilities.Models;
-using GenericMvcUtilities.ViewModels.Generic;
+using GenericMvcUtilities.ViewModels.Basic;
 using GenericMvcUtilities.Repositories;
 using GenericMvcUtilities.Services;
 using GenericMvcUtilities.ViewModels.UserManager.Account;

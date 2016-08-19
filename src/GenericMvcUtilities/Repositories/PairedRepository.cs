@@ -503,5 +503,10 @@ namespace GenericMvcUtilities.Repositories
 				throw new ArgumentNullException(nameof(viewModels));
 			}
 		}
+
+		public Task<long> Count()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

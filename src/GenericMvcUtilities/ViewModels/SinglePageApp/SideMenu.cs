@@ -10,9 +10,9 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 
 		public string Title { get; set; }
 
-		public List<Page> Pages { get; set; }
+		public Page[] Pages { get; set; }
 
-		public List<Page> Modals { get; set; }
+		public Page[] Modals { get; set; }
 
 		public Page MenuListViewModel { get; set; }
 

@@ -1,46 +1,64 @@
-﻿@model GenericMvcUtilities.ViewModels.Generic.CreateEditViewModel
+﻿@model GenericMvcUtilities.ViewModels.Basic.CreateEditViewModel
 
 @{
 	var typeName = Model.Data.GetType().Name;
-	ViewData["Title"] = Model.Action + " " + typeName;
+	ViewData["Title"] = Model.ControllerName + " " + Model.Action;
 }
 
 <section class="well">
-	<header>
-		<ul class="list-inline">
-			<li><h2 class="text-primary">@Model.Title</h2></li>
-			@if (Model.DisplayAction)
-			{
-				<li class="pull-right"><h2 class="text-primary"><i class="material-icons">mode_edit</i> @Model.Action</h2></li>
-			}
-		</ul>
-		<ul class="list-inline">
-			<li><h4>@Model.Description</h4></li>
-		</ul>
-		<hr class="shadow-z-1 primarycolor" />
-	</header>
-	<div>
-		<form asp-action="@Model.Action">
-			<div class="form-horizontal">
-				@await Html.PartialAsync(Model.NestedViewPath, Model.Data)
-				<div class="form-group">
-					<div class="col-md-offset-2 col-md-10">
-						<button type="submit" class="btn btn-success"><i class="material-icons">save</i> Save</button>|
-						<a class="btn btn-default" asp-action="Index"><i class="material-icons">list</i> Back to List</a>
-					</div>
-				</div>
+	<header class="row">
+		<div class="col-md-6">
+			<div class="pull-left">
+				<h2 class="text-primary">@Model.Title</h2>
+				<h4>@Model.Description</h4>
 			</div>
-		</form>
+		</div>
+		<div class="col-md-6">
+			<div class="pull-right">
+				@if (Model.DisplayAction)
+				{
+					<h2 class="text-primary"><i class="material-icons">mode_edit</i> @Model.Action</h2>
+				}
+			</div>
+		</div>
+	</header>
+	<hr class="shadow-z-1 primarycolor" />
+	@await Model.Message.RenderAsync(Html)
+	<div class="row">
+		<div class="col-md-3">
+			<div class="pull-left">
+				<a class="btn btn-success" asp-action="Create"><i class="material-icons">create</i> Create New</a>
+			</div>
+		</div>
+		<div class="col-md-9">
+			<div class="pull-right">
+			</div>
+		</div>
 	</div>
-	<footer>
-		<hr class="shadow-z-1 primarycolor" />
-		<ul class="list-inline">
-			<li><h5 class="text-primary">@Model.Title</h5></li>
-			@if (Model.DisplayAction)
-			{
-				<li class="pull-right"><h5 class="text-capitalize"><i class="material-icons">mode_edit</i> @Model.Action</h5></li>
-			}
-		</ul>
+	<form class="form-horizontal" asp-controller="@Model.ControllerName" asp-action="@Model.Action" novalidate>
+		@await Html.PartialAsync(Model.NestedViewPath, Model.Data)
+		<div class="form-group">
+			<div class="col-md-offset-2 col-md-10">
+				<button type="submit" class="btn btn-success"><i class="material-icons">save</i> Save</button>|
+				<a class="btn btn-default" asp-action="Index"><i class="material-icons">list</i> Back to List</a>
+			</div>
+		</div>
+	</form>
+	<hr class="shadow-z-1 primarycolor" />
+	<footer class="row">
+		<div class="col-md-6">
+			<div class="pull-left">
+				<h5 class="text-primary">@Model.Title</h5>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="pull-right">
+				@if (Model.DisplayAction)
+				{
+					<h5><i class="material-icons">mode_edit</i> @Model.Action</h5>
+				}
+			</div>
+		</div>
 	</footer>
 </section>
 

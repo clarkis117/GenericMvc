@@ -1,0 +1,14 @@
+﻿@model GenericMvcUtilities.ViewModels.Basic.SearchViewModel
+
+<form title="Search Form" asp-action="Search" method="get" role="form" class="form-inline" novalidate>
+		<div class="input-group">
+			<span class="input-group-addon"></span>
+			<select asp-for="PropertyName" asp-items="Model.SelectPropertyList" class="form-control" title="property name"></select>
+			<input asp-for="Value" title="property value" placeholder="property value..." type="text" class="form-control">
+			<span class="input-group-btn">
+				<button title="click to run search" class="btn btn-raised btn-primary" type="submit">
+					Search <i class="material-icons">search</i> 
+				</button>
+			</span>
+		</div>
+</form>

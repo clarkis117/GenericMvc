@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using GenericMvcUtilities.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace GenericMvcUtilities.ViewModels.Generic
+namespace GenericMvcUtilities.ViewModels.Basic
 {
-	public class PageViewModel : GenericViewModel
+	public class PageViewModel : BaseViewModel
 	{
 		public string Title { get; set; }
 
@@ -18,6 +19,8 @@ namespace GenericMvcUtilities.ViewModels.Generic
 		public string Action { get; set; }
 
 		public string Description { get; set; }
+
+		public MessageViewModel Message { get; set; }
 
 		public PageViewModel()
 		{
@@ -65,11 +68,18 @@ namespace GenericMvcUtilities.ViewModels.Generic
 			}
 		}
 
+		public bool UseNestedViewConventions { get; set; } = true;
+
 		public override string NestedViewPath
 		{
 			get
 			{
-				return ($"~/Views/BasicMvc/{ControllerName}/{NestedView}.cshtml");
+				if (UseNestedViewConventions)
+				{
+					return ($"~/Views/{BasicMvc}{ControllerName}/{NestedView}.cshtml");
+				}
+
+				return ($"~/Views/{ControllerName}/{NestedView}.cshtml");
 			}
 		}
 
@@ -82,6 +92,14 @@ namespace GenericMvcUtilities.ViewModels.Generic
 	public class IndexViewModel : BasicViewModel
 	{
 		private const string IndexContainer = "Index";
+
+		public long Count { get; set; }
+
+		public bool ShowCreateButton { get; set; } = true;
+
+		public bool ShowSearchForm { get; set; } = true;
+
+		public Basic.SearchViewModel SearchViewModel { get; set; }
 
 		public IndexViewModel(Controller context) : base(context)
 		{
