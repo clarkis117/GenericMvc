@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.UserManager
 {
+	//todo: change so that current user is resolved to an actual user account and not just he claims principal 
 	//todo: don't show the user's current role in, role change selection list
 	//todo: enable password resets
 	/// <summary>
@@ -416,12 +417,12 @@ namespace GenericMvcUtilities.UserManager
 					}
 					else
 					{
-						return NotFound();
+						return RedirectToAction(nameof(this.Index), new { message = Message.UserNotFound });
 					}
 				}
 				else
 				{
-					return BadRequest();
+					return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest});
 				}
 			}
 			catch (Exception ex)

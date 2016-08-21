@@ -93,7 +93,9 @@ namespace GenericMvcUtilities.ViewModels.Basic
 	{
 		private const string IndexContainer = "Index";
 
-		public long Count { get; set; }
+		public long DisplayingCount { get; set; }
+
+		public long TotalCount { get; set; }
 
 		public bool ShowCreateButton { get; set; } = true;
 

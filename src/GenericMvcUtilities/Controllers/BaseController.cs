@@ -26,6 +26,7 @@ namespace GenericMvcUtilities.Controllers
 		ItemIsNotValidAndChangesHaveNotBeenSaved,
 		ErrorProcessingRequest,
 
+		RequestOrQueryIsInvalid,
 		ErrorExecutingQuery,
 		InvalidQuery
 	}
@@ -40,7 +41,7 @@ namespace GenericMvcUtilities.Controllers
 
 		protected static Microsoft.EntityFrameworkCore.Metadata.IEntityType DataModel;
 
-
+		protected static readonly Type typeOfT = typeof(T);
 
 		public BaseController(IEntityRepository<T> repository, ILogger<T> logger)
 		{
@@ -93,7 +94,120 @@ namespace GenericMvcUtilities.Controllers
 		[NonAction]
 		protected static string FormatExceptionMessage(Controller controller, string message)
 		{
-			return (controller.GetType().ToString() + ": " + message + ": " + typeof(T).ToString());
+			return (controller.GetType().Name + ": " + message + ": " + typeOfT.Name);
+		}
+
+		[NonAction]
+		public static MessageViewModel GetMessageFromEnum(Message? message)
+		{
+			if (message != null)
+			{
+				MessageViewModel messageViewModel = null;
+				 
+				switch (message.Value)
+				{
+					case Message.ItemHasBeenCreated:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Success,
+							Text = "Item has been successfully created"
+						};
+						break;
+					case Message.ItemHasBeenEdited:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Success,
+							Text = "Item has been successfully edited"
+						};
+						break;
+					case Message.ItemHasBeenRetrived:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Success,
+							Text = "Item has been successfully retrieved"
+						};
+						break;
+					case Message.ItemHasBeenDeleted:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Success,
+							Text = "Item has been successfully deleted"
+						};
+						break;
+					case Message.ItemNotFound:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Warning,
+							Text = "System was unable to find the Item"
+						};
+						break;
+					case Message.ItemCouldNotBeCreated:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Danger,
+							Text = "System was not able to save the new Item"
+						};
+						break;
+					case Message.ItemCouldNotBeEdited:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Danger,
+							Text = "System was not able to save the changes to the Item"
+						};
+						break;
+					case Message.ItemCouldNotBeRetrived:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Danger,
+							Text = "System could not retrieve the item"
+						};
+						break;
+					case Message.ItemIsNotValidAndChangesHaveNotBeenSaved:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Warning,
+							Text = "The current Item is not valid and any changes have not been saved"
+						};
+						break;
+					case Message.ErrorProcessingRequest:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Danger,
+							Text = "System encountered an error processing the request"
+						};
+						break;
+					case Message.ErrorExecutingQuery:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Danger,
+							Text = "System encountered an error executing the query"
+						};
+						break;
+					case Message.InvalidQuery:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Warning,
+							Text = "The specified query is not valid"
+						};
+						break;
+					case Message.RequestOrQueryIsInvalid:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Warning,
+							Text = "The Specified Request or Query is not valid"
+						};
+						break;
+					default:
+						messageViewModel = new MessageViewModel();
+						break;
+				}
+
+				return messageViewModel;
+			}
+			else
+			{
+				return new MessageViewModel();
+			}
 		}
 
 		[NonAction]
@@ -124,31 +238,18 @@ namespace GenericMvcUtilities.Controllers
 		[Route("[controller]/[action]/"), HttpGet]
 		public virtual async Task<IActionResult> Index(Message? message)
 		{
-			/*
-			var error = Error == SearchErrorMessages.InvalidQuery ?
-				new MessageViewModel()
-				{
-					MessageType = MessageType.Danger,
-					Text = "Invalid Search Query, use another query and try again"
-				}
-				: Error == SearchErrorMessages.ErrorExecutingQuery ?
-				new MessageViewModel()
-				{
-					MessageType = MessageType.Danger,
-					Text = "An Error occurred while executing the query, please try a different query"
-				}
-				: null;
-
-			*/
 			try
 			{
+				var messageViewModel = GetMessageFromEnum(message);
+
 				var results = await Repository.GetAll();
 
 				var indexViewModel = new IndexViewModel(this)
 				{
 					Data = results,
-					Count = results.LongCount(),
-					//Message = error ?? new MessageViewModel(),
+					DisplayingCount = results.LongCount(),
+					TotalCount = await Repository.Count(),
+					Message = messageViewModel ?? new MessageViewModel(),
 					SearchViewModel = new SearchViewModel()
 					{
 						SelectPropertyList = GetSearchSelectList()
@@ -191,7 +292,7 @@ namespace GenericMvcUtilities.Controllers
 							Action = "Index",
 							NestedView = "Index",
 							Data = results,
-							Count = results.LongCount(),
+							DisplayingCount = results.LongCount(),
 							Description = "Search Results for Query",
 							Message = new MessageViewModel(),
 							SearchViewModel = new SearchViewModel()

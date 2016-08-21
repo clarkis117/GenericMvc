@@ -146,6 +146,13 @@ namespace GenericMvcUtilities.Repositories
 			return isPresent;
 		}
 
+		//static readonly fields for expressions
+		private readonly static ParameterExpression expressioOfT = Expression.Parameter(typeofT);
+
+		private readonly static Type typeOfString = typeof(string);
+
+		private readonly static MethodInfo containsMethodInfo = typeOfString.GetMethod("Contains", new[] { typeOfString });
+
 		/// <summary>
 		///
 		/// </summary>
@@ -154,19 +161,15 @@ namespace GenericMvcUtilities.Repositories
 		/// <returns></returns>
 		public Expression<Func<T, bool>> SearchExpression(string propertyName, object propertyValue)
 		{
-			var typeofString = typeof(string);
-
-			if (propertyValue.GetType() == typeofString)
+			if (propertyValue.GetType() == typeOfString)
 			{
 				//see this SO Answer: http://stackoverflow.com/questions/278684/how-do-i-create-an-expression-tree-to-represent-string-containsterm-in-c
 
-				var parameterExp = Expression.Parameter(typeofT);
-				var propertyExp = Expression.Property(parameterExp, propertyName);
-				MethodInfo method = typeofString.GetMethod("Contains", new[] { typeofString });
-				var someValue = Expression.Constant(propertyValue, typeofString);
-				var containsMethodExp = Expression.Call(propertyExp, method, someValue);
+				var propertyExp = Expression.Property(expressioOfT, propertyName);
+				var someValue = Expression.Constant(propertyValue, typeOfString);
+				var containsMethodExp = Expression.Call(propertyExp, containsMethodInfo, someValue);
 
-				return Expression.Lambda<Func<T, bool>>(containsMethodExp, parameterExp);
+				return Expression.Lambda<Func<T, bool>>(containsMethodExp, expressioOfT);
 			}
 			else
 			{
@@ -182,11 +185,10 @@ namespace GenericMvcUtilities.Repositories
 		/// <returns></returns>
 		public Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue)
 		{
-			var parameterExpression = Expression.Parameter(typeofT);
-			var propertyOrField = Expression.PropertyOrField(parameterExpression, propertyName);
+			var propertyOrField = Expression.PropertyOrField(expressioOfT, propertyName);
 			var typeConversion = Expression.Convert(propertyOrField, propertyValue.GetType());
 			var binaryExpression = Expression.Equal(typeConversion, Expression.Constant(propertyValue));
-			return Expression.Lambda<Func<T, bool>>(binaryExpression, parameterExpression);
+			return Expression.Lambda<Func<T, bool>>(binaryExpression, expressioOfT);
 		}
 
 		/// <summary>
@@ -196,26 +198,10 @@ namespace GenericMvcUtilities.Repositories
 		/// <returns></returns>
 		public Expression<Func<T, bool>> MatchByIdExpression(object id)
 		{
-			var parameterExpression = Expression.Parameter(typeofT);
-			var propertyOrField = Expression.PropertyOrField(parameterExpression, "Id");
+			var propertyOrField = Expression.PropertyOrField(expressioOfT, "Id");
 			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(id));
-			return Expression.Lambda<Func<T, bool>>(binaryExpression, parameterExpression);
+			return Expression.Lambda<Func<T, bool>>(binaryExpression, expressioOfT);
 		}
-
-		/*
-		/// <summary>
-		/// Matches the by identifier expression.
-		/// </summary>
-		/// <param name="id">The identifier.</param>
-		/// <returns></returns>
-		public Expression<Func<IModel<TKey>, bool>> MatchByIdExpression<TKey>(object id) where TKey : IEquatable<TKey>
-		{
-			var parameterExpression = Expression.Parameter(typeof(IModel<TKey>));
-			var propertyOrField = Expression.PropertyOrField(parameterExpression, "Id");
-			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(id));
-			return Expression.Lambda<Func<IModel<TKey>, bool>>(binaryExpression, parameterExpression);
-		}
-		*/
 
 		/// <summary>
 		/// Checks for the existence using the specified predicate.
@@ -223,7 +209,7 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception"></exception>
-		public virtual Task<bool> Any(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public Task<bool> Any(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
 			if (predicate != null)
 			{
@@ -252,7 +238,7 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception"></exception>
-		public virtual bool AnySync(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public bool AnySync(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
 			try
 			{
@@ -448,7 +434,7 @@ namespace GenericMvcUtilities.Repositories
 				{
 					var addedEntity = ContextSet.Add(entity);
 
-					if (await this.DataContext.SaveChangesAsync() > 0)
+					if (await this.DataContext.SaveChangesAsync() >= 0)
 					{
 						//return true;
 						return addedEntity.Entity;
@@ -484,7 +470,7 @@ namespace GenericMvcUtilities.Repositories
 				{
 					ContextSet.AddRange(entities);
 
-					if (await this.DataContext.SaveChangesAsync() > 0)
+					if (await this.DataContext.SaveChangesAsync() >= 0)
 					{
 						return entities;
 					}
@@ -528,7 +514,7 @@ namespace GenericMvcUtilities.Repositories
 
 					var updatedEntity = ContextSet.Update(entity);
 
-					if (await this.DataContext.SaveChangesAsync() > 0)
+					if (await this.DataContext.SaveChangesAsync() >= 0)
 					{
 						return updatedEntity.Entity;
 					}
@@ -557,7 +543,7 @@ namespace GenericMvcUtilities.Repositories
 				{
 					ContextSet.UpdateRange(entities);
 
-					if (await this.DataContext.SaveChangesAsync() > 0)
+					if (await this.DataContext.SaveChangesAsync() >= 0)
 					{
 						return entities;
 					}
@@ -671,7 +657,7 @@ namespace GenericMvcUtilities.Repositories
 					{
 						DataContext.Remove(child);
 
-						if (await DataContext.SaveChangesAsync() > 0)
+						if (await DataContext.SaveChangesAsync() >= 0)
 						{
 							return true;
 						}

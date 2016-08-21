@@ -43,33 +43,6 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
-		/*
-		// GET: /<controller>/
-		[Route("[controller]/[action]/")]
-		[HttpGet]
-		public virtual async Task<IActionResult> Index()
-		{
-			try
-			{
-				var indexViewModel = new IndexViewModel(this)
-				{
-					Data = await Repository.GetAll()
-				};
-
-				//return view
-				return this.ViewFromModel(indexViewModel);
-			}
-			catch (Exception ex)
-			{
-				string Message = "Get All / Index Failed";
-
-				Logger.LogError(FormatLogMessage(Message, this.Request), ex);
-
-				throw new Exception(FormatExceptionMessage(this,Message), ex);
-			}
-		}
-		*/
-
 		[Route("[controller]/[action]/"), HttpGet("{id}")]
 		public virtual async Task<IActionResult> Details(TKey id, Message? message)
 		{
@@ -92,12 +65,12 @@ namespace GenericMvcUtilities.Controllers
 					else
 					{
 						//return NotFound();
-						return RedirectToAction(nameof(this.Index));
+						return RedirectToAction(nameof(this.Index), new { message = Message.ItemNotFound});
 					}
 				}
 				else
 				{
-					return BadRequest();
+					return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest});
 				}
 			}
 			catch (Exception ex)
@@ -115,7 +88,7 @@ namespace GenericMvcUtilities.Controllers
 		{
 			try
 			{
-				if (id != null)
+				if (id != null && ModelState.IsValid)
 				{
 					var item = await Repository.Get(Repository.MatchByIdExpression(id));
 
@@ -132,12 +105,12 @@ namespace GenericMvcUtilities.Controllers
 					else
 					{
 						//httpnotfound
-						return RedirectToAction(nameof(this.Index));
+						return RedirectToAction(nameof(this.Index), new { message = Message.ItemNotFound});
 					}
 				}
 				else
 				{
-					return BadRequest();
+					return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest });
 				}
 			}
 			catch (Exception ex)
@@ -164,7 +137,7 @@ namespace GenericMvcUtilities.Controllers
 
 						if (updatedItem != null)
 						{
-							return RedirectToAction(nameof(this.Index));
+							return RedirectToAction(nameof(this.Index), new { message = Message.ItemHasBeenEdited});
 						}
 						else
 						{
@@ -216,29 +189,43 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
+		[NonAction]
+		protected static IActionResult GetCreateViewModel(Controller controller, T item, Message message)
+		{
+			var createViewModel = new CreateViewModel(controller)
+			{
+				Data = item,
+				Message = GetMessageFromEnum(message)
+			};
+
+			return ViewModelHelper.ViewFromModel(controller, createViewModel);
+		}
+
 		[Route("[controller]/[action]/"), HttpPost, ValidateAntiForgeryToken]
 		public virtual async Task<IActionResult> Create(T item)
 		{
 			try
 			{
-				if (ModelState.IsValid && item != null)
+				if (item != null && ModelState.IsValid)
 				{
 					var createdItem = await Repository.Create(item);
 
 					if (createdItem != null)
 					{
-						return RedirectToAction(nameof(this.Index));
+						return RedirectToAction(nameof(this.Index), new { message = Message.ItemHasBeenCreated});
 					}
 					else
 					{
 						//Send 500 Response if update fails
-						throw new Exception("Creating Item Failed");
+						//throw new Exception("Creating Item Failed");
+						return GetCreateViewModel(this, item, Message.ItemCouldNotBeCreated);
 					}
 				}
 				else
 				{
 					//send bad request response with model state errors
-					return BadRequest(ModelState);
+					//return BadRequest(ModelState);
+					return GetCreateViewModel(this, item, Message.ItemIsNotValidAndChangesHaveNotBeenSaved);
 				}
 			}
 			catch (Exception ex)

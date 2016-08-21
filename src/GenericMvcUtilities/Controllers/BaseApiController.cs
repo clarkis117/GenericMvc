@@ -56,33 +56,19 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
-		/*
-		/// <summary>
-		/// Matches the by identifier expression.
-		/// </summary>
-		/// <param name="id">The identifier.</param>
-		/// <returns></returns>
+		protected static readonly Type typeOfT = typeof(T);
+		
 		[NonAction]
-		public Expression<Func<IModel<TKey>, bool>> MatchByIdExpression(object id)
-		{
-			var parameterExpression = Expression.Parameter(typeof(IModel<TKey>));
-			var propertyOrField = Expression.PropertyOrField(parameterExpression, "Id");
-			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(id));
-			return Expression.Lambda<Func<IModel<TKey>, bool>>(binaryExpression, parameterExpression);
-		}
-		*/
-
-		[NonAction]
-		protected string FormatLogMessage(string message, Microsoft.AspNetCore.Http.HttpRequest request)
+		protected static string FormatLogMessage(string message, Microsoft.AspNetCore.Http.HttpRequest request)
 		{
 			return (message + ": \nHTTP Request: \n" + "Header: " + request.Headers.ToString() + "\nBody: " + request.Body.ToString());
 		}
 
 		//Todo: revamp this hardcore
 		[NonAction]
-		protected string FormatExceptionMessage(string message)
+		protected static string FormatExceptionMessage(string message)
 		{
-			return (this.GetType().Name + ": " + message + ": " + typeof(T));
+			return (this.GetType().Name + ": " + message + ": " + typeOfT.Name);
 		}
 
 		[NonAction]
@@ -347,7 +333,7 @@ namespace GenericMvcUtilities.Controllers
 						var exists = await Repository.Any(x => x.Id.Equals(id));
 
 						//If Item Exists Update it
-						if (exists == true)
+						if (exists)
 						{
 							var updatedItem = await Repository.Update(item);
 
