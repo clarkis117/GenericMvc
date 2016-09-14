@@ -1,4 +1,5 @@
-﻿@model GenericMvcUtilities.ViewModels.Basic.IndexViewModel
+﻿@using GenericMvcUtilities.ViewModels.Basic;
+@model GenericMvcUtilities.ViewModels.Basic.IndexViewModel
 
 @{
 	ViewData["Title"] = Model.ControllerName + " " + Model.Action;
@@ -18,7 +19,7 @@
 				{
 					<h2 class="text-primary"><i class="material-icons">list</i> @Model.Action</h2>
 				}
-				<h4>@Model.Count Results</h4>
+				<h4>@Model.DisplayingCount of @Model.TotalCount Results</h4>
 			</div>
 		</div>
 	</header>

@@ -7,10 +7,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace GenericMvcUtilities.Repositories
 {
 	/// <summary>
+	/// This repository is meant for view models which are paired with files on disk
 	/// Get with data should return the whole file
 	///
 	/// MimeTypes should be included in non get with data calls
@@ -18,16 +20,24 @@ namespace GenericMvcUtilities.Repositories
 	/// <seealso cref="GenericMvcUtilities.Repositories.IRepository{TViewModel}" />
 	public abstract class PairedRepository<TKey, TViewModel, TEntity, TEntityRepo, TFileRepo> : IRepository<TViewModel>
 		where TKey : IEquatable<TKey>
-		where TViewModel : class, IFile<TKey>, new()
+		where TViewModel : class, IModelFile<TKey>, new()
 		where TEntity : class, IModelWithFilename<TKey>
-		where TFileRepo : IFileRepository<TViewModel,TKey>
+		where TFileRepo : IFileRepository
 		where TEntityRepo : IRepository<TEntity>
 	{
-		public TEntityRepo _entityRepo;
+		public readonly TEntityRepo _entityRepo;
 
-		public TFileRepo _fileRepo;
+		public readonly TFileRepo _fileRepo;
 
-		protected IMapper _mapper;
+		protected readonly IMapper _mapper;
+
+		private static readonly Type typeofT = typeof(TViewModel);
+
+		public Type TypeOfEntity { get { return typeofT; } }
+
+		private static readonly ParameterExpression expressionOfT = Expression.Parameter(typeofT);
+
+		public ParameterExpression EntityExpression { get { return expressionOfT; } }
 
 		public PairedRepository(TFileRepo filerepo, TEntityRepo dbrepo)
 		{
@@ -45,7 +55,7 @@ namespace GenericMvcUtilities.Repositories
 
 			_entityRepo = dbrepo;
 
-			var config = getMapperConfig();
+			var config = MapperConfig;
 
 			try
 			{
@@ -59,35 +69,18 @@ namespace GenericMvcUtilities.Repositories
 			_mapper = config.CreateMapper();
 		}
 
-		protected abstract MapperConfiguration getMapperConfig();
-
-		/*
+		protected static readonly MapperConfiguration mapperConfig = new MapperConfiguration(cfg =>
 		{
-			return new MapperConfiguration(cfg =>
-			cfg.CreateMap<TViewModel, TEntity>()
-				.ForMember(x => x.Filename, conf => conf.MapFrom(ol => ol.File.Name)));
-		}
-		*/
+			cfg.CreateMap<TViewModel, TEntity>();
+
+			cfg.CreateMap<TEntity, TViewModel>();
+		});
+
+		protected virtual MapperConfiguration MapperConfig { get { return mapperConfig; } }
 
 		protected Expression<Func<TEntity, bool>> translateExpression(Expression<Func<TViewModel, bool>> predicate)
 		{
 			return _mapper.Map<Expression<Func<TEntity, bool>>>(predicate);
-		}
-
-		//maps the file portion of the view model
-		protected TViewModel addFileSection(TViewModel viewModel, TViewModel filePortion)
-		{
-			viewModel.Name = filePortion.Name;
-			viewModel.ContentType = filePortion.ContentType;
-			viewModel.EncodingType = filePortion.EncodingType;
-			viewModel.Path = filePortion.Path;
-
-			if (filePortion.Data != null)
-			{
-				viewModel.Data = filePortion.Data;
-			}
-
-			return viewModel;
 		}
 
 		/// <summary>
@@ -292,7 +285,7 @@ namespace GenericMvcUtilities.Repositories
 
 					var createdEntity = await _entityRepo.Create(dbEntity);
 
-					viewModel = await _fileRepo.Create(viewModel);
+					await _fileRepo.Create(viewModel);
 
 					if (createdEntity != null && viewModel != null)
 					{
@@ -362,7 +355,7 @@ namespace GenericMvcUtilities.Repositories
 
 					var dbResult = await _entityRepo.Delete(entity);
 
-					//todo entity Should be deleted first
+					//entity Should be deleted first
 					var fileResult = await _fileRepo.Delete(viewModel);
 
 					if (dbResult && fileResult)
@@ -384,6 +377,8 @@ namespace GenericMvcUtilities.Repositories
 				throw new ArgumentNullException(nameof(viewModel));
 			}
 		}
+
+		public abstract Task<bool> CascadeDelete(TViewModel viewModel);
 
 		public async Task<bool> DeleteRange(IEnumerable<TViewModel> viewModels)
 		{
@@ -430,14 +425,16 @@ namespace GenericMvcUtilities.Repositories
 					//if underlying file changed delete it and create a new one
 					//if it didn't use the regular file repo update method
 					//check to see if the underlying file changed on us
-					var oldEntity = await _entityRepo.Get(x=> x.Id.Equals(viewModel.Id));
+					var id = viewModel.Id; //since auto mapper doesn't like non constants 
+
+					var oldEntity = await _entityRepo.Get(x=> x.Id.Equals(id));
 
 					//check to see if file changed
 					if (viewModel.Name == oldEntity.Filename)
 					{
 						//use regular file repo update
 						//then try to update the file
-						viewModel = await _fileRepo.Update(viewModel);
+						await _fileRepo.Update(viewModel);
 					}
 					else // delete file and make a new one
 					{
@@ -445,7 +442,7 @@ namespace GenericMvcUtilities.Repositories
 
 						if (deleteResult)
 						{
-							viewModel = await _fileRepo.Create(viewModel);
+							await _fileRepo.Create(viewModel);
 						}
 						else
 						{
@@ -506,7 +503,7 @@ namespace GenericMvcUtilities.Repositories
 
 		public Task<long> Count()
 		{
-			throw new NotImplementedException();
+			return _entityRepo.Count();
 		}
 	}
 }

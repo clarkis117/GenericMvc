@@ -24,7 +24,7 @@ namespace GenericMvcUtilities.UserManager
 
 		public const string ContentViewer = "ContentViewer";
 
-		public static readonly string[] MutableRoles = { "UserAdmin", "ContentAdmin", "ContentViewer"};
+		public static readonly IReadOnlyList<string> MutableRoles = new string[] { UserAdmin, ContentAdmin, ContentViewer};
 
 		/// <summary>
 		/// Selectable role list for Mvc.

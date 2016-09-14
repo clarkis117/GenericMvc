@@ -7,7 +7,15 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Attributes
 {
-	public class AuthorizeUserAdmin : AuthorizeAttribute
+	public sealed class AuthorizeSystemOwnerOnly : AuthorizeAttribute
+	{
+		public AuthorizeSystemOwnerOnly()
+		{
+			Roles = RoleHelper.SystemOwner;
+		}
+	}
+
+	public sealed class AuthorizeUserAdmin : AuthorizeAttribute
 	{
 		public AuthorizeUserAdmin()
 		{
@@ -15,7 +23,7 @@ namespace GenericMvcUtilities.Attributes
 		}
 	}
 
-	public class AuthorizeCrud : AuthorizeAttribute
+	public sealed class AuthorizeCrud : AuthorizeAttribute
 	{
 		public AuthorizeCrud()
 		{
@@ -23,7 +31,7 @@ namespace GenericMvcUtilities.Attributes
 		}
 	}
 
-	public class AuthorizeContentViewing : AuthorizeAttribute
+	public sealed class AuthorizeContentViewing : AuthorizeAttribute
 	{
 		public AuthorizeContentViewing()
 		{

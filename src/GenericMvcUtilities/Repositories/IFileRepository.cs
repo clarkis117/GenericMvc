@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Repositories
@@ -14,11 +15,10 @@ namespace GenericMvcUtilities.Repositories
 	/// <summary>
 	/// currently does not allow modifications to folder structure
 	/// </summary>
-	public class IFileRepository<TFile, TKey> : IRepository<TFile> 
-		where TFile : class, IFile<TKey>, new()
-		where TKey : IEquatable<TKey>
+	//todo clean this up
+	public class IFileRepository : IRepository<IFile>
 	{
-		private readonly string RootFolder;
+		private readonly FileSystemVisitor _visitor = new FileSystemVisitor();
 
 		private readonly System.IO.DirectoryInfo _directoryInfo;
 
@@ -26,10 +26,15 @@ namespace GenericMvcUtilities.Repositories
 
 		private bool _includeNestedDriectories;
 
-		/// <summary>
-		///
-		/// </summary>
-		public bool InludedNestedDirectories
+		private static readonly Type typeofT = typeof(IFile);
+
+		public Type TypeOfEntity { get { return typeofT; } }
+
+		private static readonly ParameterExpression expressionOfT = Expression.Parameter(typeofT);
+
+		public ParameterExpression EntityExpression { get { return expressionOfT; } }
+
+		public bool InludedNesteDirectories
 		{
 			get { return _includeNestedDriectories; }
 			set
@@ -47,7 +52,7 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public enum FileLoading { JustFileInfo, WithMime, WithMimeAndData };
+		public enum FileLoading : byte { JustFileInfo, WithMime, WithMimeAndData };
 
 		public EncodingType FileEncodingType { get; set; } = EncodingType.Base64;
 
@@ -59,29 +64,37 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="rootFolder"></param>
 		public IFileRepository(string rootFolder, bool includeNestedDirectories = false)
 		{
-			if (rootFolder != null)
-			{
-				//check if folder exists here
-				if (System.IO.Directory.Exists(rootFolder))
-				{
-					this.RootFolder = rootFolder;
+			if (rootFolder == null)
+				throw new ArgumentNullException(nameof(rootFolder));
 
-					this._directoryInfo = new System.IO.DirectoryInfo(rootFolder);
-				}
-				else
-				{
-					throw new ArgumentException(rootFolder);
-				}
+			//check if folder exists here
+			if (System.IO.Directory.Exists(rootFolder))
+			{
+				this._directoryInfo = new System.IO.DirectoryInfo(rootFolder);
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(rootFolder));
+				throw new ArgumentException(rootFolder);
 			}
 
-			this.InludedNestedDirectories = includeNestedDirectories;
+			this.InludedNesteDirectories = includeNestedDirectories;
+		}
 
-			//this.Enumerator = this.EnumerateFiles().GetEnumerator();
-			//this.DirectorySeparator = System.IO.Path.DirectorySeparatorChar;
+		#region FileInit
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static byte[] decodeData(IFile file)
+		{
+			//check encoding it must be set and if data needs trans-coded
+			if (file.EncodingType != EncodingType.NonNewtonsoftBase64)
+			{
+				return file.Data;
+			}
+			else
+			{
+				//else it needs trans-coded
+				return Convert.FromBase64String(System.Text.Encoding.ASCII.GetString(file.Data));
+			}
 		}
 
 		/// <summary>
@@ -92,7 +105,7 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="path">The path.</param>
 		/// <returns></returns>
 		/// <exception cref="System.IO.IOException">Invalid Path</exception>
-		public static TFile Initialize(TFile file, string path = "")
+		protected static IFile Initialize(IFile file, string path = "")
 		{
 			FileInfo fileInfo;
 
@@ -126,7 +139,6 @@ namespace GenericMvcUtilities.Repositories
 			return file;
 		}
 
-
 		/// <summary>
 		/// Assumes file has already been created
 		/// Does not load complete file from disk
@@ -134,7 +146,7 @@ namespace GenericMvcUtilities.Repositories
 		/// Can only do File Backed Files
 		/// </summary>
 		/// <returns></returns>
-		public static async Task<TFile> InitializeWithMime(TFile file)
+		protected static async Task<IFile> InitializeWithMime(IFile file)
 		{
 			var fileInit = Initialize(file, path: "");
 
@@ -147,7 +159,7 @@ namespace GenericMvcUtilities.Repositories
 			FileType type = await file.FileInfo.GetFileTypeAsync();
 
 			//ie this mean we couldn't find the file type
-			if (type == null)
+			if (type.Mime == null)
 			{
 				file.ContentType = "";
 			}
@@ -166,7 +178,7 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="loadFile"></param>
 		/// <param name="encodingType"></param>
 		/// <returns></returns>
-		public static async Task<TFile> Initialize(TFile file, bool loadFile = false, EncodingType encodingType = EncodingType.RawBytes)
+		protected static async Task<IFile> Initialize(IFile file, bool loadFile = false, EncodingType encodingType = EncodingType.RawBytes)
 		{
 			var fileInit = await InitializeWithMime(file);
 
@@ -202,13 +214,12 @@ namespace GenericMvcUtilities.Repositories
 			return file;
 		}
 
-
-		private Task<TFile> FileInitSwitch(TFile entity)
+		private Task<IFile> FileInitSwitch(IFile entity)
 		{
 			switch (DefaultLoadingSettings)
 			{
 				case FileLoading.JustFileInfo:
-					return Task.FromResult(Initialize(entity,path:""));
+					return Task.FromResult(Initialize(entity, path: ""));
 
 				case FileLoading.WithMime:
 					return Initialize(entity, loadFile: false, encodingType: FileEncodingType);
@@ -217,25 +228,23 @@ namespace GenericMvcUtilities.Repositories
 					return Initialize(entity, loadFile: true, encodingType: FileEncodingType);
 
 				default:
-					return Task.FromResult(Initialize(entity, path:""));
+					return Task.FromResult(Initialize(entity, path: ""));
 			}
 		}
 
-		private IObservable<TFile> GetFilesObservable(Func<TFile, bool> matchFunc, bool completeOnFirst = false)
+		#endregion FileInit
+
+		#region FileObservables
+
+		private IObservable<IFile> GetFilesObservable(Func<IFile, bool> matchFunc, bool completeOnFirst = false)
 		{
-			return Observable.Create<TFile>(async obs =>
+			return Observable.Create<IFile>(async obs =>
 			{
-				using (var enumerator = EnumerateFiles().GetEnumerator())
+				using (var enumerator = _directoryInfo.EnumerateFiles("*", _searchOption).GetEnumerator())
 				{
-					while (await enumerator.MoveNext())
+					while (enumerator.MoveNext())
 					{
-						//do work
-						var file = new TFile()
-						{
-							Name = enumerator.Current.Name,
-							Path = enumerator.Current.DirectoryName,
-							FileInfo = enumerator.Current
-						};
+						var file = new FileStruct(enumerator.Current);
 
 						if (matchFunc(await FileInitSwitch(file)))
 						{
@@ -250,25 +259,19 @@ namespace GenericMvcUtilities.Repositories
 					}
 				}
 
-				//if(!completeOnFirst)
 				obs.OnCompleted();
 			});
 		}
 
-		private IObservable<TFile> GetAllFilesObservable()
+		private IObservable<IFile> GetAllFilesObservable()
 		{
-			return Observable.Create<TFile>(async obs =>
+			return Observable.Create<IFile>(async obs =>
 			{
-				using (var enumerator = EnumerateFiles().GetEnumerator())
+				using (var enumerator = _directoryInfo.EnumerateFiles("*", _searchOption).GetEnumerator())
 				{
-					while (await enumerator.MoveNext())
+					while (enumerator.MoveNext())
 					{
-						var file = new TFile()
-						{
-							Name = enumerator.Current.Name,
-							Path = enumerator.Current.DirectoryName,
-							FileInfo = enumerator.Current
-						};
+						var file = new FileStruct(enumerator.Current);
 
 						obs.OnNext(await FileInitSwitch(file));
 					}
@@ -278,90 +281,187 @@ namespace GenericMvcUtilities.Repositories
 			});
 		}
 
+		#endregion FileObservables
+
 		/// <summary>
 		/// Check and reduce
 		/// then compile and return the delegate produced form the lambda
 		/// </summary>
 		/// <param name="predicate"></param>
 		/// <returns></returns>
-		private Func<TFile, bool> checkAndCompilePredicate(Expression<Func<TFile, bool>> predicate)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static Expression<Func<IFile, bool>> checkAndReducePredicate(Expression<Func<IFile, bool>> predicate)
 		{
-			if (predicate != null)
+			while (predicate.CanReduce)
 			{
-				if (predicate.CanReduce)
-				{
-					Expression<Func<TFile, bool>> reducedPredicate = predicate;
+				predicate = (Expression<Func<IFile, bool>>)predicate.ReduceAndCheck();
+			}
 
-					while (reducedPredicate.CanReduce)
-					{
-						reducedPredicate = (Expression<Func<TFile, bool>>)reducedPredicate.ReduceAndCheck();
-					}
+			return predicate;
+		}
 
-					return reducedPredicate.Compile();
-				}
+		public Task<IEnumerable<IFile>> GetAll()
+		{
+			return Task.FromResult(GetAllFilesObservable().ToEnumerable());
+		}
 
-				return predicate.Compile();
+		protected IFile GetFileByName(string Name)
+		{
+			var resultFiles = _directoryInfo.GetFiles(Name, _searchOption);
+
+			if (resultFiles.Length >= 1)
+			{
+				return new FileStruct(resultFiles[0]);
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(predicate));
+				return null;
 			}
 		}
 
-		/// <summary>
-		/// File should not exist on disk
-		/// </summary>
-		/// <param name="file"></param>
-		/// <returns></returns>
-		private Exception checkFileForCreation(TFile file)
+		public async Task<bool> Any(Expression<Func<IFile, bool>> predicate)
 		{
-			if (file.Data != null)
-			{
-				//var dirInfo = new System.IO.DirectoryInfo(file.ContainingFolder);
+			if (predicate == null)
+				throw new ArgumentNullException(nameof(predicate));
 
-				if (_directoryInfo.GetFiles(file.Name).Count() == 0)
+			var checkedPredicate = checkAndReducePredicate(predicate);
+
+			_visitor.Reset();
+
+			_visitor.Visit(checkedPredicate);
+
+			//check to see if we can query by file name
+			if (_visitor.CanQueryByName())
+			{
+				var file = GetFileByName((string)_visitor.MemberValue);
+
+				if (file != null)
 				{
-					return null;
+					return true;
 				}
 				else
 				{
-					return new System.IO.IOException("File Already Exists");
+					return false;
 				}
 			}
 			else
 			{
-				return new ArgumentNullException(nameof(file), "File Data is Null");
+				return await GetFilesObservable(checkedPredicate.Compile(), true).Any();
 			}
 		}
 
 		/// <summary>
-		/// Creates File on Disk
-		///
-		/// File does not have to be initialized
-		/// File should not exist on disk
+		/// Takes a lambda expression as argument and compiles it
+		/// then enumerates files in the root folder
 		/// </summary>
-		/// <returns></returns>
-		private async Task createFile(TFile entity)
+		/// <param name="predicate"></param>
+		/// <returns>First Match Found</returns>
+		public async Task<IFile> Get(Expression<Func<IFile, bool>> predicate)
 		{
-			if (entity.FileInfo == null)
+			if (predicate == null)
+				throw new ArgumentNullException(nameof(predicate));
+
+			var checkedPredicate = checkAndReducePredicate(predicate);
+
+			_visitor.Reset();
+
+			_visitor.Visit(checkedPredicate);
+
+			//check to see if we can query by file name
+			if (_visitor.CanQueryByName())
 			{
-				Initialize(entity, path: this._directoryInfo.FullName);
-			}
+				var file = GetFileByName((string)_visitor.MemberValue);
 
-			//check data, if both path and data valid make file
-			//if (System.IO.Directory.Exists(ContainingFolder) && !this._fileInfo.Exists)
-
-			byte[] data;
-
-			//check encoding it must be set and if data needs trans-coded
-			if (entity.EncodingType == EncodingType.NonNewtonsoftBase64)
-			{
-				data = Convert.FromBase64String(System.Text.Encoding.ASCII.GetString(entity.Data));
+				return await FileInitSwitch(file);
 			}
 			else
 			{
-				data = entity.Data;
+				return await GetFilesObservable(checkedPredicate.Compile(), true).FirstOrDefaultAsync();
 			}
+		}
+
+		public async Task<IFile> Get(Expression<Func<IFile, bool>> predicate, bool WithNestedData = false)
+		{
+			if (predicate == null)
+				throw new ArgumentNullException(nameof(predicate));
+
+			if (WithNestedData)
+			{
+				var checkedPredicate = checkAndReducePredicate(predicate);
+
+				_visitor.Reset();
+
+				_visitor.Visit(checkedPredicate);
+
+				IFile file;
+
+				//check to see if we can query by file name
+				if (_visitor.CanQueryByName())
+				{
+					file = GetFileByName((string)_visitor.MemberValue);
+				}
+				else
+				{
+					file = await GetFilesObservable(checkedPredicate.Compile(), true).FirstAsync();
+				}
+
+				return await Initialize(file, loadFile: true, encodingType: FileEncodingType);
+			}
+			else
+			{
+				return await Get(predicate);
+			}
+		}
+
+		public async Task<IList<IFile>> GetMany(Expression<Func<IFile, bool>> predicate)
+		{
+			if (predicate == null)
+				throw new ArgumentNullException(nameof(predicate));
+
+			return await GetFilesObservable(checkAndReducePredicate(predicate).Compile()).ToList();
+		}
+
+		public async Task<IList<IFile>> GetMany(Expression<Func<IFile, bool>> predicate, bool WithNestedData = false)
+		{
+			if (predicate == null)
+				throw new ArgumentNullException(nameof(predicate));
+
+			if (WithNestedData)
+			{
+				var observable = GetFilesObservable(checkAndReducePredicate(predicate).Compile());
+
+				var taskForeach = observable.ForEachAsync(async x => await Initialize(x, true, FileEncodingType));
+
+				await taskForeach;
+
+				return await observable.ToList();
+			}
+			else
+			{
+				return await GetMany(predicate);
+			}
+		}
+
+		/// <summary>
+		/// File Should have already been Initialized and should have data
+		/// Containing folder should match folder repository is attached to or subdirectories
+		/// </summary>
+		/// <param name="entity">The entity.</param>
+		/// <returns></returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		public async Task<IFile> Create(IFile entity)
+		{
+			if (entity == null || entity.Data == null)
+				throw new ArgumentNullException($"{nameof(entity)} or {nameof(entity.Data)} is Null");
+
+			if (_directoryInfo.GetFiles(entity.Name, _searchOption).Count() != 0)
+				throw new System.IO.IOException("File Already Exists");
+
+			//init file info backing
+			if (entity.FileInfo == null)
+				Initialize(entity, path: this._directoryInfo.FullName);
+
+			var data = decodeData(entity);
 
 			using (var fileStream = entity.FileInfo.Create())
 			{
@@ -376,145 +476,8 @@ namespace GenericMvcUtilities.Repositories
 					throw new System.IO.IOException("Cannot write to file: " + entity.Name);
 				}
 			}
-		}
 
-		private byte[] decodeData(TFile file)
-		{
-			byte[] data;
-
-			//check encoding it must be set and if data needs trans-coded
-			if (file.EncodingType == EncodingType.NonNewtonsoftBase64)
-			{
-				return data = Convert.FromBase64String(System.Text.Encoding.ASCII.GetString(file.Data));
-			}
-			else //newtonsoft handled or just raw bytes
-			{
-				//data = file.Data;
-				return data = file.Data;
-			}
-		}
-
-		private IAsyncEnumerable<System.IO.FileInfo> EnumerateFiles()
-		{
-			return this._directoryInfo.EnumerateFiles("*", _searchOption).ToAsyncEnumerable();
-		}
-
-		public async Task<bool> Any(Expression<Func<TFile, bool>> predicate)
-		{
-			var IsMatch = this.checkAndCompilePredicate(predicate);
-
-			return await GetFilesObservable(IsMatch).Any();
-		}
-
-		public Task<IEnumerable<TFile>> GetAll()
-		{
-			return Task.FromResult(GetAllFilesObservable().ToEnumerable());
-		}
-
-		//todo use while loops
-		/// <summary>
-		/// Takes a lambda expression as argument and compiles it
-		/// then enumerates files in the root folder
-		/// </summary>
-		/// <param name="predicate"></param>
-		/// <returns>First Match Found</returns>
-		public async Task<TFile> Get(Expression<Func<TFile, bool>> predicate)
-		{
-			var IsMatch = this.checkAndCompilePredicate(predicate);
-
-			return await GetFilesObservable(IsMatch, true).FirstAsync();
-
-			//return new File(await this.EnumerateFiles().First(async x => IsMatch( (await(new File(x).Initialize())) ) == true));
-		}
-
-		public Task<TFile> Get(Expression<Func<TFile, bool>> predicate, bool WithNestedData = false)
-		{
-			if (WithNestedData)
-			{
-				return GetCompleteItem(predicate);
-			}
-			else
-			{
-				return Get(predicate);
-			}
-		}
-
-		public async Task<IList<TFile>> GetMany(Expression<Func<TFile, bool>> predicate)
-		{
-			var IsMatch = this.checkAndCompilePredicate(predicate);
-
-			return await GetFilesObservable(IsMatch).ToList();
-		}
-
-		public async Task<IList<TFile>> GetMany(Expression<Func<TFile, bool>> predicate, bool WithNestedData = false)
-		{
-			var IsMatch = checkAndCompilePredicate(predicate);
-
-			if (WithNestedData)
-			{
-				var observable = GetFilesObservable(IsMatch);
-
-				var taskForeach = observable.ForEachAsync(async x => await Initialize(x, true, FileEncodingType));
-
-				/*
-				foreach (var item in files)
-				{
-					await item.Initialize(true, FileEncodingType);
-				}
-				*/
-
-				await taskForeach;
-
-				return await observable.ToList();
-			}
-			else
-			{
-				return await GetMany(predicate);
-			}
-		}
-
-		private async Task<TFile> GetCompleteItem(Expression<Func<TFile, bool>> predicate)
-		{
-			var IsMatch = this.checkAndCompilePredicate(predicate);
-
-			var file = await GetFilesObservable(IsMatch, true).FirstAsync();
-
-			return await Initialize(file, loadFile: true, encodingType: FileEncodingType);
-		}
-
-		/// <summary>
-		/// File Should have already been Initialized and should have data
-		/// Containing folder should match folder repository is attached to or subdirectories
-		/// </summary>
-		/// <param name="entity">The entity.</param>
-		/// <returns></returns>
-		/// <exception cref="System.ArgumentNullException"></exception>
-
-		public async Task<TFile> Create(TFile entity)
-		{
-			if (entity != null)
-			{
-				try
-				{
-					var checkFile = checkFileForCreation(entity);
-
-					if (checkFile != null)
-						throw checkFile;
-					//throw checkFile;
-
-					await createFile(entity);
-
-					return entity;
-				}
-				catch (Exception e)
-				{
-					throw e;
-				}
-			}
-			else
-			{
-				throw new ArgumentNullException(nameof(entity));
-			}
+			return entity;
 		}
 
 		/// <summary>
@@ -525,282 +488,186 @@ namespace GenericMvcUtilities.Repositories
 		/// <returns></returns>
 		/// <exception cref="AggregateException"></exception>
 		/// <exception cref="System.ArgumentNullException"></exception>
-		public async Task<IEnumerable<TFile>> CreateRange(IEnumerable<TFile> entities)
+		public async Task<IEnumerable<IFile>> CreateRange(IEnumerable<IFile> entities)
 		{
-			if (entities != null)
-			{
-				var exceptionLazyList = new Lazy<List<Exception>>();
-
-				foreach (var entity in entities)
-				{
-					try
-					{
-						var result = await Create(entity);
-
-						/*
-						if (result == null)
-						{
-							entities.Remove(entity);
-						}
-						*/
-					}
-					catch (Exception e)
-					{
-						if (exceptionLazyList.Value != null && exceptionLazyList.IsValueCreated)
-						{
-							exceptionLazyList.Value.Add(e);
-						}
-
-						//entities.Remove(entity);
-					}
-				}
-
-				if (exceptionLazyList.Value.Count > 0)
-				{
-					throw new AggregateException(exceptionLazyList.Value);
-				}
-
-				return entities;
-			}
-			else
-			{
+			if (entities == null)
 				throw new ArgumentNullException(nameof(entities));
-			}
-		}
 
-		//This checks to make sure the file exists on disk
-		private Exception checkFileForUpdate(TFile file)
-		{
-			if (file.Data != null)
-			{
-				//Make sure file exists
-				if (_directoryInfo.GetFiles(file.Name).Count() == 1)
-				{
-					return null;
-				}
-				else
-				{
-					return new System.IO.IOException("File does not Exist");
-				}
-			}
-			else
-			{
-				return new ArgumentNullException(nameof(file), "File Data is Null");
-			}
-		}
+			var exceptionLazyList = new Lazy<List<Exception>>();
 
-		public async Task<TFile> Update(TFile entity)
-		{
-			if (entity != null)
+			foreach (var entity in entities)
 			{
 				try
 				{
-					var checkFile = checkFileForUpdate(entity);
-
-					if (checkFile != null)
-						throw checkFile;
-					//throw checkFile;
-
-					await updateFile(entity);
-
-					return entity;
+					var result = await Create(entity);
 				}
 				catch (Exception e)
 				{
-					throw e;
+					if (exceptionLazyList.Value != null && exceptionLazyList.IsValueCreated)
+					{
+						exceptionLazyList.Value.Add(e);
+					}
 				}
 			}
-			else
+
+			if (exceptionLazyList.Value.Count > 0)
 			{
-				throw new ArgumentNullException(nameof(entity));
+				throw new AggregateException(exceptionLazyList.Value);
 			}
+
+			return entities;
 		}
 
-		//we should treat files as immutable and just delete them 
-		//this way if the underlying file's bytes change we can just make a new one and rewrite the bytes to disk
-		private async Task updateFile(TFile entity)
+		public async Task<IFile> Update(IFile entity)
 		{
+			if (entity == null && entity.Data == null)
+				throw new ArgumentNullException($"{nameof(entity)} or {nameof(entity.Data)} is Null");
+
+			//Make sure file exists
+			if (!(_directoryInfo.GetFiles(entity.Name, _searchOption).Count() == 1))
+				throw new System.IO.IOException($"File: {entity.Name} does not Exist");
+
+			//init file backing
 			if (entity.FileInfo == null)
-			{
-				//path should already have been set
-				//todo re evaluate this
-				Initialize(entity,path:"");
-			}
-
-
+				Initialize(entity, path: "");
 
 			//decode data if encoded
-			var data  = decodeData(entity);
+			var data = decodeData(entity);
 
+			//if file has changed create new file and delete old one
 			if (entity.FileInfo.Length != data.Length)
 			{
 				//delete existing file and then write a new one
-				if (!entity.FileInfo.IsReadOnly)
+				if (entity.FileInfo.IsReadOnly)
+					throw new System.IO.IOException($"File {entity.Name} is Read Only");
+
+				//delete file
+				entity.FileInfo.Delete();
+
+				//create file
+				using (var fileStream = entity.FileInfo.Create())
 				{
-					//delete file
-					entity.FileInfo.Delete();
-
-					//create file
-					using (var fileStream = entity.FileInfo.Create())
+					if (fileStream.CanWrite)
 					{
-						if (fileStream.CanWrite)
-						{
-							await fileStream.WriteAsync(data, 0, data.Length);
+						await fileStream.WriteAsync(data, 0, data.Length);
 
-							await fileStream.FlushAsync();
-						}
-						else
-						{
-							throw new System.IO.IOException("Cannot write to file: " + entity.Name);
-						}
+						await fileStream.FlushAsync();
+					}
+					else
+					{
+						throw new System.IO.IOException("Cannot write to file: " + entity.Name);
 					}
 				}
-				else
-				{
-					throw new System.IO.IOException("File is readonly");
-				}
 			}
-			else
-			{
-				//else file hasn't change, do nothing
-				return;
-			}
+
+			return entity;
 		}
 
-		public async Task<IEnumerable<TFile>> UpdateRange(IEnumerable<TFile> entities)
+		//we should treat files as immutable and just delete them
+		//this way if the underlying file's bytes change we can just make a new one and rewrite the bytes to disk
+
+		public async Task<IEnumerable<IFile>> UpdateRange(IEnumerable<IFile> entities)
 		{
-			if (entities != null)
-			{
-				var exceptionLazyList = new Lazy<List<Exception>>();
-
-				foreach (var entity in entities)
-				{
-					try
-					{
-						var result = await Update(entity);
-
-						/*
-						if (result == null)
-						{
-							entities.Remove(entity);
-						}
-						*/
-					}
-					catch (Exception e)
-					{
-						if (exceptionLazyList.Value != null && exceptionLazyList.IsValueCreated)
-						{
-							exceptionLazyList.Value.Add(e);
-						}
-
-						//entities.Remove(entity);
-					}
-				}
-
-				if (exceptionLazyList.Value.Count > 0)
-				{
-					throw new AggregateException(exceptionLazyList.Value);
-				}
-
-				return entities;
-			}
-			else
-			{
+			if (entities == null)
 				throw new ArgumentNullException(nameof(entities));
+
+			var exceptionLazyList = new Lazy<List<Exception>>();
+
+			foreach (var entity in entities)
+			{
+				try
+				{
+					var result = await Update(entity);
+				}
+				catch (Exception e)
+				{
+					if (exceptionLazyList.Value != null && exceptionLazyList.IsValueCreated)
+					{
+						exceptionLazyList.Value.Add(e);
+					}
+				}
 			}
+
+			if (exceptionLazyList.Value.Count > 0)
+			{
+				throw new AggregateException(exceptionLazyList.Value);
+			}
+
+			return entities;
 		}
 
 		//todo add check to see if file exists
 		//if file does not exists return true
-		public Task<bool> Delete(TFile entity)
+		public Task<bool> Delete(IFile entity)
 		{
-			if (entity != null)
+			if (entity == null)
+				throw new ArgumentNullException(nameof(entity));
+
+			try
+			{
+				//make it file backed
+				if (entity.FileInfo == null)
+				{
+					if (entity.Path == null || entity.Path == "")
+					{
+						Initialize(entity, path: this._directoryInfo.FullName);
+					}
+					else
+					{
+						Initialize(entity, path: "");
+					}
+				}
+
+				entity.FileInfo.Delete();
+
+				return Task.FromResult(true);
+			}
+			catch (Exception)
+			{
+				return Task.FromResult(false);
+			}
+		}
+
+		public async Task<bool> DeleteRange(IEnumerable<IFile> entities)
+		{
+			if (entities == null)
+				throw new ArgumentNullException(nameof(entities));
+
+			var entityCount = entities.Count();
+
+			var exceptionLazyList = new Lazy<List<Exception>>();
+
+			foreach (var entity in entities)
 			{
 				try
 				{
-					//make it file backed
-					if (entity.FileInfo == null)
-					{
-						if (entity.Path == null || entity.Path == "")
-						{
-							Initialize(entity, path: this._directoryInfo.FullName);
-						}
-						else
-						{
-							Initialize(entity, path: "");
-						}
-					}
-
-					entity.FileInfo.Delete();
-
-					return Task.FromResult(true);
+					var result = await Delete(entity);
 				}
-				catch (Exception)
+				catch (Exception e)
 				{
-					return Task.FromResult(false);
+					if (exceptionLazyList.Value != null && exceptionLazyList.IsValueCreated)
+					{
+						exceptionLazyList.Value.Add(e);
+					}
 				}
+			}
+
+			if (exceptionLazyList.Value.Count > 0)
+			{
+				throw new AggregateException(exceptionLazyList.Value);
+			}
+
+			if (entities.Count() == entityCount)
+			{
+				return true;
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(entity));
+				return false;
 			}
 		}
 
-		public async Task<bool> DeleteRange(IEnumerable<TFile> entities)
-		{
-			var entityCount = entities.Count();
-
-			if (entities != null)
-			{
-				var exceptionLazyList = new Lazy<List<Exception>>();
-
-				foreach (var entity in entities)
-				{
-					try
-					{
-						var result = await Delete(entity);
-
-						/*
-						if (result == false)
-						{
-							entities.Remove(entity);
-						}
-						*/
-					}
-					catch (Exception e)
-					{
-						if (exceptionLazyList.Value != null && exceptionLazyList.IsValueCreated)
-						{
-							exceptionLazyList.Value.Add(e);
-						}
-
-						/*
-						entities.Remove(entity);
-						*/
-					}
-				}
-
-				if (exceptionLazyList.Value.Count > 0)
-				{
-					throw new AggregateException(exceptionLazyList.Value);
-				}
-
-				if (entities.Count() == entityCount)
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-			else
-			{
-				throw new ArgumentNullException(nameof(entities));
-			}
-		}
-
-		public IEnumerator<TFile> GetEnumerator()
+		public IEnumerator<IFile> GetEnumerator()
 		{
 			return GetAllFilesObservable().ToEnumerable().GetEnumerator();
 		}
@@ -812,7 +679,7 @@ namespace GenericMvcUtilities.Repositories
 
 		public Task<long> Count()
 		{
-			throw new NotImplementedException();
+			return Task.FromResult(_directoryInfo.GetFiles("*", _searchOption).LongCount());
 		}
 	}
 }

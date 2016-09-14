@@ -1,7 +1,8 @@
-﻿using GenericMvcUtilities.Models;
-using GenericMvcUtilities.ViewModels.Basic;
+﻿using GenericMvcUtilities.Attributes;
+using GenericMvcUtilities.Models;
 using GenericMvcUtilities.Repositories;
 using GenericMvcUtilities.Services;
+using GenericMvcUtilities.ViewModels.Basic;
 using GenericMvcUtilities.ViewModels.UserManager.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -10,18 +11,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
 
 //Todo: add in account confirmation phase for added pending users
 //todo: add generic mvc views modeling to it for bootstrap material design
 namespace GenericMvcUtilities.UserManager
 {
-	[Authorize]
-	[Route("[controller]/[action]/")]
+	[Authorize, Route("[controller]/[action]/")]
 	public class AccountController<TKey, TUser, TPendingUser> : Controller
 		where TKey : IEquatable<TKey>
 		where TUser : IdentityUser<TKey>, IPrivilegedUserConstraints, new()
@@ -31,11 +30,8 @@ namespace GenericMvcUtilities.UserManager
 		private readonly SignInManager<TUser> _signInManager;
 		private readonly IEmailSender _emailSender;
 		private readonly ISmsSender _smsSender;
-
 		private readonly BaseEntityRepository<TUser> _userRepository;
-
 		private readonly BaseEntityRepository<TPendingUser> _pendingUserRepository;
-
 		private readonly PasswordHasher<TPendingUser> _passwordHasher;
 
 		private static bool _databaseChecked;
@@ -58,22 +54,240 @@ namespace GenericMvcUtilities.UserManager
 			_passwordHasher = passwordHasher;
 		}
 
-		//
 		// GET: /Account/Login
-		[HttpGet]
-		[AllowAnonymous]
+		[HttpGet, AllowAnonymous]
 		public IActionResult Login(string returnUrl = null)
 		{
-			ViewData["ReturnUrl"] = returnUrl;
+			//set return URL if we have one
+			if (returnUrl != null)
+			{
+				ViewData["ReturnUrl"] = returnUrl;
+			}
+
 			return View();
 		}
+
+		//todo check for system owner... and default password post
+		// POST: /Account/Login
+		[HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
+		public async Task<IActionResult> Login(PriviledgedLoginViewModel model, string returnUrl = null)
+		{
+			//early out for bad requests
+			if (model == null || !ModelState.IsValid)
+				return View(model);
+
+			EnsureDatabaseCreated(_userRepository.DataContext);
+
+			//set return URL if we have one
+			if (returnUrl != null)
+			{
+				ViewData["ReturnUrl"] = returnUrl;
+			}
+
+			// This doesn't count login failures towards account lockout
+			// To enable password failures to trigger account lockout, set lockoutOnFailure: true
+			var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+			if (result.Succeeded)
+			{
+				//system owner default filter goes here
+				if (await DefaultSystemOwnerFilter(model))
+				{
+					//redirect to system owner defaults change action
+					return RedirectToAction(nameof(this.SysOwnerChangeDefaults));
+				}
+
+				return RedirectToLocal(returnUrl);
+			}
+			else if (result.RequiresTwoFactor)
+			{
+				return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+			}
+			else if (result.IsLockedOut)
+			{
+				return View("Lockout");
+			}
+			//begin check for pending user
+			else if (result.Succeeded == false
+					&& result.IsLockedOut == false
+					&& result.RequiresTwoFactor == false)
+			{
+				//Check for pending user here, query by email address for pending user
+				var pendingUser = await _pendingUserRepository.Get(x => x.Email == model.Email);
+
+				//check for result and correctness of result
+				if (pendingUser != null)
+				{
+					//check to see if the user has been added
+					if (pendingUser.HasUserBeenAdded)
+					{
+						var passwordResult = _passwordHasher.VerifyHashedPassword(pendingUser, pendingUser.HashedPassword, model.Password);
+
+						if (passwordResult == PasswordVerificationResult.Success || passwordResult == PasswordVerificationResult.SuccessRehashNeeded)
+						{
+							//create one-time authentication cookie
+							var token = new OneTimeToken(OneTimeToken.GetBytes(pendingUser.HashedPassword));
+
+							//set token expiration date
+							pendingUser.StampExpiration = token.ExpirationDate;
+
+							//set token random number stamp for validation
+							pendingUser.SecurityStamp = token.TokenStamp;
+
+							var stampResult = await _pendingUserRepository.Update(pendingUser); ;
+
+							if (stampResult != null)
+							{
+								return RedirectToAction(nameof(this.ConfirmUser),
+									new { PendingUserId = pendingUser.Id, secToken = await token.GenerateToken() });
+							}
+							else
+							{
+								throw new Exception("Updating Pending User Failed");
+							}
+						}
+					}
+				}
+			}
+
+			ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+
+			// If we got this far, something failed, redisplay form
+			return View(model);
+		}
+
+		#region System Owner Actions
+
+		[NonAction]
+		private async Task<bool> DefaultSystemOwnerFilter(PriviledgedLoginViewModel model)
+		{
+			var user = await _userManager.FindByEmailAsync(model.Email);
+			//var user = await GetCurrentUserAsync();
+
+			if (await _userManager.IsInRoleAsync(user, RoleHelper.SystemOwner))
+			{
+				if (user.Email == SystemOwnerDefaults.UserNameEmail || model.Password == SystemOwnerDefaults.Password)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		[NonAction]
+		private static PageViewModel CreateSysOwnerDefaultsViewModel(Controller controller, SysOwnerChangeDefaultsViewModel viewModel = null)
+		{
+			return new PageViewModel(controller)
+			{
+				Title = "Change System Owner Account Defaults",
+				Description = "Please Fill this out to Change the Defaults for this Account",
+				Data = viewModel ?? new SysOwnerChangeDefaultsViewModel(),
+				Message = new MessageViewModel(MessageType.Danger,
+				"If you don't fill this out and submit it, the System will be vulnerable.", false)
+			};
+		}
+
+		[HttpGet, AuthorizeSystemOwnerOnly]
+		public async Task<IActionResult> SysOwnerChangeDefaults(string returnUrl)
+		{
+			var user = await GetCurrentUserAsync();
+
+			//if user is not valid log them out and redirect
+			if (!(await _userManager.IsInRoleAsync(user, RoleHelper.SystemOwner)))
+			{
+				await _signInManager.SignOutAsync();
+
+				return RedirectToActionPermanent(nameof(this.Login));
+			}
+
+			//set return URL if we have one
+			if (returnUrl != null)
+			{
+				ViewData["ReturnUrl"] = returnUrl;
+			}
+
+			return this.ViewFromModel(CreateSysOwnerDefaultsViewModel(this));
+		}
+
+		[HttpPost, ValidateAntiForgeryToken, AuthorizeSystemOwnerOnly]
+		public async Task<IActionResult> SysOwnerChangeDefaults(SysOwnerChangeDefaultsViewModel viewModel, string returnUrl = null)
+		{
+			var user = await GetCurrentUserAsync();
+
+			//if invalid redisplay form
+			if (viewModel == null && !ModelState.IsValid)
+				return this.ViewFromModel(CreateSysOwnerDefaultsViewModel(this, viewModel));
+
+			//if user is not valid log them out and redirect
+			if (!(await _userManager.IsInRoleAsync(user, RoleHelper.SystemOwner)))
+			{
+				await _signInManager.SignOutAsync();
+
+				return RedirectToActionPermanent(nameof(this.Login));
+			}
+
+			//set return URL if we have one
+			if (returnUrl != null)
+			{
+				ViewData["ReturnUrl"] = returnUrl;
+			}
+
+			//attempt to change password
+			var changePassResult = await _userManager.ChangePasswordAsync(user, viewModel.CurrentPassword, viewModel.NewPassword);
+
+			if (changePassResult.Succeeded)
+			{
+				user.FirstName = viewModel.FirstName;
+
+				user.LastName = viewModel.LastName;
+
+				user.PhoneNumber = viewModel.NewPhoneNumber;
+
+				var updatedUser = await _userRepository.Update(user);
+
+				//change email address
+				var changeEmailToken = await _userManager.GenerateChangeEmailTokenAsync(updatedUser, viewModel.NewEmail);
+
+				var changeEmailResult = await _userManager.ChangeEmailAsync(updatedUser, viewModel.NewEmail, changeEmailToken);
+
+				//change user name
+				var changeUserNameResult = await _userManager.SetUserNameAsync(updatedUser, viewModel.NewEmail);
+
+				//both of these must succeed
+				if (changeEmailResult.Succeeded && changeUserNameResult.Succeeded)
+				{
+					//final success path
+					if (returnUrl != null)
+					{
+						return LocalRedirect(returnUrl);
+					}
+					else
+					{
+						return RedirectToActionPermanent("Index", "Home");
+					}
+				}
+
+				AddErrors(changeEmailResult);
+
+				AddErrors(changeUserNameResult);
+			}
+
+			AddErrors(changePassResult);
+
+			return this.ViewFromModel(CreateSysOwnerDefaultsViewModel(this, viewModel));
+		}
+
+		#endregion System Owner Actions
+
+		#region Pending User Actions
 
 		/// <summary>
 		/// Utility Method for creating confirm user view model.
 		/// </summary>
 		/// <param name="pendingUser">The pending user.</param>
 		/// <returns></returns>
-		private ConfirmUserViewModel CreateConfirmUserViewModel(TPendingUser pendingUser, string token)
+		private static ConfirmUserViewModel CreateConfirmUserViewModel(TPendingUser pendingUser, string token)
 		{
 			return new ConfirmUserViewModel()
 			{
@@ -92,7 +306,7 @@ namespace GenericMvcUtilities.UserManager
 		/// </summary>
 		/// <param name="PendingUser">The pending user.</param>
 		/// <returns></returns>
-		private TUser UserFromPending(TPendingUser PendingUser)
+		private static TUser UserFromPending(TPendingUser PendingUser)
 		{
 			return new TUser()
 			{
@@ -105,49 +319,10 @@ namespace GenericMvcUtilities.UserManager
 			};
 		}
 
-		/// <summary>
-		/// Serves the confirmation view
-		/// verify ids, check if user has been added, create model, assign ids to model, send view
-		/// </summary>
-		/// <param name="pendingUserId">The pending user identifier.</param>
-		/// <param name="userId">The user identifier.</param>
-		/// <returns></returns>
-		[AllowAnonymous]
-		[HttpGet]
-		public async Task<IActionResult> ConfirmUser(TKey pendingUserId, string secToken)
-		{
-			if (pendingUserId != null)
-			{
-				var pendingUser = await
-					_pendingUserRepository.Get(_pendingUserRepository.IsMatchedExpression("Id", pendingUserId));
-
-				//create token for comparison 
-				var token = new OneTimeToken(OneTimeToken.GetBytes(pendingUser.HashedPassword),
-						pendingUser.SecurityStamp,
-						pendingUser.StampExpiration);
-
-				if (pendingUser != null &&
-					pendingUser.HasUserBeenAdded &&
-					await token.VerifyToken(secToken, pendingUser.StampExpiration))
-				{
-					return this.ViewFromModel(getConfirmViewModel(pendingUser, secToken));
-				}
-				else
-				{
-					//HttpNotFound and anything else leaks information
-					return BadRequest();
-				}
-			}
-			else
-			{
-				return BadRequest();
-			}
-		}
-
-		private PageViewModel getConfirmViewModel(ConfirmUserViewModel model)
+		private static PageViewModel getConfirmViewModel(ConfirmUserViewModel model, Controller controller)
 		{
 			//construct view model
-			return new PageViewModel(this)
+			return new PageViewModel(controller)
 			{
 				Title = "Confirm your Account",
 				Description = "Your Request has been reviewed by a User Administrator and approved, please confirm your information.",
@@ -155,10 +330,10 @@ namespace GenericMvcUtilities.UserManager
 			};
 		}
 
-		private PageViewModel getConfirmViewModel(TPendingUser pending, string token)
+		private static PageViewModel getConfirmViewModel(TPendingUser pending, string token, Controller controller)
 		{
 			//construct view model
-			return new PageViewModel(this)
+			return new PageViewModel(controller)
 			{
 				Title = "Confirm your Account",
 				Description = "Your Request has been reviewed by a User Administrator and approved, please confirm your information.",
@@ -167,234 +342,114 @@ namespace GenericMvcUtilities.UserManager
 		}
 
 		/// <summary>
+		/// Serves the confirmation view
+		/// verify ids, check if user has been added, create model, assign ids to model, send view
+		/// </summary>
+		/// <param name="pendingUserId">The pending user identifier.</param>
+		/// <param name="userId">The user identifier.</param>
+		/// <returns></returns>
+		[HttpGet, AllowAnonymous]
+		public async Task<IActionResult> ConfirmUser(TKey pendingUserId, string secToken)
+		{
+			if (pendingUserId == null || secToken == null)
+				return RedirectToActionPermanent(nameof(this.Login));
+
+			var pendingUser = await
+				_pendingUserRepository.Get(_pendingUserRepository.MatchByIdExpression<TPendingUser,TKey>(pendingUserId));
+
+			//create token for comparison
+			var token = new OneTimeToken(OneTimeToken.GetBytes(pendingUser.HashedPassword),
+					pendingUser.SecurityStamp,
+					pendingUser.StampExpiration);
+
+			if (pendingUser != null
+				&& pendingUser.HasUserBeenAdded
+				&& await token.VerifyToken(secToken, pendingUser.StampExpiration))
+			{
+				return this.ViewFromModel(getConfirmViewModel(pendingUser, secToken, this));
+			}
+
+			return RedirectToActionPermanent(nameof(this.Login));
+		}
+
+		/// <summary>
 		/// Receives form post, verify model state, check data
 		/// </summary>
-		/// <param name="model">The model.</param>
+		/// <param name="viewModel">The model.</param>
 		/// <returns></returns>
-		[AllowAnonymous]
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> ConfirmUser(ConfirmUserViewModel model)
+		[HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
+		public async Task<IActionResult> ConfirmUser(ConfirmUserViewModel viewModel)
 		{
-			if (model != null)
+			if (viewModel == null || !ModelState.IsValid)
+				return this.ViewFromModel(getConfirmViewModel(viewModel, this));
+
+			var typeConverter = TypeDescriptor.GetConverter(typeof(TKey));
+
+			TKey pendingUserId = (TKey)typeConverter.ConvertFromString(viewModel.PendingUserId);
+
+			//get pending user from DB
+			var pendingUser = await
+				_pendingUserRepository.Get(_pendingUserRepository.MatchByIdExpression<TPendingUser, TKey>(pendingUserId));
+
+			//create token for comparison
+			var token = new OneTimeToken(OneTimeToken.GetBytes(pendingUser.HashedPassword),
+					pendingUser.SecurityStamp,
+					pendingUser.StampExpiration);
+
+			if (!(await token.VerifyToken(viewModel.AuthToken, pendingUser.StampExpiration)))
+				return RedirectToActionPermanent(nameof(this.Login));
+
+			//hash old password and compare with stored hash
+			var passwordResult = _passwordHasher.VerifyHashedPassword(pendingUser, pendingUser.HashedPassword, viewModel.Password);
+
+			//if password result fails, redirect to login
+			if (passwordResult == PasswordVerificationResult.Success || passwordResult == PasswordVerificationResult.SuccessRehashNeeded)
+				return RedirectToActionPermanent(nameof(this.Login));
+
+			//then add user to the system
+			TUser newUser = UserFromPending(pendingUser);
+
+			//Add pending user to user system, with password
+			var createUserResult = await _userManager.CreateAsync(newUser, viewModel.NewPassword);
+
+			//if user created then add to role
+			if (createUserResult.Succeeded) 
 			{
-				if (ModelState.IsValid)
+				var roleResult = await _userManager.AddToRoleAsync(newUser, pendingUser.RequestedRole);
+
+				//if role succeeded sign in user
+				if (roleResult.Succeeded)
 				{
-					//get pending user from DB
-					var pendingUser = await 
-						_pendingUserRepository.Get(_pendingUserRepository.IsMatchedExpression("Id", model.PendingUserId));
+					//sign user in and redirect to home page
+					var signInResult =
+						await _signInManager.PasswordSignInAsync(newUser, viewModel.NewPassword, false, false);
 
-					//create token for comparison 
-					var token = new OneTimeToken(OneTimeToken.GetBytes(pendingUser.HashedPassword),
-							pendingUser.SecurityStamp,
-							pendingUser.StampExpiration);
-
-					if ((await token.VerifyToken(model.AuthToken, pendingUser.StampExpiration)) == false)
+					//if sign in delete pending user 
+					if (signInResult.Succeeded)
 					{
-						return Unauthorized();
-					}
+						await _pendingUserRepository.Delete(pendingUser);
 
-					var passwordResult = _passwordHasher.VerifyHashedPassword(pendingUser, pendingUser.HashedPassword, model.Password);
-
-					//hash old password and compare with stored hash
-					if (passwordResult == PasswordVerificationResult.Success || passwordResult == PasswordVerificationResult.SuccessRehashNeeded)
-					{
-						//then add user to the system
-						TUser newUser = UserFromPending(pendingUser);
-
-						//Add pending user to user system, with password
-						var result = await _userManager.CreateAsync(newUser, model.NewPassword);
-
-						if (result.Succeeded) //then add role
-						{
-							var roleResult = await _userManager.AddToRoleAsync(newUser, pendingUser.RequestedRole);
-
-							if (roleResult.Succeeded)
-							{
-								//sign user in and redirect to home page
-								var signInResult =
-									await _signInManager.PasswordSignInAsync(newUser, model.NewPassword, false, false);
-
-								if (signInResult.Succeeded)
-								{
-									//todo test this
-									await _pendingUserRepository.Delete(pendingUser);
-
-									return RedirectToAction("Index", "Home");
-								}
-								else
-								{
-									throw new Exception("Failed signing in new user");
-								}
-							}
-						}
-
-						//if password errors redisplay form with data and errors
-						AddErrors(result);
-
-						return this.ViewFromModel(getConfirmViewModel(pendingUser, model.AuthToken));
+						return RedirectToAction("Index", "Home");
 					}
 					else
 					{
-						return Unauthorized();
+						throw new Exception("Failed signing in new user");
 					}
 				}
-				else
-				{
-					//return HttpBadRequest(ModelState);
 
-					return this.ViewFromModel(getConfirmViewModel(model));
-				}
+				AddErrors(roleResult);
 			}
-			else
-			{
-				return BadRequest();
-			}
+
+			//if password errors redisplay form with data and errors
+			AddErrors(createUserResult);
+
+			return this.ViewFromModel(getConfirmViewModel(pendingUser, viewModel.AuthToken, this));
 		}
 
-		//
-		// POST: /Account/Login
-		[HttpPost]
-		[AllowAnonymous]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Login(PriviledgedLoginViewModel model, string returnUrl = null)
-		{
-			EnsureDatabaseCreated(_userRepository.DataContext);
+		#endregion Pending User Actions
 
-			if (returnUrl != null)
-			{
-				ViewData["ReturnUrl"] = returnUrl;
-			}
-
-			if (ModelState.IsValid)
-			{
-				// This doesn't count login failures towards account lockout
-				// To enable password failures to trigger account lockout, set lockoutOnFailure: true
-				var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-
-				if (result.Succeeded)
-				{
-					return RedirectToLocal(returnUrl);
-				}
-				if (result.RequiresTwoFactor)
-				{
-					return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
-				}
-				if (result.IsLockedOut)
-				{
-					return View("Lockout");
-				}
-				//begin check for pending user
-				if (result.Succeeded == false &&
-					result.IsLockedOut == false &&
-					result.RequiresTwoFactor == false)
-				{
-					//Check for pending user here, query by email address for pending user
-					var pendingUser = await _pendingUserRepository.Get(x => x.Email == model.Email);
-
-					//check for result and correctness of result
-					if (pendingUser != null)
-					{
-
-						//check to see if the user has been added
-						if (pendingUser.HasUserBeenAdded)
-						{
-							var passwordResult = _passwordHasher.VerifyHashedPassword(pendingUser, pendingUser.HashedPassword, model.Password);
-
-							if (passwordResult == PasswordVerificationResult.Success || passwordResult == PasswordVerificationResult.SuccessRehashNeeded)
-							{
-								//create one-time authentication cookie
-								var token = new OneTimeToken(OneTimeToken.GetBytes(pendingUser.HashedPassword));
-
-								//set token expiration date
-								pendingUser.StampExpiration = token.ExpirationDate;
-
-								//set token random number stamp for validation
-								pendingUser.SecurityStamp = token.TokenStamp;
-
-								var stampResult = await _pendingUserRepository.Update(pendingUser);;
-
-								if (stampResult != null)
-								{
-									return RedirectToAction(nameof(this.ConfirmUser),
-														new { PendingUserId = pendingUser.Id, secToken = await token.GenerateToken() });
-								}
-								else
-								{
-									throw new Exception("Updating Pending User Failed");
-								}
-							}
-						}
-					}
-
-					ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-				}
-				else
-				{
-					ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-					//return View(model);
-				}
-			}
-
-			// If we got this far, something failed, redisplay form
-			return View(model);
-		}
-
-		///todo remove
-		// POST: /Account/Login
-		/// <summary>
-		/// Logins to the API.
-		/// </summary>
-		/// <param name="model">The model.</param>
-		/// <returns></returns>
-		//[Route("[controller]/[action]")]
-		[HttpPost]
-		[AllowAnonymous]
-		public async Task<IActionResult> LoginApi([FromBody]PriviledgedLoginViewModel model)
-		{
-			EnsureDatabaseCreated(_userRepository.DataContext);
-
-			if (ModelState.IsValid && (model != null))
-			{
-				// This doesn't count login failures towards account lockout
-				// To enable password failures to trigger account lockout, set lockoutOnFailure: true
-				var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-
-				if (result.Succeeded)
-				{
-					return Json(result);
-				}
-				if (result.RequiresTwoFactor)
-				{
-					//no way to two factor bots at the moment
-					return Unauthorized();
-				}
-				if (result.IsLockedOut)
-				{
-					return new StatusCodeResult(403);
-				}
-				else
-				{
-					//ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-					return Unauthorized();
-				}
-			}
-
-			// If we got this far, something failed, send server error
-			return new StatusCodeResult(500);
-		}
-
-		//todo remove
-		[HttpGet]
-		public IActionResult LoginTest()
-		{
-			return new NoContentResult();
-		}
-
-		//
 		// GET: /Account/Register
-		[HttpGet]
-		[AllowAnonymous]
+		[HttpGet, AllowAnonymous]
 		public IActionResult Register()
 		{
 			//Add Roles to view bag / view data
@@ -408,7 +463,6 @@ namespace GenericMvcUtilities.UserManager
 
 			return this.ViewFromModel(viewModel);
 		}
-
 
 		/// <summary>
 		/// Creates the pending user.
@@ -444,8 +498,7 @@ namespace GenericMvcUtilities.UserManager
 			return pendingUser;
 		}
 
-		[HttpGet]
-		[AllowAnonymous]
+		[HttpGet, AllowAnonymous]
 		public IActionResult ConfirmRegistration()
 		{
 			var page = new PageViewModel(this)
@@ -459,9 +512,7 @@ namespace GenericMvcUtilities.UserManager
 		}
 
 		// POST: /Account/Register
-		[HttpPost]
-		[AllowAnonymous]
-		[ValidateAntiForgeryToken]
+		[HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
 		public async Task<IActionResult> Register(PrivilegedRegisterViewModel model)
 		{
 			EnsureDatabaseCreated(_userRepository.DataContext);
@@ -494,8 +545,7 @@ namespace GenericMvcUtilities.UserManager
 				//AddErrors(result);
 			}
 
-
-			//Fix redisplay of form with generic mvc container 
+			//Fix redisplay of form with generic mvc container
 			//Add Roles to view bag / view data
 			ViewData["Roles"] = RoleHelper.SelectableRoleList();
 
@@ -510,21 +560,16 @@ namespace GenericMvcUtilities.UserManager
 			return this.ViewFromModel(viewModel);
 		}
 
-		//
 		// POST: /Account/LogOff
-		[HttpPost]
-		[ValidateAntiForgeryToken]
+		[HttpPost, ValidateAntiForgeryToken]
 		public async Task<IActionResult> LogOff()
 		{
 			await _signInManager.SignOutAsync();
 			return RedirectToAction("Index", "Home");
 		}
 
-		//
 		// POST: /Account/ExternalLogin
-		[HttpPost]
-		[AllowAnonymous]
-		[ValidateAntiForgeryToken]
+		[HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
 		public IActionResult ExternalLogin(string provider, string returnUrl = null)
 		{
 			EnsureDatabaseCreated(_userRepository.DataContext);
@@ -534,10 +579,8 @@ namespace GenericMvcUtilities.UserManager
 			return new ChallengeResult(provider, properties);
 		}
 
-		//
 		// GET: /Account/ExternalLoginCallback
-		[HttpGet]
-		[AllowAnonymous]
+		[HttpGet, AllowAnonymous]
 		public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null)
 		{
 			var info = await _signInManager.GetExternalLoginInfoAsync();
@@ -570,11 +613,8 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
-		//
 		// POST: /Account/ExternalLoginConfirmation
-		[HttpPost]
-		[AllowAnonymous]
-		[ValidateAntiForgeryToken]
+		[HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
 		public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model, string returnUrl = null)
 		{
 			if (_signInManager.IsSignedIn(User))
@@ -609,8 +649,7 @@ namespace GenericMvcUtilities.UserManager
 		}
 
 		// GET: /Account/ConfirmEmail
-		[HttpGet]
-		[AllowAnonymous]
+		[HttpGet, AllowAnonymous]
 		public async Task<IActionResult> ConfirmEmail(string userId, string code)
 		{
 			if (userId == null || code == null)
@@ -626,20 +665,15 @@ namespace GenericMvcUtilities.UserManager
 			return View(result.Succeeded ? "ConfirmEmail" : "Error");
 		}
 
-		//
 		// GET: /Account/ForgotPassword
-		[HttpGet]
-		[AllowAnonymous]
+		[HttpGet, AllowAnonymous]
 		public IActionResult ForgotPassword()
 		{
 			return View();
 		}
 
-		//
 		// POST: /Account/ForgotPassword
-		[HttpPost]
-		[AllowAnonymous]
-		[ValidateAntiForgeryToken]
+		[HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
 		public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
 		{
 			if (ModelState.IsValid)
@@ -664,29 +698,22 @@ namespace GenericMvcUtilities.UserManager
 			return View(model);
 		}
 
-		//
 		// GET: /Account/ForgotPasswordConfirmation
-		[HttpGet]
-		[AllowAnonymous]
+		[HttpGet, AllowAnonymous]
 		public IActionResult ForgotPasswordConfirmation()
 		{
 			return View();
 		}
 
-		//
 		// GET: /Account/ResetPassword
-		[HttpGet]
-		[AllowAnonymous]
+		[HttpGet, AllowAnonymous]
 		public IActionResult ResetPassword(string code = null)
 		{
 			return code == null ? View("Error") : View();
 		}
 
-		//
 		// POST: /Account/ResetPassword
-		[HttpPost]
-		[AllowAnonymous]
-		[ValidateAntiForgeryToken]
+		[HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
 		public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
 		{
 			if (!ModelState.IsValid)
@@ -708,19 +735,15 @@ namespace GenericMvcUtilities.UserManager
 			return View();
 		}
 
-		//
 		// GET: /Account/ResetPasswordConfirmation
-		[HttpGet]
-		[AllowAnonymous]
+		[HttpGet, AllowAnonymous]
 		public IActionResult ResetPasswordConfirmation()
 		{
 			return View();
 		}
 
-		//
 		// GET: /Account/SendCode
-		[HttpGet]
-		[AllowAnonymous]
+		[HttpGet, AllowAnonymous]
 		public async Task<ActionResult> SendCode(string returnUrl = null, bool rememberMe = false)
 		{
 			var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
@@ -733,11 +756,8 @@ namespace GenericMvcUtilities.UserManager
 			return View(new SendCodeViewModel { Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe });
 		}
 
-		//
 		// POST: /Account/SendCode
-		[HttpPost]
-		[AllowAnonymous]
-		[ValidateAntiForgeryToken]
+		[HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
 		public async Task<IActionResult> SendCode(SendCodeViewModel model)
 		{
 			if (!ModelState.IsValid)
@@ -771,10 +791,8 @@ namespace GenericMvcUtilities.UserManager
 			return RedirectToAction(nameof(VerifyCode), new { Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe });
 		}
 
-		//
 		// GET: /Account/VerifyCode
-		[HttpGet]
-		[AllowAnonymous]
+		[HttpGet, AllowAnonymous]
 		public async Task<IActionResult> VerifyCode(string provider, bool rememberMe, string returnUrl = null)
 		{
 			// Require that the user has already logged in via username/password or external login
@@ -786,11 +804,8 @@ namespace GenericMvcUtilities.UserManager
 			return View(new VerifyCodeViewModel { Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe });
 		}
 
-		//
 		// POST: /Account/VerifyCode
-		[HttpPost]
-		[AllowAnonymous]
-		[ValidateAntiForgeryToken]
+		[HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
 		public async Task<IActionResult> VerifyCode(VerifyCodeViewModel model)
 		{
 			if (!ModelState.IsValid)

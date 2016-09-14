@@ -1,5 +1,4 @@
-﻿using GenericMvcUtilities.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections;
@@ -7,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,18 +26,24 @@ namespace GenericMvcUtilities.Repositories
 		/// <value>
 		/// The data base context.
 		/// </value>
-		public DbContext DataContext { get; set; }
+		public DbContext DataContext { get; }
 
 		/// <summary>
 		/// The context set, this is the Set used to access the Table this Repository corresponds to
 		/// </summary>
-		public DbSet<T> ContextSet { get; set; }
+		public DbSet<T> ContextSet { get; }
+
+		private static IEnumerable<IEntityType> modelEntityTypes;
+
+		private static bool hasGenericTypeBeenChecked = false;
 
 		private static readonly Type typeofT = typeof(T);
 
-		private static IEnumerable<IEntityType> entityTypes;
+		public Type TypeOfEntity { get { return typeofT; } }
 
-		private static bool hasGenericTypeBeenChecked = false;
+		private static readonly ParameterExpression expressionOfT = Expression.Parameter(typeofT);
+
+		public ParameterExpression EntityExpression { get { return expressionOfT; } }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BaseEntityRepository{T}"/> class.
@@ -49,31 +55,27 @@ namespace GenericMvcUtilities.Repositories
 		{
 			try
 			{
-				if (dbContext != null)
+				if (dbContext == null)
+					throw new ArgumentNullException(nameof(dbContext));
+
+				if (modelEntityTypes == null)
+					modelEntityTypes = dbContext.Model.GetEntityTypes();
+
+				//check for entity based on one in graph controller
+				if (hasGenericTypeBeenChecked || IsTypePresentInDataContext(typeofT, EntityTypes))
 				{
-					if (entityTypes == null)
-						entityTypes = dbContext.Model.GetEntityTypes();
+					//set data base context
+					this.DataContext = dbContext;
 
-					//check for entity based on one in graph controller
-					if(hasGenericTypeBeenChecked || IsTypePresentInDataContext(typeofT))
-					{
-						//set data base context
-						this.DataContext = dbContext;
+					//set the working set
+					this.ContextSet = this.DataContext.Set<T>();
 
-						//set the working set
-						this.ContextSet = this.DataContext.Set<T>();
-
-						if (!hasGenericTypeBeenChecked)
-							hasGenericTypeBeenChecked = true;
-					}
-					else
-					{
-						throw new ArgumentException(this.GetType().ToString() + ": Not Member of Current DbContext.");
-					}
+					if (!hasGenericTypeBeenChecked)
+						hasGenericTypeBeenChecked = true;
 				}
 				else
 				{
-					throw new ArgumentNullException(nameof(dbContext));
+					throw new ArgumentException(this.GetType().ToString() + ": Not Member of Current DbContext.");
 				}
 			}
 			catch (Exception ex)
@@ -86,7 +88,7 @@ namespace GenericMvcUtilities.Repositories
 		{
 			get
 			{
-				foreach (var type in entityTypes)
+				foreach (var type in modelEntityTypes)
 				{
 					yield return type.ClrType;
 				}
@@ -99,7 +101,7 @@ namespace GenericMvcUtilities.Repositories
 			{
 				IEntityType typeofModel = null;
 
-				foreach (var type in entityTypes)
+				foreach (var type in modelEntityTypes)
 				{
 					if (type.ClrType == type)
 						return typeofModel = type;
@@ -109,13 +111,14 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		protected bool IsTypePresentInDataContext(Type typeParam)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		protected static bool IsTypePresentInDataContext(Type typeParam, IEnumerable<Type> entityTypes)
 		{
 			if (typeParam != null)
 			{
 				bool IsTypePresent = false;
 
-				foreach (var type in EntityTypes)
+				foreach (var type in entityTypes)
 				{
 					if (type == typeParam)
 					{
@@ -131,7 +134,8 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		protected bool IsTypePresentInModel(Type typeParam, IEntityType entityType)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		protected static bool IsTypePresentInModel(Type typeParam, IEntityType entityType)
 		{
 			bool isPresent = false;
 
@@ -146,63 +150,6 @@ namespace GenericMvcUtilities.Repositories
 			return isPresent;
 		}
 
-		//static readonly fields for expressions
-		private readonly static ParameterExpression expressioOfT = Expression.Parameter(typeofT);
-
-		private readonly static Type typeOfString = typeof(string);
-
-		private readonly static MethodInfo containsMethodInfo = typeOfString.GetMethod("Contains", new[] { typeOfString });
-
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="propertyName"></param>
-		/// <param name="propertyValue"></param>
-		/// <returns></returns>
-		public Expression<Func<T, bool>> SearchExpression(string propertyName, object propertyValue)
-		{
-			if (propertyValue.GetType() == typeOfString)
-			{
-				//see this SO Answer: http://stackoverflow.com/questions/278684/how-do-i-create-an-expression-tree-to-represent-string-containsterm-in-c
-
-				var propertyExp = Expression.Property(expressioOfT, propertyName);
-				var someValue = Expression.Constant(propertyValue, typeOfString);
-				var containsMethodExp = Expression.Call(propertyExp, containsMethodInfo, someValue);
-
-				return Expression.Lambda<Func<T, bool>>(containsMethodExp, expressioOfT);
-			}
-			else
-			{
-				return IsMatchedExpression(propertyName, propertyValue);
-			}
-		}
-
-		/// <summary>
-		/// Determines whether [is matched expression] [the specified property name].
-		/// </summary>
-		/// <param name="propertyName">Name of the property.</param>
-		/// <param name="propertyValue">The property value.</param>
-		/// <returns></returns>
-		public Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue)
-		{
-			var propertyOrField = Expression.PropertyOrField(expressioOfT, propertyName);
-			var typeConversion = Expression.Convert(propertyOrField, propertyValue.GetType());
-			var binaryExpression = Expression.Equal(typeConversion, Expression.Constant(propertyValue));
-			return Expression.Lambda<Func<T, bool>>(binaryExpression, expressioOfT);
-		}
-
-		/// <summary>
-		/// Matches the by identifier expression.
-		/// </summary>
-		/// <param name="id">The identifier.</param>
-		/// <returns></returns>
-		public Expression<Func<T, bool>> MatchByIdExpression(object id)
-		{
-			var propertyOrField = Expression.PropertyOrField(expressioOfT, "Id");
-			var binaryExpression = Expression.Equal(propertyOrField, Expression.Constant(id));
-			return Expression.Lambda<Func<T, bool>>(binaryExpression, expressioOfT);
-		}
-
 		/// <summary>
 		/// Checks for the existence using the specified predicate.
 		/// </summary>
@@ -211,25 +158,14 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception"></exception>
 		public Task<bool> Any(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
-			if (predicate != null)
-			{
-				try
-				{
-					var token = new CancellationToken();
-
-					token.ThrowIfCancellationRequested();
-
-					return this.ContextSet.AsNoTracking().AnyAsync(predicate, token);
-				}
-				catch (Exception ex)
-				{
-					throw new Exception("Exists Failed: " + typeofT.Name, ex);
-				}
-			}
-			else
-			{
+			if (predicate == null)
 				throw new ArgumentNullException(nameof(predicate));
-			}
+
+			var token = new CancellationToken();
+
+			token.ThrowIfCancellationRequested();
+
+			return this.ContextSet.AsNoTracking().AnyAsync(predicate, token);
 		}
 
 		/// <summary>
@@ -240,14 +176,10 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception"></exception>
 		public bool AnySync(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
-			try
-			{
-				return this.ContextSet.AsNoTracking().Any(predicate);
-			}
-			catch (Exception ex)
-			{
-				throw new Exception("Exists Sync Failed: " + typeofT.Name, ex);
-			}
+			if (predicate == null)
+				throw new ArgumentNullException(nameof(predicate));
+
+			return this.ContextSet.AsNoTracking().Any(predicate);
 		}
 
 		public Task<long> Count()
@@ -276,18 +208,11 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception">Get All Failed:  + typeof(T).ToString()</exception>
 		public virtual async Task<IEnumerable<T>> GetAll()
 		{
-			try
-			{
-				CancellationToken token = new CancellationToken();
+			CancellationToken token = new CancellationToken();
 
-				token.ThrowIfCancellationRequested();
+			token.ThrowIfCancellationRequested();
 
-				return await ContextSet.AsNoTracking().ToListAsync(token);
-			}
-			catch (Exception ex)
-			{
-				throw new Exception("Get All Failed: " + typeofT.Name, ex);
-			}
+			return await ContextSet.AsNoTracking().ToListAsync(token);
 		}
 
 		protected virtual IQueryable<T> GetIncludeQuery()
@@ -303,26 +228,15 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception">Get Failed:  + typeof(T).ToString()</exception>
 		public virtual Task<T> Get(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
-			if (predicate != null)
-			{
-				try
-				{
-					System.Threading.CancellationToken token = new System.Threading.CancellationToken();
-
-					//Throw if query is Canceled
-					token.ThrowIfCancellationRequested();
-
-					return ContextSet.AsNoTracking().FirstOrDefaultAsync<T>(predicate, token);
-				}
-				catch (Exception ex)
-				{
-					throw new Exception("Get Failed: " + typeofT.Name, ex);
-				}
-			}
-			else
-			{
+			if (predicate == null)
 				throw new ArgumentNullException(nameof(predicate));
-			}
+
+			System.Threading.CancellationToken token = new System.Threading.CancellationToken();
+
+			//Throw if query is Canceled
+			token.ThrowIfCancellationRequested();
+
+			return ContextSet.AsNoTracking().FirstOrDefaultAsync<T>(predicate, token);
 		}
 
 		/// <summary>
@@ -333,32 +247,21 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception">Get Failed:  + typeof(T).ToString()</exception>
 		public virtual Task<T> Get(System.Linq.Expressions.Expression<Func<T, bool>> predicate, bool WithNestedData = false)
 		{
-			if (predicate != null)
+			if (predicate == null)
+				throw new ArgumentNullException(nameof(predicate));
+
+			if (WithNestedData)
 			{
-				if (WithNestedData)
-				{
-					try
-					{
-						System.Threading.CancellationToken token = new System.Threading.CancellationToken();
+				System.Threading.CancellationToken token = new System.Threading.CancellationToken();
 
-						//Throw if query is Canceled
-						token.ThrowIfCancellationRequested();
+				//Throw if query is Canceled
+				token.ThrowIfCancellationRequested();
 
-						return GetIncludeQuery().AsNoTracking().FirstOrDefaultAsync(predicate, token);
-					}
-					catch (Exception e)
-					{
-						throw new Exception("Get with Nested Data Failed", e);
-					}
-				}
-				else
-				{
-					return Get(predicate);
-				}
+				return GetIncludeQuery().AsNoTracking().FirstOrDefaultAsync(predicate, token);
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(predicate));
+				return Get(predicate);
 			}
 		}
 
@@ -371,52 +274,28 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception">Get Multi Failed:  + typeof(T).ToString()</exception>
 		public async virtual Task<IList<T>> GetMany(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
 		{
-			if (predicate != null)
-			{
-				try
-				{
-					CancellationToken token = new CancellationToken();
-
-					token.ThrowIfCancellationRequested();
-
-					var list = await ContextSet.AsNoTracking().Where(predicate).ToListAsync(token);
-
-					return list;
-				}
-				catch (Exception ex)
-				{
-					throw new Exception("Get Multi Failed: " + typeofT.Name, ex);
-				}
-			}
-			else
-			{
+			if (predicate == null)
 				throw new ArgumentNullException(nameof(predicate));
-			}
+
+			CancellationToken token = new CancellationToken();
+
+			token.ThrowIfCancellationRequested();
+
+			return (await ContextSet.AsNoTracking().Where(predicate).ToListAsync(token)) as IList<T>;
 		}
 
-		public Task<IList<T>> GetMany(Expression<Func<T, bool>> predicate, bool WithNestedData = false)
+		public virtual Task<IList<T>> GetMany(Expression<Func<T, bool>> predicate, bool WithNestedData = false)
 		{
-			if (predicate != null)
+			if (predicate == null)
+				throw new ArgumentNullException(nameof(predicate));
+
+			if (WithNestedData)
 			{
-				if (WithNestedData)
-				{
-					try
-					{
-						return GetIncludeQuery().AsNoTracking().Where(predicate).ToListAsync() as Task<IList<T>>;
-					}
-					catch (Exception e)
-					{
-						throw new Exception("Get Many with Nested Data Failed", e);
-					}
-				}
-				else
-				{
-					return GetMany(predicate);
-				}
+				return GetIncludeQuery().AsNoTracking().Where(predicate).ToListAsync() as Task<IList<T>>;
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(predicate));
+				return GetMany(predicate);
 			}
 		}
 
@@ -428,31 +307,20 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception">Insert Failed:  + typeof(T).ToString()</exception>
 		public virtual async Task<T> Create(T entity)
 		{
-			if (entity != null)
-			{
-				try
-				{
-					var addedEntity = ContextSet.Add(entity);
+			if (entity == null)
+				throw new ArgumentNullException(nameof(entity));
 
-					if (await this.DataContext.SaveChangesAsync() >= 0)
-					{
-						//return true;
-						return addedEntity.Entity;
-					}
-					else
-					{
-						//return false;
-						throw new Exception("Adding item to Database Failed");
-					}
-				}
-				catch (Exception ex)
-				{
-					throw new Exception("Creating Item Failed: " + typeofT.Name, ex);
-				}
+			var addedEntity = ContextSet.Add(entity);
+
+			if (await this.DataContext.SaveChangesAsync() >= 0)
+			{
+				//return true;
+				return addedEntity.Entity;
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(entity));
+				//return false;
+				throw new Exception("Adding item to Database Failed");
 			}
 		}
 
@@ -464,30 +332,19 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception">Inserts Failed:  + typeof(T).ToString()</exception>
 		public virtual async Task<IEnumerable<T>> CreateRange(IEnumerable<T> entities)
 		{
-			if (entities != null)
-			{
-				try
-				{
-					ContextSet.AddRange(entities);
+			if (entities == null)
+				throw new ArgumentNullException(nameof(entities));
 
-					if (await this.DataContext.SaveChangesAsync() >= 0)
-					{
-						return entities;
-					}
-					else
-					{
-						//return false;
-						throw new Exception("Adding items to Database failed");
-					}
-				}
-				catch (Exception ex)
-				{
-					throw new Exception("Inserts Failed: " + typeofT.Name, ex);
-				}
+			ContextSet.AddRange(entities);
+
+			if (await this.DataContext.SaveChangesAsync() >= 0)
+			{
+				return entities;
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(entities));
+				//return false;
+				throw new Exception("Adding items to Database failed");
 			}
 		}
 
@@ -500,67 +357,37 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception">Update Failed: + typeof(T).ToString()</exception>
 		public virtual async Task<T> Update(T entity)
 		{
-			if (entity != null)
+			if (entity == null)
+				throw new ArgumentNullException(nameof(entity));
+
+			var updatedEntity = ContextSet.Update(entity);
+
+			if (await this.DataContext.SaveChangesAsync() >= 0)
 			{
-				try
-				{
-					//todo is this needed
-					/*
-					if (this.DataContext.Entry(entity).State == EntityState.Detached)
-					{
-						ContextSet.Attach(entity);
-					}
-					*/
-
-					var updatedEntity = ContextSet.Update(entity);
-
-					if (await this.DataContext.SaveChangesAsync() >= 0)
-					{
-						return updatedEntity.Entity;
-					}
-					else
-					{
-						//return false;
-						throw new Exception("Updating item Failed");
-					}
-				}
-				catch (Exception ex)
-				{
-					throw new Exception("Update Failed: " + typeofT.Name, ex);
-				}
+				return updatedEntity.Entity;
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(entity));
+				//return false;
+				throw new Exception("Updating item Failed");
 			}
 		}
 
 		public virtual async Task<IEnumerable<T>> UpdateRange(IEnumerable<T> entities)
 		{
-			if (entities != null)
-			{
-				try
-				{
-					ContextSet.UpdateRange(entities);
+			if (entities == null)
+				throw new ArgumentNullException(nameof(entities));
 
-					if (await this.DataContext.SaveChangesAsync() >= 0)
-					{
-						return entities;
-					}
-					else
-					{
-						//return false;
-						throw new Exception("Updating item Failed");
-					}
-				}
-				catch (Exception e)
-				{
-					throw new Exception("Updating Range of Items Failed", e);
-				}
+			ContextSet.UpdateRange(entities);
+
+			if (await this.DataContext.SaveChangesAsync() >= 0)
+			{
+				return entities;
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(entities));
+				//return false;
+				throw new Exception("Updating item Failed");
 			}
 		}
 
@@ -572,73 +399,35 @@ namespace GenericMvcUtilities.Repositories
 		/// <exception cref="System.Exception">Delete Failed:  + typeof(T).ToString()</exception>
 		public virtual async Task<bool> Delete(T entity)
 		{
-			if (entity != null)
+			if (entity == null)
+				throw new ArgumentNullException(nameof(entity));
+
+			ContextSet.Remove(entity);
+
+			if (await DataContext.SaveChangesAsync() >= 0)
 			{
-				try
-				{
-					//todo is this needed
-					/*
-					if (this.DataContext.Entry(entity).State == EntityState.Detached)
-					{
-						this.ContextSet.Attach(entity);
-					}
-					*/
-
-					ContextSet.Remove(entity);
-
-					if (await DataContext.SaveChangesAsync() >= 0)
-					{
-						return true;
-					}
-					else
-					{
-						return false;
-					}
-				}
-				catch (Exception ex)
-				{
-					throw new Exception("Delete Failed: " + typeofT.Name, ex);
-				}
+				return true;
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(entity));
+				return false;
 			}
 		}
 
 		public virtual async Task<bool> DeleteRange(IEnumerable<T> entities)
 		{
-			if (entities != null)
+			if (entities == null)
+				throw new ArgumentNullException(nameof(entities));
+
+			ContextSet.RemoveRange(entities);
+
+			if (await DataContext.SaveChangesAsync() >= 0)
 			{
-				try
-				{
-					//todo is this needed
-					/*
-					if (this.DataContext.Entry(entity).State == EntityState.Detached)
-					{
-						this.ContextSet.Attach(entity);
-					}
-					*/
-
-					ContextSet.RemoveRange(entities);
-
-					if (await DataContext.SaveChangesAsync() >= 0)
-					{
-						return true;
-					}
-					else
-					{
-						return false;
-					}
-				}
-				catch (Exception ex)
-				{
-					throw new Exception("Delete Failed: " + typeofT.Name, ex);
-				}
+				return true;
 			}
 			else
 			{
-				throw new ArgumentNullException(nameof(entities));
+				return false;
 			}
 		}
 
@@ -649,36 +438,32 @@ namespace GenericMvcUtilities.Repositories
 		//forth save changes
 		public async Task<bool> DeleteChild(object child)
 		{
-			if (child != null)
-			{
-				try
-				{
-					if (IsTypePresentInModel(typeofT, Model))
-					{
-						DataContext.Remove(child);
+			if (child == null)
+				throw new ArgumentNullException(nameof(child));
 
-						if (await DataContext.SaveChangesAsync() >= 0)
-						{
-							return true;
-						}
-						else
-						{
-							return false;
-						}
+			try
+			{
+				if (IsTypePresentInModel(typeofT, Model))
+				{
+					DataContext.Remove(child);
+
+					if (await DataContext.SaveChangesAsync() >= 0)
+					{
+						return true;
 					}
 					else
 					{
-						throw new Exception($"Type of {nameof(child)}:{child.GetType().Name} is not present in model {typeofT.Name}");
+						return false;
 					}
 				}
-				catch (Exception e)
+				else
 				{
-					throw new Exception("Failed to delete child object", e);
+					throw new Exception($"Type of {nameof(child)}:{child.GetType().Name} is not present in model {typeofT.Name}");
 				}
 			}
-			else
+			catch (Exception e)
 			{
-				throw new ArgumentNullException(nameof(child));
+				throw new Exception("Failed to delete child object", e);
 			}
 		}
 
@@ -687,16 +472,10 @@ namespace GenericMvcUtilities.Repositories
 		/// </summary>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Save Failed: +ex.Message</exception>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Task<int> Save()
 		{
-			try
-			{
-				return this.DataContext.SaveChangesAsync();
-			}
-			catch (Exception ex)
-			{
-				throw new Exception("Save Failed: " + ex.Message, ex);
-			}
+			return this.DataContext.SaveChangesAsync();
 		}
 
 		private bool _disposed = false;
@@ -718,7 +497,7 @@ namespace GenericMvcUtilities.Repositories
 					}
 				}
 
-				this.ContextSet = null;
+				//this.ContextSet = null;
 
 				this._disposed = true;
 			}

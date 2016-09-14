@@ -14,11 +14,11 @@ namespace GenericMvcUtilities.Controllers
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
-		protected new BaseEntityRepository<T> Repository;
+		protected readonly new IGraphRepository<T> Repository;
 
 		public BaseGraphController(IGraphRepository<T> repository, ILogger<T> logger) : base(repository, logger)
 		{
-			Repository = base.Repository as BaseEntityRepository<T>;
+			Repository = repository;
 		}
 
 		//todo more design work
@@ -64,9 +64,9 @@ namespace GenericMvcUtilities.Controllers
 			{
 				string Message = "Delete Child - HTTP Delete Request Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
+				this.Logger.LogError(FormatLogMessage(Message, this.Request));
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				throw new Exception(FormatExceptionMessage(this, Message), ex);
 			}
 		}
 	}

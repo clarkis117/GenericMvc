@@ -10,8 +10,9 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Controllers
 {
+	//todo this could use cleaned up
 	public abstract class IFileApiController<T, TKey> : BaseApiController<T, TKey>
-		where T : class, IFile<TKey>
+		where T : class, IModelFile<TKey>
 		where TKey : IEquatable<TKey>
 	{
 		public IFileApiController(IRepository<T> repository, ILogger<T> logger) :base(repository, logger)
@@ -46,7 +47,7 @@ namespace GenericMvcUtilities.Controllers
 					if (!Updating)
 					{
 						//see if any name matches
-						var NameMatch = await Utilities.IsFileNameUnique<T, TKey>(Model.Name, Repository);
+						var NameMatch = await Utilities.IsFileNameUnique<T>(Model.Name, Repository);
 
 						if (!NameMatch.IsValid)
 						{
@@ -57,7 +58,7 @@ namespace GenericMvcUtilities.Controllers
 				}
 
 				//check if mime type is valid
-				var MimeTypeValid = Utilities.IsWhiteListedContentType<T, TKey>(Model, whiteListedMimes);
+				var MimeTypeValid = Utilities.IsWhiteListedContentType<T>(Model, whiteListedMimes);
 
 				if (!MimeTypeValid.IsValid)
 				{
@@ -106,8 +107,7 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
-		[AcceptVerbs("Get", "Post")]
-		[Route("[controller]/[action]/")]
+		[AcceptVerbs("Get", "Post"), Route("[controller]/[action]/")]
 		public IActionResult VerifyContentType(string ContentType)
 		{
 			var whiteListResult = Utilities.IsWhiteListedContentType(ContentType, whiteListedMimes);
@@ -125,30 +125,29 @@ namespace GenericMvcUtilities.Controllers
 		//todo add check to see if its update mode and the file hasnt changed
 		//if the file has changed then check
 		//if the file hasn't change dont' check
-		[AcceptVerbs("Get", "Post")]
-		[Route("[controller]/[action]/")]
+		[AcceptVerbs("Get", "Post"), Route("[controller]/[action]/")]
 		public abstract Task<IActionResult> VerifyName(string Name, TKey Id);
 	}
 
+	//todo make more readable
 	public abstract class PairedApiController<TKey, TViewModel, TEntity, TEntityRepo, TFileRepo> : IFileApiController<TViewModel, TKey>
 		where TKey : IEquatable<TKey>
 		where TViewModel : class, IRelatedFile<TKey>, new()
 		where TEntity : class, IModelWithFilename<TKey>
-		where TFileRepo : IFileRepository<TViewModel, TKey>
+		where TFileRepo : IFileRepository
 		where TEntityRepo : IRepository<TEntity>
 	{
+		private readonly PairedRepository<TKey, TViewModel, TEntity, TEntityRepo, TFileRepo> _repository;
+
 		public PairedApiController(PairedRepository<TKey,TViewModel,TEntity,TEntityRepo,TFileRepo> repository, ILogger<TViewModel> logger) : base(repository, logger)
 		{
 			_repository = repository;
 		}
 
-		private PairedRepository<TKey, TViewModel, TEntity, TEntityRepo, TFileRepo> _repository;
-
 		//todo add check to see if its update mode and the file hasnt changed
 		//if the file has changed then check
 		//if the file hasn't change dont' check
-		[AcceptVerbs("Get", "Post")]
-		[Route("[controller]/[action]/")]
+		[AcceptVerbs("Get", "Post"), Route("[controller]/[action]/")]
 		public override async Task<IActionResult> VerifyName(string Name, TKey Id)
 		{
 			bool isValid = false;
@@ -173,7 +172,7 @@ namespace GenericMvcUtilities.Controllers
 			else
 			{
 				//see if any name matches
-				var NameMatch = await Utilities.IsFileNameUnique<TViewModel, TKey>(Name, _repository);
+				var NameMatch = await Utilities.IsFileNameUnique<TViewModel>(Name, _repository);
 
 				if (NameMatch.IsValid)
 				{
@@ -188,15 +187,13 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
-
 		//fixed: fix design oversight to have whole object deleted
-		[Route("[controller]/[action]/")]
-		[HttpDelete]
-		public virtual async Task<IActionResult> PairedDelete(TKey id, TKey parentId)
+		[Route("api/[controller]/[action]/"), HttpDelete]
+		public async Task<IActionResult> PairedDelete([FromQuery] TKey id, [FromQuery] TKey parentId)
 		{
 			try
 			{
-				if (id != null)
+				if (id != null && parentId != null && ModelState.IsValid)
 				{
 					//Get Item, this causes EF to begin tracking it
 					var item = await Repository.Get(x => x.Id.Equals(id));
@@ -221,7 +218,7 @@ namespace GenericMvcUtilities.Controllers
 					else
 					{
 						//Send 404 if object is not in Database
-						return NotFound();
+						return NotFound(id);
 					}
 				}
 				else
@@ -234,9 +231,9 @@ namespace GenericMvcUtilities.Controllers
 			{
 				string message = "Deleting Item Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(message, this.Request));
+				this.Logger.LogError(FormatLogMessage(message, this.Request));
 
-				throw new Exception(this.FormatExceptionMessage(message), ex);
+				throw new Exception(FormatExceptionMessage(this, message), ex);
 			}
 		}
 	}

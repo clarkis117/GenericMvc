@@ -7,6 +7,8 @@ using GenericMvcUtilities.UserManager;
 
 namespace GenericMvcUtilities.Models
 {
+	//todo move to view model folder
+	// or delete since it isn't used
 	public class RequestRoleChange
 	{
 		[Required]

@@ -33,11 +33,11 @@ namespace GenericMvcUtilities.Controllers
 		where TKey : IEquatable<TKey>
 		where TUser : IdentityUser<TKey>, new()
 	{
-		private SignInManager<TUser> _signInManager;
+		private readonly SignInManager<TUser> _signInManager;
 
-		private UserManager<TUser> _userManager;
+		private readonly UserManager<TUser> _userManager;
 
-		private ILogger<TUser> _logger;
+		private readonly ILogger<TUser> _logger;
 
 		public AuthApiController(SignInManager<TUser> signInManager, UserManager<TUser> userManager, ILogger<TUser> logger)
 		{

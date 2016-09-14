@@ -13,47 +13,47 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 	public interface IUserView
 	{
 		[Display(Name = "User Identifier")]
-		object Id { get; set; }
+		object Id { get; }
 
 		[Display(Name = "First Name")]
-		string FirstName { get; set; }
+		string FirstName { get; }
 
 		[Display(Name = "Last Name")]
-		string LastName { get; set; }
+		string LastName { get; }
 
 		[Display(Name = "User Name")]
-		string UserName { get; set; }
+		string UserName { get; }
 
 		[EmailAddress]
 		[Display(Name ="Email")]
-		string Email { get; set; }
+		string Email { get; }
 
 		[Display(Name =	"Is Email Confirmed?")]
-		bool EmailConfirmed { get; set; }
+		bool EmailConfirmed { get; }
 
 		[Display(Name = "Phone Number")]
-		string PhoneNumber { get; set; }
+		string PhoneNumber { get; }
 
 		[Display(Name = "Is Phone Number Confirmed?")]
-		bool PhoneNumberConfirmed { get; set; }
+		bool PhoneNumberConfirmed { get; }
 
 		[Display(Name = "Failed Login Attempts")]
-		int AccessFailedCount { get; set; }
+		int AccessFailedCount { get; }
 
 		[Display(Name ="Is the Account Locked?")]
-		bool LockoutEnabled { get; set; }
+		bool LockoutEnabled { get; }
 
 		[Display(Name ="Locked out Until")]
-		DateTimeOffset LockoutEnd { get; set; }
+		DateTimeOffset LockoutEnd { get; }
 
 		[Display(Name ="Two-Factor Enabled?")]
-		bool TwoFactorEnabled { get; set; }
+		bool TwoFactorEnabled { get; }
 
 		ICollection<string> Roles { get; }
 
-		bool ShowActions { get; set; }
+		bool ShowActions { get; }
 
-		MessageViewModel Message { get; set; }
+		MessageViewModel Message { get; }
 	}
 
 

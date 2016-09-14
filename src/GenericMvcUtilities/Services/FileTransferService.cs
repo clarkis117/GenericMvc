@@ -7,38 +7,48 @@ using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Services
 {
-	public enum TransferType { NewCopyFolder, MoveFolder }
+	public enum TransferType : byte { NewCopyFolder, MoveFolder }
 
 	public struct TransferRequest
 	{
-		public string SourcePath;
+		public readonly string SourcePath;
 
-		public string DestinationPath;
+		public readonly bool DeleteDestIfExists;
 
-		public TransferType Type;
+		public readonly string DestinationPath;
 
-		public TransferRequest(string sourcePath, string destinationPath, TransferType type)
+		public readonly TransferType Type;
+
+		public TransferRequest(string sourcePath, string destinationPath, TransferType type, bool deleteDestIfExists = false)
 		{
-			if (Directory.Exists(sourcePath))//&& Directory.Exists(destPath)
-			{
-				SourcePath = sourcePath;
+			SourcePath = sourcePath;
 
-				DestinationPath = destinationPath;
-			}
-			else
-			{
-				throw new DirectoryNotFoundException(sourcePath + " " + destinationPath);
-			}
+			DestinationPath = destinationPath;
+
+			DeleteDestIfExists = deleteDestIfExists;
 
 			Type = type;
 		}
 	}
 
+	public struct Folders
+	{
+		public readonly string Source;
+
+		public readonly string Target;
+
+		public Folders(string source, string target)
+		{
+			Source = source;
+			Target = target;
+		}
+	}
+
 	public class FileTransferService
 	{
-		private static ObservableCollection<TransferRequest> Requests = new ObservableCollection<TransferRequest>();
+		private readonly ObservableCollection<TransferRequest> Requests = new ObservableCollection<TransferRequest>();
 
-		private static bool IsTransferInProgress = false;
+		private bool IsTransferInProgress = false;
 
 		public FileTransferService()
 		{
@@ -48,16 +58,13 @@ namespace GenericMvcUtilities.Services
 		//todo is needed?
 		public void transferCompletedEvent()
 		{
-
 		}
 
-
-		public static async Task RequestExecutionFilter()
+		public async Task RequestExecutionFilter()
 		{
 			if (IsTransferInProgress == false)
 			{
 				TransferRequest request;
-
 
 				if (Requests.Count > 0)
 				{
@@ -95,7 +102,7 @@ namespace GenericMvcUtilities.Services
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private static async void CollectionRequestExecutionFilter(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		private async void CollectionRequestExecutionFilter(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
 			if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add || e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
 			{
@@ -114,12 +121,12 @@ namespace GenericMvcUtilities.Services
 		/// <param name="request"></param>
 		public void RequestFileTransfer(TransferRequest request)
 		{
-			FileTransferService.Requests.Add(request);
+			Requests.Add(request);
 		}
 
-		public static void CopyDirectory(TransferRequest request)
+		public void CopyDirectory(TransferRequest request)
 		{
-			if (IsTransferInProgress == false)
+			if (!IsTransferInProgress)
 			{
 				try
 				{
@@ -154,7 +161,7 @@ namespace GenericMvcUtilities.Services
 			}
 		}
 
-		public static void MoveDirectory(TransferRequest request)
+		public void MoveDirectory(TransferRequest request)
 		{
 			if (IsTransferInProgress == false)
 			{
@@ -189,18 +196,6 @@ namespace GenericMvcUtilities.Services
 
 					Requests.Remove(request);
 				}
-			}
-		}
-
-		public struct Folders
-		{
-			public string Source { get; private set; }
-			public string Target { get; private set; }
-
-			public Folders(string source, string target)
-			{
-				Source = source;
-				Target = target;
 			}
 		}
 	}

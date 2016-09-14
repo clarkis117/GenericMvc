@@ -4,7 +4,7 @@
 @if (!string.IsNullOrEmpty(Model.Text))
 {
 	<div class="@Model.GetAlertStyleClasses()">
-		@if (Model.IsAlertDismissable)
+		@if (Model.IsDismissable)
 		{
 			<button class="close" type="button" data-dismiss="alert">×</button>
 		}

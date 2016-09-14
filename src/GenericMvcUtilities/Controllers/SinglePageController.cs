@@ -21,26 +21,16 @@ namespace GenericMvcUtilities.Controllers
 
 		}
 
-		public SinglePageGraph ViewGraph { get; set; }
-
-		public abstract SinglePageGraph getViewGraph();
+		public abstract SinglePageGraph ViewGraph { get; }
 
 		/// <summary>
 		/// Construct the Single Page View Hierarchy here then return it
 		/// </summary>
 		/// <returns>the Single Page View container with associate view data</returns>
 		[Route("[controller]/[action]/")]
-		public Task<IActionResult> Index()
+		public IActionResult Index()
 		{
-			return Task.Run(() => {
-
-				if (ViewGraph == null)
-				{
-					this.ViewGraph = getViewGraph();
-				}
-
-				return this.SideMenuView(ViewGraph) as IActionResult;
-			});
+			return this.SideMenuView(ViewGraph);
 		}
 	}
 }

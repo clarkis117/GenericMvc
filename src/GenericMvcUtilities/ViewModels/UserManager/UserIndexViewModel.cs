@@ -10,26 +10,26 @@ namespace GenericMvcUtilities.ViewModels.UserManager
 	public interface IUserIndexView
 	{
 		[Display(Name = "User Identifier")]
-		object Id { get; set; }
+		object Id { get; }
 
 		[Display(Name = "First Name")]
-		string FirstName { get; set; }
+		string FirstName { get; }
 
 		[Display(Name = "Last Name")]
-		string LastName { get; set; }
+		string LastName { get; }
 
 		[Display(Name = "User Name")]
-		string UserName { get; set; }
+		string UserName { get; }
 
 		[EmailAddress]
 		[Display(Name = "Email")]
-		string Email { get; set; }
+		string Email { get; }
 
 		[DataType(DataType.DateTime)]
 		[Display(Name = "Date Registered")]
-		DateTime DateRegistered { get; set; }
+		DateTime DateRegistered { get; }
 
-		bool ShowDetails { get; set; }
+		bool ShowDetails { get; }
 	}
 
 

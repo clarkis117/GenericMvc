@@ -34,8 +34,12 @@ namespace GenericMvcUtilities.Repositories
 	}
 	*/
 
-	public interface IRepository<TEntity> : IEnumerable<TEntity> where TEntity : class
+	public interface IRepository<TEntity> : IEnumerable<TEntity>
 	{
+		Type TypeOfEntity { get; }
+
+		ParameterExpression EntityExpression { get;  }
+
 		Task<bool> Any(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
 
 		Task<long> Count();
@@ -78,11 +82,11 @@ namespace GenericMvcUtilities.Repositories
 
 	public interface IEntityRepository<T> : IGraphRepository<T> where T : class
 	{
-		Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue);
+		//Expression<Func<T, bool>> IsMatchedExpression(string propertyName, object propertyValue);
 
-		Expression<Func<T, bool>> SearchExpression(string propertyName, object propertyValue);
+		//Expression<Func<T, bool>> SearchExpression(string propertyName, object propertyValue);
 
-		Expression<Func<T, bool>> MatchByIdExpression(object id);
+		//Expression<Func<T, bool>> MatchByIdExpression(object id);
 
 		DbContext DataContext { get; }
 

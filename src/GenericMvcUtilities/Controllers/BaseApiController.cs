@@ -1,19 +1,15 @@
 ﻿using GenericMvcUtilities.Models;
 using GenericMvcUtilities.Repositories;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Net;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Controllers
 {
-	[Route("api/")]
 	public class BaseApiController<T, TKey> : Controller, IBaseApiController<T, TKey>
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
@@ -23,32 +19,25 @@ namespace GenericMvcUtilities.Controllers
 		//Maybe One Day using Logger<T> instead
 		protected readonly ILogger<T> Logger;
 
+		protected static readonly Type typeOfT = typeof(T);
+
 		public BaseApiController(IRepository<T> repository, ILogger<T> logger)
 		{
 			try
 			{
-				if (repository != null)
-				{
-					//Set DI injected repository to repository field
-					this.Repository = repository;
-
-					if (logger != null)
-					{
-						this.Logger = logger;
-					}
-					else
-					{
-						throw new ArgumentNullException(nameof(logger));
-					}
-				}
-				else
-				{
+				if (repository == null)
 					throw new ArgumentNullException(nameof(repository));
-				}
+
+				if (logger == null)
+					throw new ArgumentNullException(nameof(logger));
+
+				this.Repository = repository;
+
+				this.Logger = logger;
 			}
 			catch (Exception ex)
 			{
-				string message = this.FormatExceptionMessage("Creation of Controller Failed");
+				string message = FormatExceptionMessage(this, "Creation of Controller Failed");
 
 				this.Logger.LogCritical(message, ex);
 
@@ -56,19 +45,16 @@ namespace GenericMvcUtilities.Controllers
 			}
 		}
 
-		protected static readonly Type typeOfT = typeof(T);
-		
 		[NonAction]
 		protected static string FormatLogMessage(string message, Microsoft.AspNetCore.Http.HttpRequest request)
 		{
-			return (message + ": \nHTTP Request: \n" + "Header: " + request.Headers.ToString() + "\nBody: " + request.Body.ToString());
+			return message + ": \nHTTP Request: \n" + "Header: " + request.Headers.ToString() + "\nBody: " + request.Body.ToString();
 		}
 
-		//Todo: revamp this hardcore
 		[NonAction]
-		protected static string FormatExceptionMessage(string message)
+		protected static string FormatExceptionMessage(Controller controller, string message)
 		{
-			return (this.GetType().Name + ": " + message + ": " + typeOfT.Name);
+			return controller.GetType().Name + ": " + message + ": " + typeOfT.Name;
 		}
 
 		[NonAction]
@@ -83,7 +69,7 @@ namespace GenericMvcUtilities.Controllers
 			return Task.FromResult(ModelState.IsValid);
 		}
 
-
+		/*
 		[NonAction]
 		protected virtual async Task<ICollection<T>> DifferentalExistance(ICollection<T> items)
 		{
@@ -116,37 +102,36 @@ namespace GenericMvcUtilities.Controllers
 			{
 				string Message = "Generating differential based on Database Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
+				this.Logger.LogError(FormatLogMessage(Message, this.Request));
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				throw new Exception(FormatExceptionMessage(this, Message), ex);
 			}
 		}
+		*/
 
-		[Route("[controller]/[action]/"), HttpGet]
+		[Route("api/[controller]/[action]/"), HttpGet]
 		public virtual async Task<IEnumerable<T>> GetAll()
 		{
 			try
 			{
-				//return await Repository.ContextSet.ToListAsync();
 				return await Repository.GetAll();
 			}
 			catch (Exception ex)
 			{
 				string Message = "Get All Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
+				this.Logger.LogError(FormatLogMessage(Message, this.Request));
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				throw new Exception(FormatExceptionMessage(this, Message), ex);
 			}
 		}
 
-		//todo change back to mvc style
-		[Route("[controller]/[action]/"), HttpGet("{id}")]
-		public virtual async Task<T> Get(TKey id)
+		[Route("api/[controller]/[action]/"), HttpGet("{id}")]
+		public virtual async Task<IActionResult> Get(TKey id)
 		{
 			try
 			{
-				if (id != null)
+				if (id != null && ModelState.IsValid)
 				{
 					if (await Repository.Any(x => x.Id.Equals(id)))
 					{
@@ -154,39 +139,53 @@ namespace GenericMvcUtilities.Controllers
 
 						if (item != null)
 						{
-							return item;
-						}
-						else
-						{
-							//Send Http response for not Found
-							HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-
-							return null;
+							return Json(item);
 						}
 					}
-					else
-					{
-						//Send Http response for not Found
-						HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
-						return null;
-					}
+					return NotFound(id);
 				}
 				else
 				{
-					//Send Http Bad Request
-					HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-
-					return null;
+					return BadRequest(ModelState);
 				}
 			}
 			catch (Exception ex)
 			{
 				string Message = "Get by Id Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
+				this.Logger.LogError(FormatLogMessage(Message, this.Request));
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				throw new Exception(FormatExceptionMessage(this, Message), ex);
+			}
+		}
+
+		[Route("api/[controller]/[action]/"), HttpGet]
+		public virtual async Task<IActionResult> GetMany(string propertyName, string value)
+		{
+			if (propertyName == null || value == null || !ModelState.IsValid)
+				return BadRequest(ModelState);
+
+			try
+			{
+				//todo work this out somehow
+
+				var item = await Repository.GetMany(this.Repository.IsMatchedExpression<T>(propertyName, value), WithNestedData: false);
+
+				if (item != null)
+				{
+					return Json(item);
+				}
+
+				return NotFound();
+			}
+			catch (Exception ex)
+			{
+				string Message = "Get by Id Failed";
+
+				this.Logger.LogError(FormatLogMessage(Message, this.Request));
+
+				throw new Exception(FormatExceptionMessage(this, Message), ex);
 			}
 		}
 
@@ -201,58 +200,37 @@ namespace GenericMvcUtilities.Controllers
 		/// or
 		/// </exception>
 		//[AllowAnonymous] //Testing only
-		[Route("[controller]/[action]/"), HttpPost]
+		[Route("api/[controller]/[action]/"), HttpPost]
 		public virtual async Task<IActionResult> Create([FromBody] T item)
 		{
 			try
 			{
-				if (item != null)
+				if (item != null && await IsValid(item, ModelState))
 				{
-					if (await IsValid(item, ModelState))
+					//Attempt to Insert Item
+					var createdItem = await Repository.Create(item);
+
+					if (createdItem != null)
 					{
-						//var id = item.Id;
-
-						//if (!(await Repository.Any(x => x.Id.Equals(id))))
-						//{
-							//Attempt to Insert Item
-							var createdItem = await Repository.Create(item);
-
-							if (createdItem != null)
-							{
-								//Send 201 Response
-								return CreatedAtAction("create", createdItem);
-							}
-							else
-							{
-								//Send 500 Response, and throw so the failure is logged
-								throw new Exception("Insert Failed for unknown reasons");
-							}
-						//}
-						//else
-						//{
-							//Send conflict response
-							//return new StatusCodeResult((int)HttpStatusCode.Conflict);
-						//}
+						//Send 201 Response
+						return CreatedAtAction("create", createdItem);
 					}
 					else
 					{
-						//Send 400 Response
-						return BadRequest(ModelState);
+						//Send 500 Response, and throw so the failure is logged
+						throw new Exception("Insert Failed for unknown reasons");
 					}
 				}
-				else
-				{
-					//Send 400 Response
-					return BadRequest("Request Value is Null");
-				}
+				//Send 400 Response
+				return BadRequest(ModelState);
 			}
 			catch (Exception ex)
 			{
 				string Message = "Create from HTTP Post Body Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
+				this.Logger.LogError(FormatLogMessage(Message, this.Request));
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				throw new Exception(FormatExceptionMessage(this, Message), ex);
 			}
 		}
 
@@ -268,122 +246,94 @@ namespace GenericMvcUtilities.Controllers
 		/// Inserting items failed
 		/// or
 		/// </exception>
-		[Route("[controller]/[action]/"), HttpPost]
+		[Route("api/[controller]/[action]/"), HttpPost]
 		public virtual async Task<IActionResult> Creates([FromBody] T[] items)
 		{
 			try
 			{
-				if (items != null)
+				if (items != null && items.Length >= 1 && await IsValid(items, ModelState))
 				{
-					if (await IsValid(items, ModelState))
+					var createdRange = await Repository.CreateRange(items);
+
+					if (createdRange != null && createdRange.Count() >= 1)
 					{
-						ICollection<T> differental = await this.DifferentalExistance(items);
-
-						if (differental != null && differental.Count > 0)
-						{
-							var createdRange = await Repository.CreateRange(differental);
-
-							//Repository.Save().Wait();
-							//Send 201 Response
-							return CreatedAtAction("creates", createdRange);
-						}
-						else
-						{
-							//Send ~200 Response
-							return new NoContentResult();
-						}
+						//Send 201 Response, created response
+						return CreatedAtAction("Creates", createdRange);
 					}
 					else
 					{
-						//Send 400 Response
-						return BadRequest(ModelState);
+						//error 500 response
+						throw new Exception("Creating multiple items failed for unknown reasons");
 					}
 				}
-				else
-				{
-					//Send 400 Response
-					return BadRequest("null input value");
-				}
+
+				//Send 400 Response
+				return BadRequest(ModelState);
 			}
 			catch (Exception ex)
 			{
 				string Message = "Creates from HTTP Post Body Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
+				this.Logger.LogError(FormatLogMessage(Message, this.Request));
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				throw new Exception(FormatExceptionMessage(this, Message), ex);
 			}
 		}
 
 		//todo: add behavior for returning updated section
-		[Route("[controller]/[action]/"), HttpPost("{id}")]
+		[Route("api/[controller]/[action]/"), HttpPost("{id}")]
 		public virtual async Task<IActionResult> Update(TKey id, [FromBody] T item)
 		{
 			try
 			{
-				if (id != null && item != null)
+				if (id != null && item != null && await IsValid(item, ModelState, updating: true))
 				{
-					//Validate Model
-					if (await IsValid(item, ModelState, updating: true))
+					//Check for item existence, since some things like "consts" use id arg for query
+					var exists = await Repository.Any(x => x.Id.Equals(id));
+
+					//If Item Exists Update it
+					if (exists)
 					{
-						//since some things like "consts" use id arg for query
+						var updatedItem = await Repository.Update(item);
 
-
-						//Check for item existence
-						var exists = await Repository.Any(x => x.Id.Equals(id));
-
-						//If Item Exists Update it
-						if (exists)
+						if (updatedItem != null)
 						{
-							var updatedItem = await Repository.Update(item);
-
-							if (updatedItem != null)
-							{
-								//Send 201 Response if success full
-								return new JsonResult(updatedItem);
-							}
-							else
-							{
-								//Send 500 Response if update fails
-								throw new Exception("Update Item Failed");
-							}
+							//Send 201 Response if success full
+							return new JsonResult(updatedItem);
 						}
 						else
 						{
-							//Send 404 Response if Item not Found
-							return NotFound();
+							//Send 500 Response if update fails
+							throw new Exception("Update Item Failed");
 						}
 					}
 					else
 					{
-						//send bad request response with model state errors
-						return BadRequest(ModelState);
+						//Send 404 Response if Item not Found
+						return NotFound(id);
 					}
 				}
-				else
-				{
-					//Send 400 Response
-					return BadRequest("Request Value is Null");
-				}
+
+				//send bad request response with model state errors
+				return BadRequest(ModelState);
 			}
 			catch (Exception ex)
 			{
 				string Message = "Update - HTTP Put Request Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request));
+				this.Logger.LogError(FormatLogMessage(Message, this.Request));
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				throw new Exception(FormatExceptionMessage(this, Message), ex);
 			}
 		}
 
-
 		//fixed: fix design oversight to have whole object deleted
-		[Route("[controller]/[action]/"), HttpDelete("{id}")]
+		[Route("api/[controller]/[action]/"), HttpDelete("{id}")]
 		public virtual async Task<IActionResult> Delete(TKey id)
 		{
 			try
 			{
-				if (id != null)
+				if (id != null && ModelState.IsValid)
 				{
 					//Get Item, this causes EF to begin tracking it
 					var item = await Repository.Get(x => x.Id.Equals(id));
@@ -406,22 +356,22 @@ namespace GenericMvcUtilities.Controllers
 					else
 					{
 						//Send 404 if object is not in Database
-						return NotFound();
+						return NotFound(id);
 					}
 				}
 				else
 				{
 					//Send 400 Response
-					return BadRequest("Object Identifier is Null");
+					return BadRequest(ModelState);
 				}
 			}
 			catch (Exception ex)
 			{
 				string message = "Deleting Item Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(message, this.Request));
+				this.Logger.LogError(FormatLogMessage(message, this.Request));
 
-				throw new Exception(this.FormatExceptionMessage(message), ex);
+				throw new Exception(FormatExceptionMessage(this, message), ex);
 			}
 		}
 	}

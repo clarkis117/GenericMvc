@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - Content Management System</title>
+	<!-- Material Design fonts -->
+	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<environment names="Development,Staging,Production">
+		<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+		<link rel="stylesheet" href="~/lib/bootstrap-touch-carousel/dist/css/bootstrap-touch-carousel.css" />
+		<link rel="stylesheet" href="~/lib/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+		@*Bootstrap Material Design sheets, Roboto, Custom compiled main sheet, ripples*@
+		<link rel="stylesheet" href="~/css/material-dist/bootstrap-material-design.css" />
+		<link rel="stylesheet" href="~/lib/bootstrap-material-design/dist/css/ripples.css" />
+		<link rel="stylesheet" href="~/lib/dropdown.js/jquery.dropdown.css" />
+		<link rel="stylesheet" href="~/css/site.css"/>
+	</environment>
+	@RenderSection("stylesheets", required: false)
+</head>
+<body>
+	<main class="container">
+		@RenderBody()
+	</main>
+	<environment names="Development,Staging,Production">
+		<script src="~/lib/jquery/dist/jquery.js"></script>
+		<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+		<script src="~/lib/hammer.js/hammer.js"></script>
+		<script src="~/lib/bootstrap-touch-carousel/dist/js/bootstrap-touch-carousel.js"></script>
+		<script src="~/js/site.js" asp-append-version="true"></script>
+		@*Material design bootstrap javascript *@
+		<script src="~/lib/arrive/src/arrive.js"></script>
+		<script src="~/lib/bootstrap-material-design/dist/js/ripples.js"></script>
+		<script src="~/lib/bootstrap-material-design/dist/js/material.js"></script>
+		<script src="~/lib/dropdown.js/jquery.dropdown.js"></script>
+		<script src="~/lib/jquery-autosize/dist/autosize.min.js"></script>
+	</environment>
+	@RenderSection("scripts", required: false)
+	<script>
+		$(window).on('load resize', function () {
+			$('body').css({ "padding-top": ($(".navbar").height() + 10) + "px" })
+		});
+
+		$(document).ready(function () {
+			$.material.init();
+
+			autosize(document.querySelectorAll('textarea'));
+
+			$("select").dropdown({ "autoinit": "select" });
+		});
+	</script>
+</body>
+</html>
+

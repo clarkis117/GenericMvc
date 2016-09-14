@@ -1,0 +1,84 @@
+﻿@model GenericMvcUtilities.ViewModels.UserManager.Account.SysOwnerChangeDefaultsViewModel
+
+<form asp-controller="Account" asp-action="SysOwnerChangeDefaults" method="post" class="form-horizontal" role="form">
+	<div asp-validation-summary="All" class="text-danger"></div>
+	<div class="form-group">
+		<label asp-for="FirstName" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="FirstName" class="form-control" />
+			<span asp-validation-for="FirstName" class="text-danger"></span>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="LastName" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="LastName" class="form-control" />
+			<span asp-validation-for="LastName" class="text-danger"></span>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="NewEmail" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="NewEmail" class="form-control" />
+			<span asp-validation-for="NewEmail" class="text-danger"></span>
+			<p class="help-block">This should be the email address you check regularly.</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="ConfirmNewEmail" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="ConfirmNewEmail" class="form-control" />
+			<span asp-validation-for="ConfirmNewEmail" class="text-danger"></span>
+			<p class="help-block">This should be the same as the 'Email' field</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="NewPhoneNumber" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="NewPhoneNumber" class="form-control" />
+			<span asp-validation-for="NewPhoneNumber" class="text-danger"></span>
+			<p class="help-block">This should ideally be your daytime or mobile phone.</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="ConfirmNewPhoneNumber" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="ConfirmNewPhoneNumber" class="form-control" />
+			<span asp-validation-for="ConfirmNewPhoneNumber" class="text-danger"></span>
+			<p class="help-block">This should be the same as the 'Phone number' field</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="CurrentPassword" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="CurrentPassword" class="form-control" />
+			<span asp-validation-for="CurrentPassword" class="text-danger"></span>
+			<p class="help-block">This should be the default password</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="NewPassword" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="NewPassword" class="form-control" />
+			<span asp-validation-for="NewPassword" class="text-danger"></span>
+			<p class="help-block">This will be the new password for the System Owner Account</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="ConfirmNewPassword" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="ConfirmNewPassword" class="form-control" />
+			<span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-md-offset-2 col-md-10">
+			<button type="submit" class="btn btn-primary btn-raised">Submit</button>
+		</div>
+	</div>
+</form>
+
+
+@section Scripts {
+	@{ await Html.PartialAsync("_ValidationScriptsPartial"); }
+}

@@ -4,19 +4,28 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 {
 	public class SinglePageGraph
 	{
-		public SinglePageGraph()
+		public SinglePageGraph(string title,
+			Page menuListViewModel,
+			Page pageListView,
+			IEnumerable<Page> pages,
+			IEnumerable<Page> modals)
 		{
+			Title = title;
+			MenuListViewModel = menuListViewModel;
+			PageListView = pageListView;
+			Pages = pages;
+			Modals = modals;
 		}
 
-		public string Title { get; set; }
+		public string Title { get; }
 
-		public Page[] Pages { get; set; }
+		public IEnumerable<Page> Pages { get; }
 
-		public Page[] Modals { get; set; }
+		public IEnumerable<Page> Modals { get; }
 
-		public Page MenuListViewModel { get; set; }
+		public Page MenuListViewModel { get; }
 
-		public Page PageListView { get; set; }
+		public Page PageListView { get; }
 	}
 
 	public static class SinglePage

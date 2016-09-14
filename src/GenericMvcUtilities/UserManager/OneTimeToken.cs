@@ -17,7 +17,7 @@ namespace GenericMvcUtilities.UserManager
 	/// 
 	/// Hash Value = Expiration Date + Secure RNG
 	/// </summary>
-	public class OneTimeToken : IDisposable
+	public sealed class OneTimeToken : IDisposable
 	{
 		private readonly HMACSHA256 _hmacSha;
 
@@ -214,7 +214,7 @@ namespace GenericMvcUtilities.UserManager
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
 
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (!disposedValue)
 			{

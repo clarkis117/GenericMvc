@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -78,7 +79,7 @@ namespace GenericMvcUtilities.UserManager
 
 		//todo test if user has already been approved, then not allow changes
 		//
-		public enum Message
+		public enum Message : byte
 		{
 			//approved denied actions
 			UserApproved,
@@ -95,6 +96,8 @@ namespace GenericMvcUtilities.UserManager
 
 			//errors
 			UserNotFound,
+
+			InvalidQueryOrRequest,
 
 			ErrorProcessingRequest
 		}
@@ -123,32 +126,38 @@ namespace GenericMvcUtilities.UserManager
 			//Serve index view with all pending users loaded
 			try
 			{
+				MessageViewModel messageViewModel = null;
+
 				if (message != null)
 				{
 					switch (message.Value)
 					{
 						case Message.UserApproved:
+							messageViewModel = new MessageViewModel(MessageType.Success, "The User's request has been successfully approved");
 							break;
 
 						case Message.UserDenied:
-							break;
-
-						case Message.UserRoleChanged:
-							break;
-
-						case Message.UserRoleCouldnotBeChanged:
+							messageViewModel = new MessageViewModel(MessageType.Success, "The User's request had been successfully denied");
 							break;
 
 						case Message.UserHasAlreadyBeenApproved:
+							messageViewModel = new MessageViewModel(MessageType.Warning, "This user has already been approved, no further action can be taken");
 							break;
 
 						case Message.UserNotFound:
+							messageViewModel = new MessageViewModel(MessageType.Warning, "The specified user account cannot be found");
+							break;
+
+						case Message.InvalidQueryOrRequest:
+							messageViewModel = new MessageViewModel(MessageType.Danger, "Either the request or the URL query is invalid");
 							break;
 
 						case Message.ErrorProcessingRequest:
+							messageViewModel = new MessageViewModel(MessageType.Danger, "The System encountered an error processing your request");
 							break;
 
 						default:
+							messageViewModel = new MessageViewModel();
 							break;
 					}
 				}
@@ -158,31 +167,21 @@ namespace GenericMvcUtilities.UserManager
 				{
 					new PageViewModel(this)
 					{
-						Title = "Added Pending Users",
+						ControllerName = "UserManager/PendingUser",
+						Title = "Approved Pending Users",
 						Description = "Pending Users that have been approved",
-						Message = new MessageViewModel(),
+						Message = messageViewModel ?? new MessageViewModel(),
 						Data = convertToViewModelList((await PendingUserRepository.GetAll()).Where(x => x.HasUserBeenAdded == true), false)
 					},
 					new PageViewModel(this)
 					{
+						ControllerName = "UserManager/PendingUser",
 						Title = "Pending Users",
 						Description = "All Pending Users in the Database",
 						Message = new MessageViewModel(),
 						Data = convertToViewModelList((await PendingUserRepository.GetAll()).Where(x => x.HasUserBeenAdded == false), true)
 					},
 				};
-
-				/*
-				PageViewModel tableViewModel = new PageViewModel()
-				{
-					ControllerName = GetControllerName(this.GetType()),
-					Title = "Pending Users",
-					Action = "Index",
-					Description = "All Pending Users in the Database",
-					CreateButton = false,
-					NestedView = "PendingUserIndex"
-				};
-				*/
 
 				return View("~/Views/Shared/MultiPageContainer.cshtml", viewList);
 			}
@@ -196,45 +195,55 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
+		/*
+		public MessageViewModel GetMessageForDetails(Message? message)
+		{
+			MessageViewModel messageViewModel = null;
+
+			if (message != null)
+			{
+				switch (message.Value)
+				{
+					case Message.UserRoleChanged:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Success,
+							Text = "Pending User's Role has been Successfully changed"
+						};
+						break;
+					case Message.UserRoleCouldnotBeChanged:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Danger,
+							Text = "Pending User's Role could not be changed"
+						};
+						break;
+					case Message.ErrorProcessingRequest:
+						messageViewModel = new MessageViewModel()
+						{
+							MessageType = MessageType.Danger,
+							Text = "The System could not process your request"
+						};
+						break;
+					default:
+						messageViewModel = new MessageViewModel();
+						break;
+				}
+			}
+
+			return messageViewModel;
+		}
+*/
+
 		//check for has been added... and don't return
 		[HttpGet("{id}")]
 		public async Task<IActionResult> Details(TKey id, Message? message)
 		{
 			try
 			{
-				if (id != null)
+				if (id != null && ModelState.IsValid)
 				{
-					if (message != null)
-					{
-						switch (message.Value)
-						{
-							case Message.UserApproved: //don't need
-								break;
-
-							case Message.UserDenied: //don't need
-								break;
-
-							case Message.UserRoleChanged:
-								break;
-
-							case Message.UserRoleCouldnotBeChanged:
-								break;
-
-							case Message.UserHasAlreadyBeenApproved: //don't need
-								break;
-
-							case Message.UserNotFound: //don't need
-								break;
-
-							case Message.ErrorProcessingRequest:
-								break;
-
-							default:
-								break;
-						}
-					}
-
-					var pendingUser = await PendingUserRepository.Get(PendingUserRepository.IsMatchedExpression("Id", id));
+					var pendingUser = await PendingUserRepository.Get(PendingUserRepository.MatchByIdExpression(id));
 
 					if (pendingUser != null)
 					{
@@ -260,11 +269,12 @@ namespace GenericMvcUtilities.UserManager
 			}
 			catch (Exception ex)
 			{
-				string Message = "Detailed Pending User Failed";
+				string errorMessage = "Detailed Pending User Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(this.FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				//throw new Exception(this.FormatExceptionMessage(Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest });
 			}
 		}
 
@@ -277,34 +287,50 @@ namespace GenericMvcUtilities.UserManager
 			{
 				if (roleChange != null && roleChange.IsValid && ModelState.IsValid)
 				{
+					var typeConverter = TypeDescriptor.GetConverter(typeof(TKey));
+
+					TKey convertedValue = (TKey)typeConverter.ConvertFromString(roleChange.UserId);
+
 					var pendingUser = await
-						this.PendingUserRepository.Get(PendingUserRepository.IsMatchedExpression("Id", roleChange.UserId));
+						this.PendingUserRepository.Get(PendingUserRepository.MatchByIdExpression(convertedValue));
+
+					if (this.HasUserAlreadyBeenApproved(pendingUser))
+					{
+						return RedirectToAction(nameof(this.Index), new { message = Message.UserHasAlreadyBeenApproved });
+					}
 
 					if (pendingUser != null)
 					{
 						pendingUser.RequestedRole = roleChange.NewRole;
 
 						var updateResult = await this.PendingUserRepository.Update(pendingUser);
+
+						if (updateResult != null)
+						{
+							return RedirectToAction(nameof(this.Details), new { id = roleChange.UserId, message = Message.UserRoleChanged });
+						}
+						else
+						{
+							throw new Exception("Could not change user's role");
+						}
 					}
 					else
 					{
 						return RedirectToAction(nameof(this.Index), new { message = Message.UserNotFound });
 					}
-
-					return RedirectToAction(nameof(this.Details), new { id = roleChange.UserId });
 				}
 				else
 				{
-					return RedirectToAction(nameof(this.Index), new { Message.ErrorProcessingRequest });
+					return RedirectToAction(nameof(this.Index), new { message = Message.InvalidQueryOrRequest });
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Change Pending User Role Failed";
+				string errorMessage = "Change Pending User Role Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(this.FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest });
 			}
 		}
 
@@ -321,10 +347,15 @@ namespace GenericMvcUtilities.UserManager
 			//send email stating request approved
 			try
 			{
-				if (id != null)
+				if (id != null && ModelState.IsValid)
 				{
 					var pendingUser = await
-						PendingUserRepository.Get(PendingUserRepository.IsMatchedExpression("Id", id));
+						PendingUserRepository.Get(PendingUserRepository.MatchByIdExpression(id));
+
+					if (this.HasUserAlreadyBeenApproved(pendingUser))
+					{
+						return RedirectToAction(nameof(this.Index), new { message = Message.UserHasAlreadyBeenApproved });
+					}
 
 					if (pendingUser != null)
 					{
@@ -334,9 +365,7 @@ namespace GenericMvcUtilities.UserManager
 
 						if (result != null)
 						{
-							//todo: change status message, to user request approved
-							return RedirectToAction(nameof(this.Index));
-							//new { ManageMessageId = ManageMessageId.UserAccountCreationApproved });
+							return RedirectToAction(nameof(this.Index), new { message = Message.UserApproved});
 						}
 						else
 						{
@@ -345,34 +374,39 @@ namespace GenericMvcUtilities.UserManager
 					}
 					else
 					{
-						return NotFound();
+						return RedirectToAction(nameof(this.Index), new { message = Message.UserNotFound });
 					}
 				}
 				else
 				{
-					return BadRequest();
+					return RedirectToAction(nameof(this.Index), new { message = Message.InvalidQueryOrRequest });
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Approving Pending User Failed";
+				string errorMessage = "Approving Pending User Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(this.FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest });
 			}
 		}
 
+		//delete user account request
 		//todo: email Notification
 		[HttpPost, ValidateAntiForgeryToken]
-		public async Task<IActionResult> DenyUser(TKey id) //todo: add reason why
+		public async Task<IActionResult> DenyUser(TKey id)
 		{
-			//todo: send email stating request denied
-			try             //delete user account request
+			try            
 			{
-				if (id != null)
+				if (id != null && ModelState.IsValid)
 				{
-					var user = await PendingUserRepository.Get(PendingUserRepository.IsMatchedExpression("Id", id));
+					var user = await PendingUserRepository.Get(PendingUserRepository.MatchByIdExpression(id));
+
+					if (this.HasUserAlreadyBeenApproved(user))
+					{
+						return RedirectToAction(nameof(this.Index), new { message = Message.UserHasAlreadyBeenApproved });
+					}
 
 					if (user != null)
 					{
@@ -380,31 +414,31 @@ namespace GenericMvcUtilities.UserManager
 
 						if (result != false)
 						{
-							//todo: add status message successfully pending user deleted
-							return RedirectToAction(nameof(this.Index));
+							return RedirectToAction(nameof(this.Index), new { message = Message.UserDenied });
 						}
 						else
 						{
-							return BadRequest();
+							throw new Exception("Could not delete/remove user");
 						}
 					}
 					else
 					{
-						return NotFound();
+						return RedirectToAction(nameof(this.Index), new { message = Message.UserNotFound });
 					}
 				}
 				else
 				{
-					return BadRequest();
+					return RedirectToAction(nameof(this.Index), new { message = Message.InvalidQueryOrRequest });
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Deleting Pending User by Id Failed";
+				string errorMessage = "Deleting Pending User by Id Failed";
 
-				this.Logger.LogError(this.FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(this.FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(this.FormatExceptionMessage(Message), ex);
+				//throw new Exception(this.FormatExceptionMessage(Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest });
 			}
 		}
 	}

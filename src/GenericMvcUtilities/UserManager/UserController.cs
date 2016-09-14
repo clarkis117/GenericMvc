@@ -103,7 +103,7 @@ namespace GenericMvcUtilities.UserManager
 		}
 
 		[NonAction]
-		private bool IsUsersOwnAccount(TUser user, ClaimsPrincipal currentUser)
+		private static bool IsUsersOwnAccount(TUser user, ClaimsPrincipal currentUser)
 		{
 			if (currentUser.Identity.Name == user.UserName)
 			{
@@ -116,38 +116,38 @@ namespace GenericMvcUtilities.UserManager
 		}
 
 		[NonAction]
-		private async Task<Message> CanThisAccountBeManaged(TUser user, ClaimsPrincipal currentUser)
+		private async Task<Status> CanThisAccountBeManaged(TUser user, ClaimsPrincipal currentUser)
 		{
 			//users are not allowed to manage their own accounts
 			if (IsUsersOwnAccount(user, currentUser))
 			{
-				return Message.YouCannotManageYourOwnAccount;
+				return Status.YouCannotManageYourOwnAccount;
 			}
 			else if (currentUser.IsInRole(RoleHelper.SystemOwner) && await IsAnotherUserAdminAccount(user))
 			{
 				//if current user is system owner, and user to be managed is a user admin, allow it
-				return Message.NoError;
+				return Status.NoError;
 			}
 			else if (await IsSystemOwnerAccount(user))
 			{
-				return Message.YouCannotManageSystemOwner;
+				return Status.YouCannotManageSystemOwner;
 			}
 			else if (await IsAnotherUserAdminAccount(user))
 			{
-				return Message.YouCannotManagerAnotherUserAdmin;
+				return Status.YouCannotManagerAnotherUserAdmin;
 			}
 			else if (await DoesUserHaveManagableRole(user))
 			{
 				//if a user is not part of the privilege user system then they are not manageable
-				return Message.UserDoesNotHaveAManagableRole;
+				return Status.UserDoesNotHaveAManagableRole;
 			}
 			else
 			{
-				return Message.NoError;
+				return Status.NoError;
 			}
 		}
 
-		public enum Message
+		public enum Status : byte
 		{
 			AccountLocked,
 			PasswordReset,
@@ -163,6 +163,7 @@ namespace GenericMvcUtilities.UserManager
 			YouCannotManageSystemOwner
 		}
 
+		[NonAction]
 		public async Task<bool> DoesUserHaveManagableRole(TUser user)
 		{
 			var roles = await UserManager.GetRolesAsync(user);
@@ -225,7 +226,7 @@ namespace GenericMvcUtilities.UserManager
 
 		// GET: /<controller>/
 		[HttpGet]
-		public async Task<IActionResult> Index(Message? message)
+		public async Task<IActionResult> Index(Status? message)
 		{
 			try
 			{
@@ -235,55 +236,32 @@ namespace GenericMvcUtilities.UserManager
 				{
 					switch (message.Value)
 					{
-						case Message.UserNotFound:
-							messageViewModel = new MessageViewModel()
-							{
-								MessageType = MessageType.Danger,
-								Text = "System could not find the selected User"
-							};
+						case Status.UserNotFound:
+							messageViewModel = new MessageViewModel(MessageType.Danger, "System could not find the selected User");
 							break;
 
-						case Message.UserDoesNotHaveAManagableRole:
-							messageViewModel = new MessageViewModel()
-							{
-								MessageType = MessageType.Warning,
-								Text = "This user is not a privileged user therefore, they cannot be managed"
-							};
+						case Status.UserDoesNotHaveAManagableRole:
+							messageViewModel = new MessageViewModel(MessageType.Warning, "This user is not a privileged user therefore, they cannot be managed");
 							break;
 
-						case Message.ErrorProcessingRequest:
-							messageViewModel = new MessageViewModel()
-							{
-								MessageType = MessageType.Danger,
-								Text = "System the encountered an Error Processing your Request"
-							};
+						case Status.ErrorProcessingRequest:
+							messageViewModel = new MessageViewModel(MessageType.Danger, "System the encountered an Error Processing your Request");
 							break;
 
-						case Message.YouCannotManageYourOwnAccount:
-							messageViewModel = new MessageViewModel()
-							{
-								MessageType = MessageType.Danger,
-								Text = "You Cannot Manage your Own User Account"
-							};
+						case Status.YouCannotManageYourOwnAccount:
+							messageViewModel = new MessageViewModel(MessageType.Danger, "You Cannot Manage your Own User Account");
 							break;
 
-						case Message.YouCannotManageSystemOwner:
-							messageViewModel = new MessageViewModel()
-							{
-								MessageType = MessageType.Danger,
-								Text = "You cannot manage the System Owner Account"
-							};
+						case Status.YouCannotManageSystemOwner:
+							messageViewModel = new MessageViewModel(MessageType.Danger, "You cannot manage the System Owner Account");
 							break;
 
-						case Message.YouCannotManagerAnotherUserAdmin:
-							messageViewModel = new MessageViewModel()
-							{
-								MessageType = MessageType.Danger,
-								Text = "Only the System Owner can manage another User Admin"
-							};
+						case Status.YouCannotManagerAnotherUserAdmin:
+							messageViewModel = new MessageViewModel(MessageType.Danger, "Only the System Owner can manage another User Admin");
 							break;
 
 						default:
+							messageViewModel = new MessageViewModel();
 							break;
 					}
 				}
@@ -327,10 +305,8 @@ namespace GenericMvcUtilities.UserManager
 			}
 		}
 
-		//to-do: implement status message
-		//todo: show user details page with actions on it
 		[HttpGet("{id}")]
-		public async Task<IActionResult> Details(TKey id, Message? message = null)
+		public async Task<IActionResult> Details(TKey id, Status? message = null)
 		{
 			try
 			{
@@ -341,13 +317,13 @@ namespace GenericMvcUtilities.UserManager
 					//redirect is can't find user
 					if (user == null)
 					{
-						return RedirectToAction(nameof(this.Index), new { message = Message.UserNotFound });
+						return RedirectToAction(nameof(this.Index), new { message = Status.UserNotFound });
 					}
 
 					var isManagable = await CanThisAccountBeManaged(user, this.User);
 
 					//redirect if user is not allowed to manage user
-					if (isManagable != Message.NoError)
+					if (isManagable != Status.NoError)
 					{
 						return RedirectToAction(nameof(this.Index), new { message = isManagable });
 					}
@@ -358,47 +334,28 @@ namespace GenericMvcUtilities.UserManager
 					{
 						switch (message.Value)
 						{
-							case Message.AccountLocked:
-								messageViewModel = new MessageViewModel()
-								{
-									MessageType = MessageType.Success,
-									Text = "The User's Account has been successfully locked"
-								};
+							case Status.AccountLocked:
+								messageViewModel = new MessageViewModel(MessageType.Success, "The User's Account has been successfully locked");
 								break;
 
-							case Message.UserCannotBeLocked:
-								messageViewModel = new MessageViewModel()
-								{
-									MessageType = MessageType.Danger,
-									Text = "The System could not lock this user's account"
-								};
+							case Status.UserCannotBeLocked:
+								messageViewModel = new MessageViewModel(MessageType.Danger, "The System could not lock this user's account");
 								break;
 
-							case Message.PasswordReset:
-								messageViewModel = new MessageViewModel()
-								{
-									MessageType = MessageType.Success,
-									Text = "The user's password has been successfully reset"
-								};
+							case Status.PasswordReset:
+								messageViewModel = new MessageViewModel(MessageType.Success, "The user's password has been successfully reset");
 								break;
 
-							case Message.RoleChanged:
-								messageViewModel = new MessageViewModel()
-								{
-									MessageType = MessageType.Success,
-									Text = "The User's Role has been successfully changed"
-								};
+							case Status.RoleChanged:
+								messageViewModel = new MessageViewModel(MessageType.Success, "The User's Role has been successfully changed");
 								break;
 
-							case Message.ErrorProcessingRequest:
-								messageViewModel = new MessageViewModel()
-								{
-									MessageType = MessageType.Danger,
-									Text = "System the encountered an Error Processing your Request"
-								};
+							case Status.ErrorProcessingRequest:
+								messageViewModel = new MessageViewModel(MessageType.Danger, "System the encountered an Error Processing your Request");
 								break;
 
 							default:
+								messageViewModel = new MessageViewModel();
 								break;
 						}
 					}
@@ -417,21 +374,22 @@ namespace GenericMvcUtilities.UserManager
 					}
 					else
 					{
-						return RedirectToAction(nameof(this.Index), new { message = Message.UserNotFound });
+						return RedirectToAction(nameof(this.Index), new { message = Status.UserNotFound });
 					}
 				}
 				else
 				{
-					return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest});
+					return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest});
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Detailed User View Failed";
+				string errorMessage = "Detailed User View Failed";
 
-				this.Logger.LogError(FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, Message), ex);
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 			}
 		}
 
@@ -448,38 +406,39 @@ namespace GenericMvcUtilities.UserManager
 					//redirect is can't find user
 					if (user == null)
 					{
-						return RedirectToAction(nameof(this.Index), new { message = Message.UserNotFound });
+						return RedirectToAction(nameof(this.Index), new { message = Status.UserNotFound });
 					}
 
 					var isManagable = await CanThisAccountBeManaged(user, this.User);
 
 					//redirect if user is not allowed to manage user
-					if (isManagable != Message.NoError)
+					if (isManagable != Status.NoError)
 					{
 						return RedirectToAction(nameof(this.Index), new { message = isManagable });
 					}
 
 					if(await this.FindAndChangeRole(user, roleChange.NewRole))
 					{
-						return RedirectToAction(nameof(this.Details), new { id = user.Id, message = Message.RoleChanged });
+						return RedirectToAction(nameof(this.Details), new { id = user.Id, message = Status.RoleChanged });
 					}
 					else
 					{
-						return RedirectToAction(nameof(this.Details), new { id = user.Id, message = Message.ErrorProcessingRequest });
+						return RedirectToAction(nameof(this.Details), new { id = user.Id, message = Status.ErrorProcessingRequest });
 					}
 				}
 				else
 				{
-					return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest });
+					return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Changing Role Failed";
+				string errorMessage = "Changing Role Failed";
 
-				this.Logger.LogError(FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, Message), ex);
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 			}
 		}
 
@@ -495,13 +454,13 @@ namespace GenericMvcUtilities.UserManager
 					//redirect is can't find user
 					if (user == null)
 					{
-						return RedirectToAction(nameof(this.Index), new { message = Message.UserNotFound });
+						return RedirectToAction(nameof(this.Index), new { message = Status.UserNotFound });
 					}
 
 					var isManagable = await CanThisAccountBeManaged(user, this.User);
 
 					//redirect if user is not allowed to manage user
-					if (isManagable != Message.NoError)
+					if (isManagable != Status.NoError)
 					{
 						return RedirectToAction(nameof(this.Index), new { message = isManagable });
 					}
@@ -513,20 +472,21 @@ namespace GenericMvcUtilities.UserManager
 					throw new NotImplementedException();
 
 					//return to the user details
-					return RedirectToAction(nameof(this.Details));
+					//return RedirectToAction(nameof(this.Details));
 				}
 				else
 				{
-					return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest });
+					return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Posting Edit Failed";
+				string errorMessage = "Issuing user password reset failed";
 
-				this.Logger.LogError(FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, Message), ex);
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 			}
 		}
 
@@ -547,17 +507,18 @@ namespace GenericMvcUtilities.UserManager
 					//redirect is can't find user
 					if (user == null)
 					{
-						return RedirectToAction(nameof(this.Index), new { message = Message.UserNotFound });
+						return RedirectToAction(nameof(this.Index), new { message = Status.UserNotFound });
 					}
 
 					var isManagable = await CanThisAccountBeManaged(user, this.User);
 
 					//redirect if user is not allowed to manage user
-					if (isManagable != Message.NoError)
+					if (isManagable != Status.NoError)
 					{
 						return RedirectToAction(nameof(this.Index), new { message = isManagable });
 					}
 
+					//lockout logic
 					if (this.UserManager.SupportsUserLockout && await this.UserManager.GetLockoutEnabledAsync(user))
 					{
 						var lockoutEnabledResult = await UserManager.SetLockoutEnabledAsync(user, true);
@@ -568,34 +529,33 @@ namespace GenericMvcUtilities.UserManager
 
 							if (setEndDate.Succeeded)
 							{
-								return RedirectToAction(nameof(this.Details), new { id = user.Id, message = Message.AccountLocked });
+								return RedirectToAction(nameof(this.Details), new { id = user.Id, message = Status.AccountLocked });
 							}
 						}
 
 						//error processing request
-						return RedirectToAction(nameof(this.Details), new { id = user.Id, message = Message.ErrorProcessingRequest });
+						return RedirectToAction(nameof(this.Details), new { id = user.Id, message = Status.ErrorProcessingRequest });
 					}
 
-					return RedirectToAction(nameof(this.Details), new { id = user.Id, message = Message.UserCannotBeLocked });
+					return RedirectToAction(nameof(this.Details), new { id = user.Id, message = Status.UserCannotBeLocked });
 				}
 				else
 				{
 					//Id is required so if model state not valid redirect to index
-					return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest });
+					return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 				}
 			}
 			catch (Exception ex)
 			{
-				string message = "Locking User Account Failed";
+				string errorMessage = "Locking User Account Failed";
 
-				this.Logger.LogError(FormatLogMessage(message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, message), ex);
+				//throw new Exception(FormatExceptionMessage(this, message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 			}
 		}
 
-		//add check for user
-		//todo: Change to removing this user
 		[HttpPost("{id}"), ValidateAntiForgeryToken]
 		public async Task<IActionResult> RemoveUser(TKey id)
 		{
@@ -608,13 +568,13 @@ namespace GenericMvcUtilities.UserManager
 					//redirect is can't find user
 					if (user == null)
 					{
-						return RedirectToAction(nameof(this.Index), new { message = Message.UserNotFound });
+						return RedirectToAction(nameof(this.Index), new { message = Status.UserNotFound });
 					}
 
 					var isManagable = await CanThisAccountBeManaged(user, this.User);
 
 					//redirect if user is not allowed to manage user
-					if (isManagable != Message.NoError)
+					if (isManagable != Status.NoError)
 					{
 						return RedirectToAction(nameof(this.Index), new { message = isManagable });
 					}
@@ -623,26 +583,27 @@ namespace GenericMvcUtilities.UserManager
 
 					if (result.Succeeded)
 					{
-						return RedirectToAction(nameof(this.Index), new { message = Message.AccountDeleted });
+						return RedirectToAction(nameof(this.Index), new { message = Status.AccountDeleted });
 					}
 					else
 					{
-						return RedirectToAction(nameof(this.Details), new { id = id, message = Message.ErrorProcessingRequest });
+						return RedirectToAction(nameof(this.Details), new { id = id, message = Status.ErrorProcessingRequest });
 					}
 				}
 				else
 				{
 					//index because no id
-					return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest });
+					return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Delete by Id Failed";
+				string errorMessage = "Removing user from system failed";
 
-				this.Logger.LogError(FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, Message), ex);
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 			}
 		}
 	}

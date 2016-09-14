@@ -3,7 +3,7 @@
   "version": 2,
   "targets": {
     ".NETStandard,Version=v1.6": {
-      "AutoMapper/5.0.2": {
+      "AutoMapper/5.1.1": {
         "type": "package",
         "dependencies": {
           "Microsoft.CSharp": "4.0.1",
@@ -1547,62 +1547,6 @@
           "lib/netstandard1.0/_._": {}
         }
       },
-      "Rx-Core/2.3.0-beta2": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Interfaces": "2.3.0-beta2"
-        },
-        "compile": {
-          "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Core.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Core.dll": {}
-        }
-      },
-      "Rx-Interfaces/2.3.0-beta2": {
-        "type": "package",
-        "compile": {
-          "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Interfaces.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Interfaces.dll": {}
-        }
-      },
-      "Rx-Linq/2.3.0-beta2": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.3.0-beta2",
-          "Rx-Interfaces": "2.3.0-beta2"
-        },
-        "compile": {
-          "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Linq.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Linq.dll": {}
-        }
-      },
-      "Rx-Main/2.3.0-beta2": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.3.0-beta2",
-          "Rx-Interfaces": "2.3.0-beta2",
-          "Rx-Linq": "2.3.0-beta2",
-          "Rx-PlatformServices": "2.3.0-beta2"
-        }
-      },
-      "Rx-PlatformServices/2.3.0-beta2": {
-        "type": "package",
-        "dependencies": {
-          "Rx-Core": "2.3.0-beta2",
-          "Rx-Interfaces": "2.3.0-beta2"
-        },
-        "compile": {
-          "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.PlatformServices.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.PlatformServices.dll": {}
-        }
-      },
       "System.AppContext/4.1.0": {
         "type": "package",
         "dependencies": {
@@ -2357,6 +2301,104 @@
           "lib/netstandard1.3/System.ObjectModel.dll": {}
         }
       },
+      "System.Reactive/3.0.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0",
+          "System.Reactive.Linq": "3.0.0",
+          "System.Reactive.PlatformServices": "3.0.0"
+        }
+      },
+      "System.Reactive.Core/3.0.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections": "4.0.11",
+          "System.Collections.Concurrent": "4.0.12",
+          "System.ComponentModel": "4.0.1",
+          "System.Diagnostics.Debug": "4.0.11",
+          "System.Diagnostics.Tools": "4.0.1",
+          "System.Globalization": "4.0.11",
+          "System.Linq": "4.1.0",
+          "System.Reactive.Interfaces": "3.0.0",
+          "System.Reflection": "4.1.0",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0",
+          "System.Runtime.Extensions": "4.1.0",
+          "System.Threading": "4.0.11",
+          "System.Threading.Tasks": "4.0.11"
+        },
+        "compile": {
+          "lib/netstandard1.3/System.Reactive.Core.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Reactive.Core.dll": {}
+        }
+      },
+      "System.Reactive.Interfaces/3.0.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Linq.Expressions": "4.1.0",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0"
+        },
+        "compile": {
+          "lib/netstandard1.0/System.Reactive.Interfaces.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.0/System.Reactive.Interfaces.dll": {}
+        }
+      },
+      "System.Reactive.Linq/3.0.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections": "4.0.11",
+          "System.Collections.Concurrent": "4.0.12",
+          "System.ComponentModel": "4.0.1",
+          "System.Diagnostics.Debug": "4.0.11",
+          "System.Diagnostics.Tools": "4.0.1",
+          "System.Globalization": "4.0.11",
+          "System.Linq": "4.1.0",
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0",
+          "System.Reflection": "4.1.0",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0",
+          "System.Runtime.Extensions": "4.1.0",
+          "System.Runtime.InteropServices.WindowsRuntime": "4.0.1",
+          "System.Threading": "4.0.11",
+          "System.Threading.Tasks": "4.0.11"
+        },
+        "compile": {
+          "lib/netstandard1.3/System.Reactive.Linq.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Reactive.Linq.dll": {}
+        }
+      },
+      "System.Reactive.PlatformServices/3.0.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections": "4.0.11",
+          "System.Diagnostics.Debug": "4.0.11",
+          "System.Diagnostics.Tools": "4.0.1",
+          "System.Globalization": "4.0.11",
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0",
+          "System.Reflection": "4.1.0",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0",
+          "System.Runtime.Extensions": "4.1.0",
+          "System.Threading": "4.0.11",
+          "System.Threading.Tasks": "4.0.11"
+        },
+        "compile": {
+          "lib/netstandard1.3/System.Reactive.PlatformServices.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Reactive.PlatformServices.dll": {}
+        }
+      },
       "System.Reflection/4.1.0": {
         "type": "package",
         "dependencies": {
@@ -2596,6 +2638,18 @@
             "assetType": "runtime",
             "rid": "win"
           }
+        }
+      },
+      "System.Runtime.InteropServices.WindowsRuntime/4.0.1": {
+        "type": "package",
+        "dependencies": {
+          "System.Runtime": "4.1.0"
+        },
+        "compile": {
+          "ref/netstandard1.0/System.Runtime.InteropServices.WindowsRuntime.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Runtime.InteropServices.WindowsRuntime.dll": {}
         }
       },
       "System.Runtime.Loader/4.0.0": {
@@ -3264,59 +3318,6 @@
           "lib/netstandard1.3/System.Xml.XPath.XDocument.dll": {}
         }
       },
-      "xunit/2.1.0": {
-        "type": "package",
-        "dependencies": {
-          "xunit.assert": "[2.1.0]",
-          "xunit.core": "[2.1.0]"
-        }
-      },
-      "xunit.abstractions/2.0.0": {
-        "type": "package",
-        "compile": {
-          "lib/portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS/xunit.abstractions.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS/xunit.abstractions.dll": {}
-        }
-      },
-      "xunit.assert/2.1.0": {
-        "type": "package",
-        "compile": {
-          "lib/portable-net45+win8+wp8+wpa81/xunit.assert.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+win8+wp8+wpa81/xunit.assert.dll": {}
-        }
-      },
-      "xunit.core/2.1.0": {
-        "type": "package",
-        "dependencies": {
-          "xunit.extensibility.core": "[2.1.0]",
-          "xunit.extensibility.execution": "[2.1.0]"
-        }
-      },
-      "xunit.extensibility.core/2.1.0": {
-        "type": "package",
-        "dependencies": {
-          "xunit.abstractions": "[2.0.0]"
-        },
-        "compile": {
-          "lib/portable-net45+win8+wp8+wpa81/xunit.core.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+win8+wp8+wpa81/xunit.core.dll": {}
-        }
-      },
-      "xunit.extensibility.execution/2.1.0": {
-        "type": "package",
-        "compile": {
-          "lib/portable-net45+win8+wp8+wpa81/xunit.execution.dotnet.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net45+win8+wp8+wpa81/xunit.execution.dotnet.dll": {}
-        }
-      },
       "MimeDetective/1.0.0": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
@@ -3334,23 +3335,25 @@
     }
   },
   "libraries": {
-    "AutoMapper/5.0.2": {
-      "sha512": "eHfVW+cn4X7c8iMUKqqR81PN7hOiT+WTSx5oW6cs+W8vlGrwkZp/SYLvalcUTxhbf5tF8VaW9s2gzWJTYj3DKA==",
+    "AutoMapper/5.1.1": {
+      "sha512": "Q3uFSWccBUE1Q9BW88C6RO2Y/iFkPztTKK1ciyx1jhWPdOi5+pvzZ2EwcJKPiV0cr2EXZUWqQOsSpA5jVjfQBg==",
       "type": "package",
-      "path": "AutoMapper/5.0.2",
+      "path": "AutoMapper/5.1.1",
       "files": [
-        "AutoMapper.5.0.2.nupkg.sha512",
+        "AutoMapper.5.1.1.nupkg.sha512",
         "AutoMapper.nuspec",
         "lib/net45/AutoMapper.dll",
         "lib/net45/AutoMapper.xml",
         "lib/netstandard1.1/AutoMapper.dll",
         "lib/netstandard1.1/AutoMapper.xml",
         "lib/netstandard1.3/AutoMapper.dll",
-        "lib/netstandard1.3/AutoMapper.xml"
+        "lib/netstandard1.3/AutoMapper.xml",
+        "lib/portable-net45+win8+wpa81/AutoMapper.dll",
+        "lib/portable-net45+win8+wpa81/AutoMapper.xml"
       ]
     },
     "Libuv/1.9.0": {
-      "sha512": "3dSboIbdQN6dOgP3cf6VkbMDwOUjfVgbdCYEii2r+D1RZQI8IRu6tWXYDLBRAskBoXMjqbrlXuZNY+97Vxu6hg==",
+      "sha512": "DQphbbFAs0GynNjGOXXUS2HktvPOSJ2mxeIHr/GXL4/05sH6nxgRz6U2wqyV4+tbEBwBPa4zljGQ1ZzCSaJ28w==",
       "type": "package",
       "path": "Libuv/1.9.0",
       "files": [
@@ -3908,7 +3911,7 @@
       ]
     },
     "Microsoft.CodeAnalysis.Analyzers/1.1.0": {
-      "sha512": "DLDPUpllDSP7w7VD+GbNptZ1EDsZUrRlmvV4oVlBEsAZYxVQLJCG1jGWxN85zQqaEws4dZDgo+QEb2N9pJH9RA==",
+      "sha512": "C9kQ6p03b1Wgbtnp+pbNlgRo0C6myPRT2OIied6422vADZQlMjZuKoe0UajIqFVlElyvT9bCcEYr40HUbNEOpA==",
       "type": "package",
       "path": "Microsoft.CodeAnalysis.Analyzers/1.1.0",
       "files": [
@@ -3924,7 +3927,7 @@
       ]
     },
     "Microsoft.CodeAnalysis.Common/1.3.0": {
-      "sha512": "9uDR3uhvPbeKHir7ypi2il7IkaqZpCWYoqwkCQJ6CmGZxPgM3fNesdr/J/KnVn/YUx957IHwoDfnxJKhRHGucA==",
+      "sha512": "GbxzJqVI9X4Mve2rOyx22pX19Mo65jCdgWDpCacfYyiKyM7EdLsf9MN8qLDhvRoYu8z1TMR9ItVHmTcS65B0WA==",
       "type": "package",
       "path": "Microsoft.CodeAnalysis.Common/1.3.0",
       "files": [
@@ -3940,7 +3943,7 @@
       ]
     },
     "Microsoft.CodeAnalysis.CSharp/1.3.0": {
-      "sha512": "xUcH8e2y59dh9dsjEYrGAz9Sh6YR9aojz4pMK++BHSQRXyp1OhcgawJMcZVuAf6XSNYkedOWcooetuUYqv+gHg==",
+      "sha512": "KrSWg9sp5bhvS2ZqVCglUFHPLaNKzTCdKXmzd++ntoooryngI5pcm4ZrfJAbDeBSg4Eam7VEMElIefM0BAjg4A==",
       "type": "package",
       "path": "Microsoft.CodeAnalysis.CSharp/1.3.0",
       "files": [
@@ -4367,7 +4370,7 @@
       ]
     },
     "Microsoft.NETCore.Targets/1.0.1": {
-      "sha512": "9O0rk9TNapB28kE60KgmQarV0VadqRUlM1si+4vpObsrcZcLBn9pW/Lhdy/TalE89Butp3yF9yS92JJWV+J/jQ==",
+      "sha512": "rkn+fKobF/cbWfnnfBOQHKVKIOpxMZBvlSHkqDWgBpwGDcLRduvs3D9OLGeV6GWGvVwNlVi2CBbTjuPmtHvyNw==",
       "type": "package",
       "path": "Microsoft.NETCore.Targets/1.0.1",
       "files": [
@@ -4416,7 +4419,7 @@
       ]
     },
     "Microsoft.Win32.Registry/4.0.0": {
-      "sha512": "iDCTMgrutvJ5GABsT1ZRioDInvMYvF+iWWupv1NyqcygUofJ/fbDDtoXegUehPBNKulQDaL+jrJ5KE3/jiuaXg==",
+      "sha512": "Nu4G+ozqWg6ANnas/MWbFW7iwi5D1uK6TrArPRe5A7pwadrTPz7059jW2mdO2Irotn3Dxofp+l3NtveBKsHyog==",
       "type": "package",
       "path": "Microsoft.Win32.Registry/4.0.0",
       "files": [
@@ -4444,7 +4447,7 @@
       ]
     },
     "NETStandard.Library/1.6.0": {
-      "sha512": "i68+bz8pcbqe2N9I0/eGq806bRWPLnR4Pd3Sps+obEs6bXC3vO28Yq2jfohy67HeJ49B92I3Y2mx1Ddf9eqxtA==",
+      "sha512": "ypsCvIdCZ4IoYASJHt6tF2fMo7N30NLgV1EbmC+snO490OMl9FvVxmumw14rhReWU3j3g7BYudG6YCrchwHJlA==",
       "type": "package",
       "path": "NETStandard.Library/1.6.0",
       "files": [
@@ -4498,7 +4501,7 @@
       ]
     },
     "runtime.native.System/4.0.0": {
-      "sha512": "u2TZZ88MKLDw1FvVCHy8FwbCaay44yCQ6mjFLd1oPNaya2Dp0UJHcvB5ri0fP2hJQfMyydfxgBeGRY3d3ujtAw==",
+      "sha512": "QfS/nQI7k/BLgmLrw7qm7YBoULEvgWnPI+cYsbfCVFTW8Aj+i8JhccxcFMu1RWms0YZzF+UHguNBK4Qn89e2Sg==",
       "type": "package",
       "path": "runtime.native.System/4.0.0",
       "files": [
@@ -4522,7 +4525,7 @@
       ]
     },
     "runtime.native.System.Net.Http/4.0.1": {
-      "sha512": "WU4BxdldtrYFfLwBoWxuobERHYQQZQn0LNgaWe5dU6wjtfbHMEiLmjuG2rC/3X54/l1xtVXMln8W2H+k2HcYqQ==",
+      "sha512": "hM7gO6Qvw426vHt+WBaqy1MEgfshWFyoYiFomKL79syV+TeqrBJ8024OjMBIhK0UazldIqDxvZcVlrxAKiULSw==",
       "type": "package",
       "path": "runtime.native.System.Net.Http/4.0.1",
       "files": [
@@ -4543,123 +4546,6 @@
         "lib/netstandard1.0/_._",
         "runtime.native.System.Security.Cryptography.4.0.0.nupkg.sha512",
         "runtime.native.System.Security.Cryptography.nuspec"
-      ]
-    },
-    "Rx-Core/2.3.0-beta2": {
-      "sha512": "ufLvowEi6bzrCrRSEY3RS/gUbV6axNAT9uzsbGDWeAShcwSBbOSxlcioQsvlYCgzAAB15WK9dM1f0sUk4NTE6w==",
-      "type": "package",
-      "path": "Rx-Core/2.3.0-beta2",
-      "files": [
-        "Rx-Core.2.3.0-beta2.nupkg.sha512",
-        "Rx-Core.nuspec",
-        "lib/net40/System.Reactive.Core.XML",
-        "lib/net40/System.Reactive.Core.dll",
-        "lib/net45/System.Reactive.Core.XML",
-        "lib/net45/System.Reactive.Core.dll",
-        "lib/net46/System.Reactive.Core.XML",
-        "lib/net46/System.Reactive.Core.dll",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Core.XML",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Core.dll",
-        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Core.XML",
-        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Core.dll",
-        "lib/portable-win81+wpa81/System.Reactive.Core.XML",
-        "lib/portable-win81+wpa81/System.Reactive.Core.dll",
-        "lib/sl5/System.Reactive.Core.XML",
-        "lib/sl5/System.Reactive.Core.dll",
-        "lib/windows8/System.Reactive.Core.XML",
-        "lib/windows8/System.Reactive.Core.dll",
-        "lib/windowsphone8/System.Reactive.Core.XML",
-        "lib/windowsphone8/System.Reactive.Core.dll"
-      ]
-    },
-    "Rx-Interfaces/2.3.0-beta2": {
-      "sha512": "YgUHTMj9qNKF2+zdXsAAkXy5cYvTHD/OSXG0PkVu/QDRDvHcINR+EsKqh3Dh9Tjssvsivs8cXuO3rV0GnSqMbg==",
-      "type": "package",
-      "path": "Rx-Interfaces/2.3.0-beta2",
-      "files": [
-        "Rx-Interfaces.2.3.0-beta2.nupkg.sha512",
-        "Rx-Interfaces.nuspec",
-        "lib/net40/System.Reactive.Interfaces.XML",
-        "lib/net40/System.Reactive.Interfaces.dll",
-        "lib/net45/System.Reactive.Interfaces.XML",
-        "lib/net45/System.Reactive.Interfaces.dll",
-        "lib/net46/System.Reactive.Interfaces.XML",
-        "lib/net46/System.Reactive.Interfaces.dll",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Interfaces.XML",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Interfaces.dll",
-        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Interfaces.XML",
-        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Interfaces.dll",
-        "lib/portable-win81+wpa81/System.Reactive.Interfaces.XML",
-        "lib/portable-win81+wpa81/System.Reactive.Interfaces.dll",
-        "lib/sl5/System.Reactive.Interfaces.XML",
-        "lib/sl5/System.Reactive.Interfaces.dll",
-        "lib/windows8/System.Reactive.Interfaces.XML",
-        "lib/windows8/System.Reactive.Interfaces.dll",
-        "lib/windowsphone8/System.Reactive.Interfaces.XML",
-        "lib/windowsphone8/System.Reactive.Interfaces.dll"
-      ]
-    },
-    "Rx-Linq/2.3.0-beta2": {
-      "sha512": "3VTu/AvESi12ucOYWlpv4aZT3xkV7BYG4zUHV+IV3fj+mWx0C9M8jtn99oQ2AZsLx7wsWpYNqCiwyPeqwNmWHQ==",
-      "type": "package",
-      "path": "Rx-Linq/2.3.0-beta2",
-      "files": [
-        "Rx-Linq.2.3.0-beta2.nupkg.sha512",
-        "Rx-Linq.nuspec",
-        "lib/net40/System.Reactive.Linq.XML",
-        "lib/net40/System.Reactive.Linq.dll",
-        "lib/net45/System.Reactive.Linq.XML",
-        "lib/net45/System.Reactive.Linq.dll",
-        "lib/net46/System.Reactive.Linq.XML",
-        "lib/net46/System.Reactive.Linq.dll",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Linq.XML",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.Linq.dll",
-        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Linq.XML",
-        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.Linq.dll",
-        "lib/portable-win81+wpa81/System.Reactive.Linq.XML",
-        "lib/portable-win81+wpa81/System.Reactive.Linq.dll",
-        "lib/sl5/System.Reactive.Linq.XML",
-        "lib/sl5/System.Reactive.Linq.dll",
-        "lib/windows8/System.Reactive.Linq.XML",
-        "lib/windows8/System.Reactive.Linq.dll",
-        "lib/windowsphone8/System.Reactive.Linq.XML",
-        "lib/windowsphone8/System.Reactive.Linq.dll"
-      ]
-    },
-    "Rx-Main/2.3.0-beta2": {
-      "sha512": "zss81QC+I0UiKJhNOnjDY6ildp0vR+QKZfxZh4E1wmUR7JivePlMf86Qashesywm+rCKVtLeHKj/eZk5gpeUaw==",
-      "type": "package",
-      "path": "Rx-Main/2.3.0-beta2",
-      "files": [
-        "Rx-Main.2.3.0-beta2.nupkg.sha512",
-        "Rx-Main.nuspec"
-      ]
-    },
-    "Rx-PlatformServices/2.3.0-beta2": {
-      "sha512": "AFDbK+gVGqd2rNBwsXjrWX+PwWIQ34IE8DnP2wnl+LT7menKe1mpjwUANTFN349zMZY3eTtr34N4vtdHgX65yw==",
-      "type": "package",
-      "path": "Rx-PlatformServices/2.3.0-beta2",
-      "files": [
-        "Rx-PlatformServices.2.3.0-beta2.nupkg.sha512",
-        "Rx-PlatformServices.nuspec",
-        "lib/net40/System.Reactive.PlatformServices.XML",
-        "lib/net40/System.Reactive.PlatformServices.dll",
-        "lib/net45/System.Reactive.PlatformServices.XML",
-        "lib/net45/System.Reactive.PlatformServices.dll",
-        "lib/net46/System.Reactive.PlatformServices.XML",
-        "lib/net46/System.Reactive.PlatformServices.dll",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.PlatformServices.XML",
-        "lib/portable-net40+sl5+win8+wp8/System.Reactive.PlatformServices.dll",
-        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.PlatformServices.XML",
-        "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Reactive.PlatformServices.dll",
-        "lib/portable-win81+wpa81/System.Reactive.PlatformServices.XML",
-        "lib/portable-win81+wpa81/System.Reactive.PlatformServices.dll",
-        "lib/sl5/System.Reactive.PlatformServices.XML",
-        "lib/sl5/System.Reactive.PlatformServices.dll",
-        "lib/windows8/System.Reactive.PlatformServices.XML",
-        "lib/windows8/System.Reactive.PlatformServices.dll",
-        "lib/windowsphone8/System.Reactive.PlatformServices.XML",
-        "lib/windowsphone8/System.Reactive.PlatformServices.dll"
       ]
     },
     "System.AppContext/4.1.0": {
@@ -5172,7 +5058,7 @@
       ]
     },
     "System.Console/4.0.0": {
-      "sha512": "jLuAA3a/iQQ4hvAwrxmvx4pQ/rpldZm2mvVnkOibKmZNc9FBkd4bKdTOLdqQzXrMYGE9Pp0+0o3yFjoJ0xNMxQ==",
+      "sha512": "qSKUSOIiYA/a0g5XXdxFcUFmv1hNICBD7QZ0QhGYVipPIhvpiydY8VZqr1thmCXvmn8aipMg64zuanB4eotK9A==",
       "type": "package",
       "path": "System.Console/4.0.0",
       "files": [
@@ -5400,7 +5286,7 @@
       ]
     },
     "System.Diagnostics.FileVersionInfo/4.0.0": {
-      "sha512": "R6TlPbdRGOz9DqBzcd/zMsv/JGAJtZ4gbjfmnu3kR37z9gCTiwX9oCVFHQnJHu62w6Mrn3hVsLm+01SHOm1Tkw==",
+      "sha512": "Gw8jP+UNPe250gZ4c/NUUuKCH9boFG9tyLueIzSaToyNf5COK7zzK8PyLFmLKudWBZt0JrIvpXNOgoZzkaeRPw==",
       "type": "package",
       "path": "System.Diagnostics.FileVersionInfo/4.0.0",
       "files": [
@@ -5440,7 +5326,7 @@
       ]
     },
     "System.Diagnostics.StackTrace/4.0.1": {
-      "sha512": "cdMxZyr69k35SyGUKbOnZwGaTN224L7WvV/8hNw3n9eypBY4k7RVFbSzQUKHDZx7eFBn9Z/CrgN9SUVtZAijGg==",
+      "sha512": "aJaZPE0xBr5hzGAlTO03ZYtK6LppeEhX9xNaclWp+yl/2dmEKefc1gFfAsfwsEqiEsSxWvO5zTFK08uSQGJotQ==",
       "type": "package",
       "path": "System.Diagnostics.StackTrace/4.0.1",
       "files": [
@@ -6102,7 +5988,7 @@
       ]
     },
     "System.IO.FileSystem.Watcher/4.0.0": {
-      "sha512": "AcGhanKPlTcygTuFpKKC4Zrs0Y/bvqKBezc+m9OGGXXK4zcSrMEtssuFUxK0v0Z1uQMe1dUfm3jcrJN51YwdXg==",
+      "sha512": "zKPXQMN4/YtT8QQ/SBcNh0Fzl4N1aP0sf6FNlJvWFVVw+jkBZ00HbuE+vmF0JqhsYoGAsRCIxEx5KVzGolksog==",
       "type": "package",
       "path": "System.IO.FileSystem.Watcher/4.0.0",
       "files": [
@@ -6682,6 +6568,99 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
+    "System.Reactive/3.0.0": {
+      "sha512": "W7fymxyUWjdbLiq257mCaiha1WfmShgXK8jwFuD9vMT4/HWLqDSvcpePGbkLogF3Rlc/sH6xTalNVj4nOVkk0g==",
+      "type": "package",
+      "path": "System.Reactive/3.0.0",
+      "files": [
+        "System.Reactive.3.0.0.nupkg.sha512",
+        "System.Reactive.nuspec"
+      ]
+    },
+    "System.Reactive.Core/3.0.0": {
+      "sha512": "1mnBTTNzTDaKYu2fYA0fcbWmWspwXheV9eFR0ynWd0nFjBwgSW0ZUAxe7dfvU5imv+K9QlfhV+pEKGOlJVZ8+w==",
+      "type": "package",
+      "path": "System.Reactive.Core/3.0.0",
+      "files": [
+        "System.Reactive.Core.3.0.0.nupkg.sha512",
+        "System.Reactive.Core.nuspec",
+        "lib/net45/System.Reactive.Core.dll",
+        "lib/net45/System.Reactive.Core.xml",
+        "lib/net46/System.Reactive.Core.dll",
+        "lib/net46/System.Reactive.Core.xml",
+        "lib/netcore451/System.Reactive.Core.dll",
+        "lib/netcore451/System.Reactive.Core.xml",
+        "lib/netcoreapp1.0/System.Reactive.Core.dll",
+        "lib/netcoreapp1.0/System.Reactive.Core.xml",
+        "lib/netstandard1.0/System.Reactive.Core.dll",
+        "lib/netstandard1.0/System.Reactive.Core.xml",
+        "lib/netstandard1.1/System.Reactive.Core.dll",
+        "lib/netstandard1.1/System.Reactive.Core.xml",
+        "lib/netstandard1.3/System.Reactive.Core.dll",
+        "lib/netstandard1.3/System.Reactive.Core.xml",
+        "lib/uap10.0/System.Reactive.Core.dll",
+        "lib/uap10.0/System.Reactive.Core.xml",
+        "lib/wpa81/System.Reactive.Core.dll",
+        "lib/wpa81/System.Reactive.Core.xml"
+      ]
+    },
+    "System.Reactive.Interfaces/3.0.0": {
+      "sha512": "MuLvWYegIrhvUVe3MRMIBxFGx4kiz0FEzN3TTvhX+m3WmJCi5+OE4J7yPWtZjGGTUh5wysGyaF9thcnCzx/J3w==",
+      "type": "package",
+      "path": "System.Reactive.Interfaces/3.0.0",
+      "files": [
+        "System.Reactive.Interfaces.3.0.0.nupkg.sha512",
+        "System.Reactive.Interfaces.nuspec",
+        "lib/net45/System.Reactive.Interfaces.dll",
+        "lib/net45/System.Reactive.Interfaces.xml",
+        "lib/netstandard1.0/System.Reactive.Interfaces.dll",
+        "lib/netstandard1.0/System.Reactive.Interfaces.xml"
+      ]
+    },
+    "System.Reactive.Linq/3.0.0": {
+      "sha512": "CmQ+WpeOFzwYlDKafLQLT5McvR1TWCi3UudeBnajguvi/8ZGHDoQ2MPTo401EKkSvW48uTsJyvcKXN/C7g91Qg==",
+      "type": "package",
+      "path": "System.Reactive.Linq/3.0.0",
+      "files": [
+        "System.Reactive.Linq.3.0.0.nupkg.sha512",
+        "System.Reactive.Linq.nuspec",
+        "lib/net45/System.Reactive.Linq.dll",
+        "lib/net45/System.Reactive.Linq.xml",
+        "lib/net46/System.Reactive.Linq.dll",
+        "lib/net46/System.Reactive.Linq.xml",
+        "lib/netstandard1.0/System.Reactive.Linq.dll",
+        "lib/netstandard1.0/System.Reactive.Linq.xml",
+        "lib/netstandard1.1/System.Reactive.Linq.dll",
+        "lib/netstandard1.1/System.Reactive.Linq.xml",
+        "lib/netstandard1.3/System.Reactive.Linq.dll",
+        "lib/netstandard1.3/System.Reactive.Linq.xml"
+      ]
+    },
+    "System.Reactive.PlatformServices/3.0.0": {
+      "sha512": "1yYsCsIqrpu228er3iC1naLcCnIpdDRuyFhD78P6C54YyiR84ElDUjWYEMVneUKxrP6PlwrZp2VEf0DHAHX8gw==",
+      "type": "package",
+      "path": "System.Reactive.PlatformServices/3.0.0",
+      "files": [
+        "System.Reactive.PlatformServices.3.0.0.nupkg.sha512",
+        "System.Reactive.PlatformServices.nuspec",
+        "lib/net45/System.Reactive.PlatformServices.dll",
+        "lib/net45/System.Reactive.PlatformServices.xml",
+        "lib/net46/System.Reactive.PlatformServices.dll",
+        "lib/net46/System.Reactive.PlatformServices.xml",
+        "lib/netcore451/System.Reactive.PlatformServices.dll",
+        "lib/netcore451/System.Reactive.PlatformServices.xml",
+        "lib/netcoreapp1.0/System.Reactive.PlatformServices.dll",
+        "lib/netcoreapp1.0/System.Reactive.PlatformServices.xml",
+        "lib/netstandard1.0/System.Reactive.PlatformServices.dll",
+        "lib/netstandard1.0/System.Reactive.PlatformServices.xml",
+        "lib/netstandard1.3/System.Reactive.PlatformServices.dll",
+        "lib/netstandard1.3/System.Reactive.PlatformServices.xml",
+        "lib/uap10.0/System.Reactive.PlatformServices.dll",
+        "lib/uap10.0/System.Reactive.PlatformServices.xml",
+        "lib/wpa81/System.Reactive.PlatformServices.dll",
+        "lib/wpa81/System.Reactive.PlatformServices.xml"
+      ]
+    },
     "System.Reflection/4.1.0": {
       "sha512": "JCKANJ0TI7kzoQzuwB/OoJANy1Lg338B6+JVacPl4TpUwi3cReg3nMLplMq2uqYfHFQpKIlHAUVAJlImZz/4ng==",
       "type": "package",
@@ -7031,7 +7010,7 @@
       ]
     },
     "System.Resources.Reader/4.0.0": {
-      "sha512": "+wZTICp2PFEkK9trqvqq54ih+fWYsssXjSWxwlPeKL5X2OScq+TN6ckF7Gu7h+zk+Upyb/fRL11t8H0/LoDREQ==",
+      "sha512": "3oywpTRMoBG9lVgu0jw9JSQK6PRaHJhz+/WTcoAQZ8cnnl7wRFEcUxXysaIYxLe7aXl1fIp1+9XT18nYykcB8Q==",
       "type": "package",
       "path": "System.Resources.Reader/4.0.0",
       "files": [
@@ -7391,7 +7370,7 @@
       ]
     },
     "System.Runtime.InteropServices.RuntimeInformation/4.0.0": {
-      "sha512": "yknxASkMh4KbE7cfDutQHz17V0FohWiz57saixNYsUNjLBzpeh0IvNbgjmcm4POEoO1YZ75HdFkqshNJieSDtA==",
+      "sha512": "hWPhJxc453RCa8Z29O91EmfGeZIHX1ZH2A8L6lYQVSaKzku2DfArSfMEb1/MYYzPQRJZeu0c9dmYeJKxW5Fgng==",
       "type": "package",
       "path": "System.Runtime.InteropServices.RuntimeInformation/4.0.0",
       "files": [
@@ -7422,8 +7401,55 @@
         "runtimes/win/lib/netstandard1.1/System.Runtime.InteropServices.RuntimeInformation.dll"
       ]
     },
+    "System.Runtime.InteropServices.WindowsRuntime/4.0.1": {
+      "sha512": "oIIXM4w2y3MiEZEXA+RTtfPV+SZ1ymbFdWppHlUciNdNIL0/Uo3HW9q9iN2O7T7KUmRdvjA7C2Gv4exAyW4zEQ==",
+      "type": "package",
+      "path": "System.Runtime.InteropServices.WindowsRuntime/4.0.1",
+      "files": [
+        "System.Runtime.InteropServices.WindowsRuntime.4.0.1.nupkg.sha512",
+        "System.Runtime.InteropServices.WindowsRuntime.nuspec",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/net45/_._",
+        "lib/netcore50/System.Runtime.InteropServices.WindowsRuntime.dll",
+        "lib/netstandard1.3/System.Runtime.InteropServices.WindowsRuntime.dll",
+        "lib/portable-net45+win8+wp8+wpa81/_._",
+        "lib/win8/_._",
+        "lib/wp80/_._",
+        "lib/wpa81/_._",
+        "lib/xamarinios1/_._",
+        "ref/net45/_._",
+        "ref/netcore50/System.Runtime.InteropServices.WindowsRuntime.dll",
+        "ref/netcore50/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netcore50/de/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netcore50/es/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netcore50/fr/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netcore50/it/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netcore50/ja/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netcore50/ko/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netcore50/ru/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netcore50/zh-hans/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netcore50/zh-hant/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netstandard1.0/System.Runtime.InteropServices.WindowsRuntime.dll",
+        "ref/netstandard1.0/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netstandard1.0/de/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netstandard1.0/es/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netstandard1.0/fr/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netstandard1.0/it/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netstandard1.0/ja/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netstandard1.0/ko/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netstandard1.0/ru/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netstandard1.0/zh-hans/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/netstandard1.0/zh-hant/System.Runtime.InteropServices.WindowsRuntime.xml",
+        "ref/portable-net45+win8+wp8+wpa81/_._",
+        "ref/win8/_._",
+        "ref/wp80/_._",
+        "ref/wpa81/_._",
+        "runtimes/aot/lib/netcore50/System.Runtime.InteropServices.WindowsRuntime.dll"
+      ]
+    },
     "System.Runtime.Loader/4.0.0": {
-      "sha512": "XSw8fJlC3ZK5VqizhbQyEmcdT/NqYMNS0DZ7yn3Zvp09dRcNO7/EwcOui4FIXb8baGQF6r9NeK8Bnrltu8QKTQ==",
+      "sha512": "fNa7rgymU8Nax7F8TJe6c25Up8tMydqnqDDzL0lbJwg3QvuyEpuwqbqJtULj3/N7K1e2cO2VckpF/yjqUIt3XQ==",
       "type": "package",
       "path": "System.Runtime.Loader/4.0.0",
       "files": [
@@ -7674,7 +7700,7 @@
       ]
     },
     "System.Security.Cryptography.Csp/4.0.0": {
-      "sha512": "pfUHe7QTd89bPVju/vtgGJs4qbfUKtt4Ooq1BVvIDm4TKmnNTpOWvZIY0ezzi8Obmd3lTKuQCQ47z7V0O0gf6w==",
+      "sha512": "QmmyshCCaj7NYqwot8Sawj0VV1QMUxAyyu/0PZjM313t8m9OJNG17YbXPfn4CgdObjtULO+Akgfw5bUmu/sxfQ==",
       "type": "package",
       "path": "System.Security.Cryptography.Csp/4.0.0",
       "files": [
@@ -7743,7 +7769,7 @@
       ]
     },
     "System.Security.Cryptography.OpenSsl/4.0.0": {
-      "sha512": "xHoOyvlKY5MNTZQIDLVBaDUozyCCdlM/RKXZ2/J8CJdJJgQQFw4ajzGO7RMxJlqOnGi6N9Ot+CbgnuQjaMF1fQ==",
+      "sha512": "GT+1eA5mzhBw196ORGAVxG6Ubp6chCBeV/4rmlX1CLLPQP69Eh7FgCFP146rbafE25NO18r8rSwghl7BWgLrYA==",
       "type": "package",
       "path": "System.Security.Cryptography.OpenSsl/4.0.0",
       "files": [
@@ -7895,7 +7921,7 @@
       ]
     },
     "System.Security.Principal.Windows/4.0.0": {
-      "sha512": "u63I8eRL5SWZruvinE2oMtS2tjCbSI6xhRONkEwtGrePzQx4+tHQsN1NdDumaYenZlewiO8SaD1ERhHlCCJUhg==",
+      "sha512": "OKW3/kr8Rozfo5f1sB8UTPI1Cw1NeC/H+YfYFuk/8/wOer2/if6vHAYHmHWggr2pgFVEiinv43XbdfP+kDIOcA==",
       "type": "package",
       "path": "System.Security.Principal.Windows/4.0.0",
       "files": [
@@ -8418,7 +8444,7 @@
       ]
     },
     "System.Threading.Thread/4.0.0": {
-      "sha512": "n5iQatrKvpIb293iAf7mKt62HSXQ9q7+Zg4QmHuR5FU/6K33QYZdGfSY6AA4IZYhZb36ESPBil8+nXIANHVlrQ==",
+      "sha512": "H+z9ptido6CoJTgjUfQMwvkg3eRFLNfImqMUoT+CzZQuohsJQYi9JdorvG8AvxqiU1PmaYZ9juCV3gsUfAvGKA==",
       "type": "package",
       "path": "System.Threading.Thread/4.0.0",
       "files": [
@@ -8456,7 +8482,7 @@
       ]
     },
     "System.Threading.ThreadPool/4.0.10": {
-      "sha512": "khDGbJqNmSOmFls9q8s4gM9kD+mwc0cMVl2Z7/E/X9JegYXqV6ohQQka9Q9xQT4kiTVuCYhPWd3tVWSc4oq6Pg==",
+      "sha512": "nDhwGOvFMDv2RxY7njny+H+JyzDgxiXe7C7DB3/1TnhHbBUzd8XUfXX3wvK30ftWaOnbzjvzMOvsgbxq3uADKw==",
       "type": "package",
       "path": "System.Threading.ThreadPool/4.0.10",
       "files": [
@@ -8789,7 +8815,7 @@
       ]
     },
     "System.Xml.XPath/4.0.1": {
-      "sha512": "QHWYoQ3ZK5lm7XCIChwZxX9L86hu3aLi9NHaa8eZydumOiu66v4sNHjXLaZ20ERdysJXqQ9haDImI1OTG4BDVA==",
+      "sha512": "axlTIVA3DNxxeMYg+pRychcY/kkPRSY9lVVXgmCv3/Qp8+R3LA6BOlvMflsxkDlWX1o5bVFEmtBqEl0AeMphYg==",
       "type": "package",
       "path": "System.Xml.XPath/4.0.1",
       "files": [
@@ -8826,7 +8852,7 @@
       ]
     },
     "System.Xml.XPath.XDocument/4.0.1": {
-      "sha512": "y5neLTlL1A/6IQZzn085SMVILG9iro7nUChrA9FWt5R11tPICm/sTW0jiHaQ8Up3vUZIHrmgmv+xwGRW+bHm2A==",
+      "sha512": "z43WcgTLe5Atv1sjNsdxtIbhH38XWNXvzDTQmLQ+LhiM0SkvGIEFVeMxudGoEyPbtQBxcTbDBeOLCyc64296lg==",
       "type": "package",
       "path": "System.Xml.XPath.XDocument/4.0.1",
       "files": [
@@ -8862,123 +8888,6 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "xunit/2.1.0": {
-      "sha512": "u/7VQSOSXa7kSG4iK6Lcn7RqKZQ3hk7cnyMNVMpXHSP0RI5VQEtc44hvkG3LyWOVsx1dhUDD3rPAHAxyOUDQJw==",
-      "type": "package",
-      "path": "xunit/2.1.0",
-      "files": [
-        "xunit.2.1.0.nupkg.sha512",
-        "xunit.nuspec"
-      ]
-    },
-    "xunit.abstractions/2.0.0": {
-      "sha512": "NAdxKQRzuLnCZ0g++x6i87/8rMBpQoRiRlRNLAqfODm2zJPbteHRoSER3DXfxnqrHXyBJT8rFaZ8uveBeQyaMA==",
-      "type": "package",
-      "path": "xunit.abstractions/2.0.0",
-      "files": [
-        "lib/net35/xunit.abstractions.dll",
-        "lib/net35/xunit.abstractions.xml",
-        "lib/portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS/xunit.abstractions.dll",
-        "lib/portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS/xunit.abstractions.xml",
-        "xunit.abstractions.2.0.0.nupkg.sha512",
-        "xunit.abstractions.nuspec"
-      ]
-    },
-    "xunit.assert/2.1.0": {
-      "sha512": "Hhhw+YaTe+BGhbr57dxVE+6VJk8BfThqFFii1XIsSZ4qx+SSCixprJC10JkiLRVSTfWyT8W/4nAf6NQgIrmBxA==",
-      "type": "package",
-      "path": "xunit.assert/2.1.0",
-      "files": [
-        "lib/dotnet/xunit.assert.dll",
-        "lib/dotnet/xunit.assert.pdb",
-        "lib/dotnet/xunit.assert.xml",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.assert.dll",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.assert.pdb",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.assert.xml",
-        "xunit.assert.2.1.0.nupkg.sha512",
-        "xunit.assert.nuspec"
-      ]
-    },
-    "xunit.core/2.1.0": {
-      "sha512": "jlbYdPbnkPIRwJllcT/tQZCNsSElVDEymdpJfH79uTUrPARkELVYw9o/zhAjKZXmeikGqGK5C2Yny4gTNoEu0Q==",
-      "type": "package",
-      "path": "xunit.core/2.1.0",
-      "files": [
-        "build/_desktop/xunit.execution.desktop.dll",
-        "build/dnx451/_._",
-        "build/monoandroid/_._",
-        "build/monotouch/_._",
-        "build/net45/_._",
-        "build/portable-net45+win8+wp8+wpa81/xunit.core.props",
-        "build/win8/_._",
-        "build/win81/xunit.core.props",
-        "build/wp8/_._",
-        "build/wpa81/xunit.core.props",
-        "build/xamarinios/_._",
-        "xunit.core.2.1.0.nupkg.sha512",
-        "xunit.core.nuspec"
-      ]
-    },
-    "xunit.extensibility.core/2.1.0": {
-      "sha512": "ANWM3WxeaeHjACLRlmrv+xOc0WAcr3cvIiJE+gqbdzTv1NCH4p1VDyT+8WmmdCc9db0WFiJLaDy4YTYsL1wWXw==",
-      "type": "package",
-      "path": "xunit.extensibility.core/2.1.0",
-      "files": [
-        "lib/dotnet/xunit.core.dll",
-        "lib/dotnet/xunit.core.dll.tdnet",
-        "lib/dotnet/xunit.core.pdb",
-        "lib/dotnet/xunit.core.xml",
-        "lib/dotnet/xunit.runner.tdnet.dll",
-        "lib/dotnet/xunit.runner.utility.desktop.dll",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.core.dll",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.core.dll.tdnet",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.core.pdb",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.core.xml",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.runner.tdnet.dll",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.runner.utility.desktop.dll",
-        "xunit.extensibility.core.2.1.0.nupkg.sha512",
-        "xunit.extensibility.core.nuspec"
-      ]
-    },
-    "xunit.extensibility.execution/2.1.0": {
-      "sha512": "tAoNafoVknKa3sZJPMvtZRnhOSk3gasEGeceSm7w/gyGwsR/OXFxndWJB1xSHeoy33d3Z6jFqn4A3j+pWCF0Ew==",
-      "type": "package",
-      "path": "xunit.extensibility.execution/2.1.0",
-      "files": [
-        "lib/dnx451/xunit.execution.dotnet.dll",
-        "lib/dnx451/xunit.execution.dotnet.pdb",
-        "lib/dnx451/xunit.execution.dotnet.xml",
-        "lib/dotnet/xunit.execution.dotnet.dll",
-        "lib/dotnet/xunit.execution.dotnet.pdb",
-        "lib/dotnet/xunit.execution.dotnet.xml",
-        "lib/monoandroid/xunit.execution.dotnet.dll",
-        "lib/monoandroid/xunit.execution.dotnet.pdb",
-        "lib/monoandroid/xunit.execution.dotnet.xml",
-        "lib/monotouch/xunit.execution.dotnet.dll",
-        "lib/monotouch/xunit.execution.dotnet.pdb",
-        "lib/monotouch/xunit.execution.dotnet.xml",
-        "lib/net45/xunit.execution.desktop.dll",
-        "lib/net45/xunit.execution.desktop.pdb",
-        "lib/net45/xunit.execution.desktop.xml",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.execution.dotnet.dll",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.execution.dotnet.pdb",
-        "lib/portable-net45+win8+wp8+wpa81/xunit.execution.dotnet.xml",
-        "lib/win8/xunit.execution.dotnet.dll",
-        "lib/win8/xunit.execution.dotnet.pdb",
-        "lib/win8/xunit.execution.dotnet.xml",
-        "lib/wp8/xunit.execution.dotnet.dll",
-        "lib/wp8/xunit.execution.dotnet.pdb",
-        "lib/wp8/xunit.execution.dotnet.xml",
-        "lib/wpa81/xunit.execution.dotnet.dll",
-        "lib/wpa81/xunit.execution.dotnet.pdb",
-        "lib/wpa81/xunit.execution.dotnet.xml",
-        "lib/xamarinios/xunit.execution.dotnet.dll",
-        "lib/xamarinios/xunit.execution.dotnet.pdb",
-        "lib/xamarinios/xunit.execution.dotnet.xml",
-        "xunit.extensibility.execution.2.1.0.nupkg.sha512",
-        "xunit.extensibility.execution.nuspec"
-      ]
-    },
     "MimeDetective/1.0.0": {
       "type": "project",
       "path": "../../Mime-Detective/MimeDetective/project.json",
@@ -8987,7 +8896,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "AutoMapper >= 5.0.2",
+      "AutoMapper >= 5.1.1",
       "Microsoft.AspNetCore.Authorization >= 1.0.0",
       "Microsoft.AspNetCore.Identity >= 1.0.0",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 1.0.0",
@@ -9006,8 +8915,7 @@
       "Microsoft.Extensions.Logging.Debug >= 1.0.0",
       "MimeDetective >= 1.0.*",
       "NETStandard.Library >= 1.6.0",
-      "Rx-Main >= 2.3.0-beta2",
-      "xunit >= 2.1.0"
+      "System.Reactive >= 3.0.0"
     ],
     ".NETStandard,Version=v1.6": []
   },

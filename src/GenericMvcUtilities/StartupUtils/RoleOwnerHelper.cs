@@ -4,38 +4,48 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.StartupUtils
 {
+	/// <summary>
+	///	Check to see if all roles have been created
+	///		if not create them
+	///	Check if the system owner account has been created
+	///		if not create the default system owner account
+	/// </summary>
+	/// <typeparam name="TUser"></typeparam>
+	/// <typeparam name="TRole"></typeparam>
+	/// <typeparam name="TKey"></typeparam>
 	public class SystemOwnerHelper<TUser, TRole, TKey>
 	where TUser : IdentityUser<TKey>, IPrivilegedUserConstraints, new()
 	where TRole : IdentityRole<TKey>, new()
 	where TKey : IEquatable<TKey>
 	{
-		private UserManager<TUser> _userManager;
+		private readonly UserManager<TUser> _userManager;
 
-		private RoleManager<TRole> _roleManager;
+		private readonly RoleManager<TRole> _roleManager;
 
 		public SystemOwnerHelper(UserManager<TUser> userManager, RoleManager<TRole> roleManager)
 		{
-			if (userManager != null)
-			{
-				_userManager = userManager;
-			}
-			else
-			{
+			if (userManager == null)
 				throw new ArgumentNullException(nameof(userManager));
-			}
 
-			if (roleManager != null)
-			{
-				_roleManager = roleManager;
-			}
-			else
-			{
+			_userManager = userManager;
+
+			if (roleManager == null)
 				throw new ArgumentNullException(nameof(roleManager));
+
+			_roleManager = roleManager;
+		}
+
+		public async Task Initialize()
+		{
+			await EnsureRolesCreated();
+
+			if (!await HasSystemOwnerBeenCreated())
+			{
+				await CreateDefaultSystemOwner();
 			}
 		}
 
@@ -59,7 +69,7 @@ namespace GenericMvcUtilities.StartupUtils
 			}
 		}
 
-		public async Task EnsureRolesCreated()
+		private async Task EnsureRolesCreated()
 		{
 			// add all roles, that should be in database, here
 			await EnsureRoleCreated(_roleManager, RoleHelper.SystemOwner);
@@ -68,23 +78,27 @@ namespace GenericMvcUtilities.StartupUtils
 			await EnsureRoleCreated(_roleManager, RoleHelper.ContentViewer);
 		}
 
-		public async Task Create(string email, string password)
+		private async Task<bool> HasSystemOwnerBeenCreated()
 		{
-			if (email == null && email.Length > 0)
+			var users = await _userManager.GetUsersInRoleAsync(RoleHelper.SystemOwner);
+
+			if (users.Count > 1)
+				throw new Exception("There cannot be more than one user with the System Owner Role");
+
+			if (users.Count == 1)
 			{
-				throw new ArgumentNullException(nameof(email));
+				return true;
 			}
-
-			if (password == null && password.Length > 0)
+			else
 			{
-				throw new ArgumentNullException(nameof(password));
+				return false;
 			}
+		}
 
-			//attempt to find user
-			var user = await _userManager.FindByEmailAsync(email);
-
-			//if user does not exists then create it
-			if (user != null)
+		private async Task CreateDefaultSystemOwner()
+		{
+			/*
+			if (user != null) //if user is already created
 			{
 				var roles = await _userManager.GetRolesAsync(user);
 
@@ -126,38 +140,39 @@ namespace GenericMvcUtilities.StartupUtils
 					}
 				}
 			}
-			else //then create user
+			*/
+
+			//if user does not exists then create it
+			TUser systemOwner = new TUser()
 			{
-				TUser systemOwner = new TUser()
+				FirstName = SystemOwnerDefaults.Name,
+				LastName = SystemOwnerDefaults.Name,
+				Email = SystemOwnerDefaults.UserNameEmail,
+				UserName = SystemOwnerDefaults.UserNameEmail,
+				DateRegistered = DateTime.Now
+			};
+
+			var result = await _userManager.CreateAsync(systemOwner, SystemOwnerDefaults.Password);
+
+			//success creating User for System Owner now add to owner role
+			if (result.Succeeded)
+			{
+				var admin = await _userManager.FindByEmailAsync(SystemOwnerDefaults.UserNameEmail);
+
+				var createOwner = await _userManager.AddToRoleAsync(admin, RoleHelper.SystemOwner);
+
+				if (createOwner.Succeeded)
 				{
-					FirstName = "SystemOwner",
-					LastName = "SystemOwner",
-					Email = email,
-					UserName = email,
-					DateRegistered = DateTime.Now
-				};
-
-				var result = await _userManager.CreateAsync(systemOwner, password);
-
-				if (result.Succeeded) //success creating User for System Owner now add to owner role
-				{
-					var admin = await _userManager.FindByEmailAsync(email);
-
-					var createOwner = await _userManager.AddToRoleAsync(admin, RoleHelper.SystemOwner);
-
-					if (createOwner.Succeeded)
-					{
-						return; //throw new Exception("creation of System Owner Failed");
-					}
-					else
-					{
-						throw new AggregateException("Adding new user to role, for system owner role failed", ConvertIdentityErrorsToExceptions(createOwner.Errors));
-					}
+					return;
 				}
 				else
 				{
-					throw new AggregateException("Creating User for System Owner Failed", ConvertIdentityErrorsToExceptions(result.Errors));
+					throw new AggregateException("Adding new user to role, for system owner role failed", ConvertIdentityErrorsToExceptions(createOwner.Errors));
 				}
+			}
+			else
+			{
+				throw new AggregateException("Creating User for System Owner Failed", ConvertIdentityErrorsToExceptions(result.Errors));
 			}
 		}
 	}

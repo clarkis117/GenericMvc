@@ -57,9 +57,8 @@ namespace GenericMvcUtilities.Repositories
 			}
 		}
 
-		public async static Task<ValidationResult> IsFileNameUnique<T, TKey>(string filename, IRepository<T> repo)
-			where T : class, IFile<TKey>
-			where TKey : IEquatable<TKey>
+		public async static Task<ValidationResult> IsFileNameUnique<T>(string filename, IRepository<T> repo)
+			where T : class, IFile
 		{
 			if (!string.IsNullOrEmpty(filename))
 			{
@@ -125,9 +124,8 @@ namespace GenericMvcUtilities.Repositories
 		/// <param name="model"></param>
 		/// <param name="whiteList"></param>
 		/// <returns></returns>
-		public static ValidationResult IsWhiteListedContentType<T, TKey>(T model, string[] whiteList)
-			where T : IFile<TKey>
-			where TKey : IEquatable<TKey>
+		public static ValidationResult IsWhiteListedContentType<T>(T model, string[] whiteList)
+			where T : IFile
 		{
 			if (model != null && model.Data != null)
 			{
@@ -135,7 +133,7 @@ namespace GenericMvcUtilities.Repositories
 
 				var filetype = model.Data.GetFileType();
 
-				if ((filetype != null && whiteList.Any(x => x == filetype.Mime))
+				if ((filetype.Mime != null && whiteList.Any(x => x == filetype.Mime))
 					|| (model.ContentType != null && whiteList.Any(x => x == model.ContentType)))
 				{
 					result.IsValid = true;

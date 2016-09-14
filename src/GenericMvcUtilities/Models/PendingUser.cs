@@ -10,7 +10,7 @@ namespace GenericMvcUtilities.Models
 	/// <summary>
 	/// Class for approving users before they can register their account
 	/// </summary>
-	public class PendingUser<TKey> : IPrivilegedUserConstraints
+	public class PendingUser<TKey> : IPrivilegedUserConstraints, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]

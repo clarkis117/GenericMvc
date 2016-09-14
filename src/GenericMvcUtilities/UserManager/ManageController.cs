@@ -348,7 +348,7 @@ namespace GenericMvcUtilities.UserManager
 			return false;
 		}
 
-		public enum ManageMessageId
+		public enum ManageMessageId : byte
 		{
 			AddPhoneSuccess,
 			AddLoginSuccess,

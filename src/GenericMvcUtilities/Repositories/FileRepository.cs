@@ -49,6 +49,22 @@ namespace GenericMvcUtilities.Repositories
 
 		public FileLoading DefaultLoadingSettings { get; set; } = FileLoading.WithMime;
 
+		public Type TypeOfEntity
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public ParameterExpression EntityExpression
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
 		/// <summary>
 		/// probably should have some file size limit here
 		/// </summary>

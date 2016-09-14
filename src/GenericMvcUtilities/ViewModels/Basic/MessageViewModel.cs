@@ -10,65 +10,82 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GenericMvcUtilities.ViewModels.Basic
 {
-	public enum MessageType { Success, Warning, Danger, Info }
+	public enum MessageType : byte { Success, Warning, Danger, Info }
 
 	public class MessageViewModel
 	{
-		public string Style { get; set; } = "alert-danger";
-
-		public bool IsAlertDismissable { get; set; } = true;
-
-		private MessageType _messageType;
-
-		public MessageType MessageType
+		public MessageViewModel()
 		{
-			get
-			{
-				return _messageType;
-			}
-			set
-			{
-				switch (value)
-				{
-					case MessageType.Success:
-						Style = "alert-success";
-						break;
-					case MessageType.Warning:
-						Style = "alert-warning";
-						break;
-					case MessageType.Danger:
-						Style = "alert-danger";
-						break;
-					case MessageType.Info:
-						Style = "alert-info";
-						break;
-					default:
-						Style = "alert-danger";
-						break;
-				}
 
-				_messageType = value;
-			}
 		}
 
-		public string GetAlertStyleClasses()
+		public MessageViewModel(MessageType type, string text)
 		{
-			if (IsAlertDismissable)
+			MessageType = type;
+
+			Style = getStyle(type);
+
+			Text = text;
+		}
+
+		public MessageViewModel(MessageType type, string text, bool isDismissable)
+		{
+			MessageType = type;
+
+			Style = getStyle(type);
+
+			IsDismissable = isDismissable;
+
+			Text = text;
+		}
+
+		public string Style { get; } = "alert-danger";
+
+		public bool IsDismissable { get; } = true;
+
+		public MessageType MessageType { get; }
+
+		public string Text { get; }
+
+		private static string getStyle(MessageType type)
+		{
+			switch (type)
 			{
-				return $"alert alert-dismissible {Style}";
+				case MessageType.Success:
+					return "alert-success";
+
+				case MessageType.Warning:
+					return "alert-warning";
+
+				case MessageType.Danger:
+					return "alert-danger";
+
+				case MessageType.Info:
+					return "alert-info";
+
+				default:
+					return "alert-danger";
+			}
+		}
+	}
+
+	public static class MessageExtensions
+	{
+		public static string GetAlertStyleClasses(this MessageViewModel message)
+		{
+			if (message.IsDismissable)
+			{
+				return $"alert alert-dismissible {message.Style}";
 			}
 			else
 			{
-				return $"alert {Style}";
+				return $"alert {message.Style}";
 			}
 		}
 
-		public string Text { get; set; }
-
-
-		public Task<IHtmlContent> RenderAsync(IHtmlHelper HTML)
+		public static Task<IHtmlContent> RenderAsync(this MessageViewModel message, IHtmlHelper HTML)
 		{
-			return HtmlHelperPartialExtensions.PartialAsync(HTML, "/Views/Shared/BasicMvc/AlertMessage.cshtml", this);
+			return HtmlHelperPartialExtensions.PartialAsync(HTML, "/Views/Shared/BasicMvc/AlertMessage.cshtml", message);
 		}
 	}
 }

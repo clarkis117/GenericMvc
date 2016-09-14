@@ -1,28 +1,30 @@
 ﻿using GenericMvcUtilities.Models;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using GenericMvcUtilities.Repositories;
 using GenericMvcUtilities.ViewModels.Basic;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GenericMvcUtilities.Controllers
 {
-	public enum Message
+	public enum Status : byte
 	{
 		ItemHasBeenCreated,
 		ItemHasBeenEdited,
 		ItemHasBeenRetrived, //normal use don't need this
 		ItemHasBeenDeleted,
+
 		//error messages
 		ItemNotFound,
+
 		ItemCouldNotBeCreated,
 		ItemCouldNotBeEdited,
-		ItemCouldNotBeRetrived, //same as not found
+		ItemCouldNotBeDeleted, //todo add message for
 		ItemIsNotValidAndChangesHaveNotBeenSaved,
 		ErrorProcessingRequest,
 
@@ -35,44 +37,37 @@ namespace GenericMvcUtilities.Controllers
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
-		protected IEntityRepository<T> Repository;
+		protected readonly IEntityRepository<T> Repository;
 
 		protected readonly ILogger<T> Logger;
 
-		protected static Microsoft.EntityFrameworkCore.Metadata.IEntityType DataModel;
-
 		protected static readonly Type typeOfT = typeof(T);
+
+		protected static Microsoft.EntityFrameworkCore.Metadata.IEntityType DataModel;
 
 		public BaseController(IEntityRepository<T> repository, ILogger<T> logger)
 		{
 			try
 			{
-				if (repository != null)
-				{
-					Repository = repository;
-
-					if (DataModel == null)
-					{
-						var model = Repository.DataContext.Model.FindEntityType(typeof(T).FullName);
-
-						if (model == null)
-							throw new ArgumentException($"Generic parameter {typeof(T).FullName} is not a member of the DB Context used by {typeof(BaseEntityRepository<T>)}");
-
-						DataModel = model;
-					}
-				}
-				else
-				{
+				if (repository == null)
 					throw new ArgumentNullException(nameof(repository));
-				}
 
-				if (logger != null)
-				{
-					Logger = logger;
-				}
-				else
-				{
+				if (logger == null)
 					throw new ArgumentNullException(nameof(logger));
+
+				Repository = repository;
+
+				Logger = logger;
+
+				//if data model equals null get it from the context
+				if (DataModel == null)
+				{
+					var model = Repository.DataContext.Model.FindEntityType(typeOfT.FullName);
+
+					if (model == null)
+						throw new ArgumentException($"Generic parameter {typeOfT.FullName} is not a member of the DB Context used by {typeof(BaseEntityRepository<T>)}");
+
+					DataModel = model;
 				}
 			}
 			catch (Exception e)
@@ -88,115 +83,76 @@ namespace GenericMvcUtilities.Controllers
 		[NonAction]
 		protected static string FormatLogMessage(string message, Microsoft.AspNetCore.Http.HttpRequest request)
 		{
-			return (message + ": \nHTTP Request: \n" + "Header: " + request.Headers.ToString() + "\nBody: " + request.Body.ToString());
+			return message + ": \nHTTP Request: \n" + "Header: " + request.Headers.ToString() + "\nBody: " + request.Body.ToString();
 		}
 
 		[NonAction]
 		protected static string FormatExceptionMessage(Controller controller, string message)
 		{
-			return (controller.GetType().Name + ": " + message + ": " + typeOfT.Name);
+			return controller.GetType().Name + ": " + message + ": " + typeOfT.Name;
 		}
 
 		[NonAction]
-		public static MessageViewModel GetMessageFromEnum(Message? message)
+		public static MessageViewModel GetMessageFromEnum(Status? message)
 		{
 			if (message != null)
 			{
 				MessageViewModel messageViewModel = null;
-				 
+
 				switch (message.Value)
 				{
-					case Message.ItemHasBeenCreated:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Success,
-							Text = "Item has been successfully created"
-						};
+					case Status.ItemHasBeenCreated:
+						messageViewModel = new MessageViewModel(MessageType.Success, "Item has been successfully created");
 						break;
-					case Message.ItemHasBeenEdited:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Success,
-							Text = "Item has been successfully edited"
-						};
+
+					case Status.ItemHasBeenEdited:
+						messageViewModel = new MessageViewModel(MessageType.Success, "Item has been successfully edited");
 						break;
-					case Message.ItemHasBeenRetrived:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Success,
-							Text = "Item has been successfully retrieved"
-						};
+
+					case Status.ItemHasBeenRetrived:
+						messageViewModel = new MessageViewModel(MessageType.Success, "Item has been successfully retrieved");
 						break;
-					case Message.ItemHasBeenDeleted:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Success,
-							Text = "Item has been successfully deleted"
-						};
+
+					case Status.ItemHasBeenDeleted:
+						messageViewModel = new MessageViewModel(MessageType.Success, "Item has been successfully deleted");
 						break;
-					case Message.ItemNotFound:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Warning,
-							Text = "System was unable to find the Item"
-						};
+
+					case Status.ItemNotFound:
+						messageViewModel = new MessageViewModel(MessageType.Warning, "System was unable to find the Item");
 						break;
-					case Message.ItemCouldNotBeCreated:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Danger,
-							Text = "System was not able to save the new Item"
-						};
+
+					case Status.ItemCouldNotBeCreated:
+						messageViewModel = new MessageViewModel(MessageType.Danger, "System was not able to save the new Item");
 						break;
-					case Message.ItemCouldNotBeEdited:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Danger,
-							Text = "System was not able to save the changes to the Item"
-						};
+
+					case Status.ItemCouldNotBeEdited:
+						messageViewModel = new MessageViewModel(MessageType.Danger, "System was not able to save the changes to the Item");
 						break;
-					case Message.ItemCouldNotBeRetrived:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Danger,
-							Text = "System could not retrieve the item"
-						};
+
+					case Status.ItemIsNotValidAndChangesHaveNotBeenSaved:
+						messageViewModel = new MessageViewModel(MessageType.Warning, "The current Item is not valid and any changes have not been saved");
 						break;
-					case Message.ItemIsNotValidAndChangesHaveNotBeenSaved:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Warning,
-							Text = "The current Item is not valid and any changes have not been saved"
-						};
+
+					case Status.ErrorProcessingRequest:
+						messageViewModel = new MessageViewModel(MessageType.Danger, "System encountered an error processing the request");
 						break;
-					case Message.ErrorProcessingRequest:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Danger,
-							Text = "System encountered an error processing the request"
-						};
+
+					case Status.ErrorExecutingQuery:
+						messageViewModel = new MessageViewModel(MessageType.Danger, "System encountered an error executing the query");
 						break;
-					case Message.ErrorExecutingQuery:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Danger,
-							Text = "System encountered an error executing the query"
-						};
+
+					case Status.InvalidQuery:
+						messageViewModel = new MessageViewModel(MessageType.Warning, "The specified query is not valid");
 						break;
-					case Message.InvalidQuery:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Warning,
-							Text = "The specified query is not valid"
-						};
+
+					case Status.RequestOrQueryIsInvalid:
+						messageViewModel = new MessageViewModel(MessageType.Warning, "The Specified Request or Query is not valid");
 						break;
-					case Message.RequestOrQueryIsInvalid:
-						messageViewModel = new MessageViewModel()
-						{
-							MessageType = MessageType.Warning,
-							Text = "The Specified Request or Query is not valid"
-						};
+
+					case Status.ItemCouldNotBeDeleted:
+						messageViewModel = new MessageViewModel(MessageType.Warning, "The Specified Item could not be deleted");
 						break;
+
 					default:
 						messageViewModel = new MessageViewModel();
 						break;
@@ -236,7 +192,7 @@ namespace GenericMvcUtilities.Controllers
 
 		//todo also add in action for unique name validation
 		[Route("[controller]/[action]/"), HttpGet]
-		public virtual async Task<IActionResult> Index(Message? message)
+		public virtual async Task<IActionResult> Index(Status? message)
 		{
 			try
 			{
@@ -293,6 +249,7 @@ namespace GenericMvcUtilities.Controllers
 							NestedView = "Index",
 							Data = results,
 							DisplayingCount = results.LongCount(),
+							TotalCount = await Repository.Count(),
 							Description = "Search Results for Query",
 							Message = new MessageViewModel(),
 							SearchViewModel = new SearchViewModel()
@@ -305,7 +262,7 @@ namespace GenericMvcUtilities.Controllers
 					}
 				}
 
-				return RedirectToAction(nameof(Index), new { message = Message.InvalidQuery });
+				return RedirectToAction(nameof(Index), new { message = Status.InvalidQuery });
 			}
 			catch (Exception e)
 			{
@@ -313,7 +270,7 @@ namespace GenericMvcUtilities.Controllers
 
 				Logger.LogError(FormatLogMessage(message, this.Request), e);
 
-				return RedirectToAction(nameof(Index), new { message = Message.ErrorExecutingQuery });
+				return RedirectToAction(nameof(Index), new { message = Status.ErrorExecutingQuery });
 			}
 		}
 	}

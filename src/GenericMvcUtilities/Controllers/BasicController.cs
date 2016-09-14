@@ -44,11 +44,11 @@ namespace GenericMvcUtilities.Controllers
 		}
 
 		[Route("[controller]/[action]/"), HttpGet("{id}")]
-		public virtual async Task<IActionResult> Details(TKey id, Message? message)
+		public virtual async Task<IActionResult> Details(TKey id, Status? message)
 		{
 			try
 			{
-				if (id != null)
+				if (id != null && ModelState.IsValid)
 				{
 					var item = await Repository.Get(Repository.MatchByIdExpression(id));
 
@@ -57,34 +57,35 @@ namespace GenericMvcUtilities.Controllers
 						var detailsViewModel = new DetailsViewModel(this)
 						{
 							Id = item.Id,
-							Data = item
+							Data = item,
+							Message = GetMessageFromEnum(message)
 						};
 
 						return this.ViewFromModel(detailsViewModel);
 					}
 					else
 					{
-						//return NotFound();
-						return RedirectToAction(nameof(this.Index), new { message = Message.ItemNotFound});
+						return RedirectToAction(nameof(this.Index), new { message = Status.ItemNotFound});
 					}
 				}
 				else
 				{
-					return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest});
+					return RedirectToAction(nameof(this.Index), new { message = Status.RequestOrQueryIsInvalid});
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Detailed View Failed";
+				string errorMessage = "Detailed View Failed";
 
-				this.Logger.LogError(FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, Message), ex);
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 			}
 		}
 
 		[Route("[controller]/[action]/"), HttpGet("{id}")]
-		public virtual async Task<IActionResult> Edit(TKey id, Message? message)
+		public virtual async Task<IActionResult> Edit(TKey id, Status? message)
 		{
 			try
 			{
@@ -97,38 +98,52 @@ namespace GenericMvcUtilities.Controllers
 						var editViewModel = new EditViewModel(this)
 						{
 							Id = item.Id,
-							Data = item
+							Data = item,
+							Message = GetMessageFromEnum(message)
 						};
 
 						return this.ViewFromModel(editViewModel);
 					}
 					else
 					{
-						//httpnotfound
-						return RedirectToAction(nameof(this.Index), new { message = Message.ItemNotFound});
+						return RedirectToAction(nameof(this.Index), new { message = Status.ItemNotFound });
 					}
 				}
 				else
 				{
-					return RedirectToAction(nameof(this.Index), new { message = Message.ErrorProcessingRequest });
+					return RedirectToAction(nameof(this.Index), new { message = Status.RequestOrQueryIsInvalid });
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Edit View / Get By Id Failed";
+				string errorMessage = "Edit View / Get By Id Failed";
 
-				this.Logger.LogError(FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, Message), ex);
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 			}
 		}
 
+		public static IActionResult GetEditViewModel(Controller controller, T item, Status message)
+		{
+			var editViewModel = new EditViewModel(controller)
+			{
+				Id = item.Id,
+				Data = item,
+				Message = GetMessageFromEnum(message)
+			};
+
+			return ViewModelHelper.ViewFromModel(controller, editViewModel);
+		}
+
+		//todo use get post redirect to move user to created or updated item
 		[Route("[controller]/[action]/"), HttpPost, ValidateAntiForgeryToken]
 		public virtual async Task<IActionResult> Edit(T item)
 		{
 			try
 			{
-				if (ModelState.IsValid && item != null)
+				if (item != null && ModelState.IsValid)
 				{
 					//If Item Exists Update it
 					if (await Repository.Any(Repository.MatchByIdExpression(item.Id)))
@@ -137,60 +152,73 @@ namespace GenericMvcUtilities.Controllers
 
 						if (updatedItem != null)
 						{
-							return RedirectToAction(nameof(this.Index), new { message = Message.ItemHasBeenEdited});
+							//make redirect and retrieve item
+							return RedirectToAction(nameof(this.Edit), new { id = updatedItem.Id, message = Status.ItemHasBeenEdited});
 						}
 						else
 						{
 							//Send 500 Response if update fails
-							throw new Exception("Update Item Failed");
+							//throw new Exception("Update Item Failed");
+							return GetEditViewModel(this, item, Status.ErrorProcessingRequest);
 						}
 					}
 					else
 					{
 						//return NotFound();
-						return RedirectToAction(nameof(this.Index));
+						return RedirectToAction(nameof(this.Index), new { message = Status.ItemNotFound});
 					}
 				}
 				else
 				{
-					//send bad request response with model state errors
-					return BadRequest(ModelState);
+					if (item != null)
+					{
+						//send the user back the form with the bad data
+						return GetEditViewModel(this, item, Status.ItemIsNotValidAndChangesHaveNotBeenSaved);
+					}
+					else
+					{
+						return RedirectToAction(nameof(this.Index), new { message = Status.RequestOrQueryIsInvalid });
+					}
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Posting Edit Failed";
+				string message = "Posting Edit Failed";
 
-				this.Logger.LogError(FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(message, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, Message), ex);
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+
+				return RedirectToAction(nameof(this.Index), new { message = Status.ItemCouldNotBeEdited });
 			}
 		}
 
 		[Route("[controller]/[action]/"), HttpGet]
-		public virtual IActionResult Create(Message? message)
+		public virtual IActionResult Create(Status? message)
 		{
 			try
 			{
 				var createViewModel = new CreateViewModel(this)
 				{
-					Data = Activator.CreateInstance<T>()
+					Data = Activator.CreateInstance<T>(),
+					Message = GetMessageFromEnum(message)
 				};
 
 				return this.ViewFromModel(createViewModel);
 			}
 			catch (Exception ex)
 			{
-				string Message = "Get Create View Failed";
+				string errorMessage = "Get Create View Failed";
 
-				this.Logger.LogError(FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, Message), ex);
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 			}
 		}
 
 		[NonAction]
-		protected static IActionResult GetCreateViewModel(Controller controller, T item, Message message)
+		protected static IActionResult GetCreateViewModel(Controller controller, T item, Status message)
 		{
 			var createViewModel = new CreateViewModel(controller)
 			{
@@ -212,41 +240,43 @@ namespace GenericMvcUtilities.Controllers
 
 					if (createdItem != null)
 					{
-						return RedirectToAction(nameof(this.Index), new { message = Message.ItemHasBeenCreated});
+						return RedirectToAction(nameof(this.Edit), new {id = createdItem.Id, message = Status.ItemHasBeenCreated});
 					}
 					else
 					{
 						//Send 500 Response if update fails
-						//throw new Exception("Creating Item Failed");
-						return GetCreateViewModel(this, item, Message.ItemCouldNotBeCreated);
+						return GetCreateViewModel(this, item, Status.ItemCouldNotBeCreated);
 					}
 				}
 				else
 				{
-					//send bad request response with model state errors
-					//return BadRequest(ModelState);
-					return GetCreateViewModel(this, item, Message.ItemIsNotValidAndChangesHaveNotBeenSaved);
+					if (item != null)
+					{
+						return GetCreateViewModel(this, item, Status.ItemIsNotValidAndChangesHaveNotBeenSaved);
+					}
+					else
+					{
+						return RedirectToAction(nameof(this.Create), new { message = Status.RequestOrQueryIsInvalid });
+					}
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Created New item Failed";
+				string message = "Created New item Failed";
 
-				this.Logger.LogError(FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(message, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, Message), ex);
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Status.ItemCouldNotBeCreated });
 			}
 		}
 
 		// Delete View GET: /Delete/5
 		[Route("[controller]/[action]/"), HttpGet("{id}")]
-		public async Task<IActionResult> Delete(TKey id, Message? message)
+		public async Task<IActionResult> Delete(TKey id, Status? message)
 		{
 			try
 			{
-				//case item couldn't be deleted
-				//case error
-
 				if (id != null && ModelState.IsValid)
 				{
 					var item = await Repository.Get(Repository.MatchByIdExpression(id));
@@ -256,7 +286,8 @@ namespace GenericMvcUtilities.Controllers
 						var deleteViewModel = new DeleteViewModel(this)
 						{
 							Id = item.Id,
-							Data = item
+							Data = item,
+							Message = GetMessageFromEnum(message)
 						};
 
 						return this.ViewFromModel(deleteViewModel);
@@ -264,22 +295,23 @@ namespace GenericMvcUtilities.Controllers
 					else
 					{
 						//return NotFound();
-						return RedirectToAction(nameof(this.Index));
+						return RedirectToAction(nameof(this.Index), new { message = Status.ItemNotFound });
 					}
 				}
 				else
 				{
-					//else can't find model, and can't do shit
-					return BadRequest();
+					//else can't find model
+					return RedirectToAction(nameof(this.Index), new { message = Status.RequestOrQueryIsInvalid });
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Detailed View Failed";
+				string errorMessage = "Detailed View Failed";
 
-				this.Logger.LogError(FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(errorMessage, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, Message), ex);
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 			}
 		}
 
@@ -288,7 +320,7 @@ namespace GenericMvcUtilities.Controllers
 		{
 			try
 			{
-				if (id != null)
+				if (id != null && ModelState.IsValid)
 				{
 					var item = await Repository.Get(Repository.MatchByIdExpression(id));
 
@@ -298,31 +330,32 @@ namespace GenericMvcUtilities.Controllers
 
 						if (result)
 						{
-							return RedirectToAction(nameof(this.Index));
+							return RedirectToAction(nameof(this.Index), new { message = Status.ItemHasBeenDeleted});
 						}
 						else
 						{
-							return BadRequest();
+							throw new Exception("Item could not be deleted");
 						}
 					}
 					else
 					{
-						//return NotFound();
-						return RedirectToAction(nameof(this.Index));
+						return RedirectToAction(nameof(this.Index), new { message = Status.ItemNotFound });
 					}
 				}
 				else
 				{
-					return BadRequest();
+					return RedirectToAction(nameof(this.Index), new { message = Status.RequestOrQueryIsInvalid });
 				}
 			}
 			catch (Exception ex)
 			{
-				string Message = "Delete by Id Failed";
+				string message = "Delete by Id Failed";
 
-				this.Logger.LogError(FormatLogMessage(Message, this.Request), ex);
+				this.Logger.LogError(FormatLogMessage(message, this.Request), ex);
 
-				throw new Exception(FormatExceptionMessage(this, Message), ex);
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+
+				return RedirectToAction(nameof(this.Index), new { message = Status.ItemCouldNotBeDeleted });
 			}
 		}
 	}

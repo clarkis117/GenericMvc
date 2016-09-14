@@ -19,7 +19,9 @@ namespace GenericMvcUtilities.Controllers
 		//todo: maybe a count method?
 
 		//[HttpGet("{id:int}")]
-		Task<T> Get(TKey id);
+		Task<IActionResult> Get(TKey id);
+
+		Task<IActionResult> GetMany(string propertyName, string value);
 
 		//[HttpGet]
 		Task<IEnumerable<T>> GetAll();
@@ -33,6 +35,8 @@ namespace GenericMvcUtilities.Controllers
 
 		//[HttpPut("{id:int}")]
 		Task<IActionResult> Update(TKey id, [FromBody] T item);
+
+		//Task<IActionResult> Updates([FromBody] T[] items);
 
 		//[HttpDelete("{id:int}")]
 		Task<IActionResult> Delete(TKey id);
@@ -50,6 +54,6 @@ namespace GenericMvcUtilities.Controllers
 		where T : class
 		where TKey : IEquatable<TKey>
 	{
-		Task<IActionResult> Index();
+		IActionResult Index();
 	}
 }

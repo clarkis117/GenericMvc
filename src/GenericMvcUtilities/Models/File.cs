@@ -20,7 +20,7 @@ namespace GenericMvcUtilities.Models
 	///	3. NonNewtonsoftBase64: i.e. serialize it to base64 yourself and handle whatever special case you need
 	///
 	/// </summary>
-	public enum EncodingType { RawBytes, Base64, NonNewtonsoftBase64 };
+	public enum EncodingType : byte { RawBytes, Base64, NonNewtonsoftBase64 };
 
 	/// <summary>
 	/// This somewhat follows the data objects pattern
@@ -149,7 +149,7 @@ namespace GenericMvcUtilities.Models
 			_fileType = await _fileInfo.GetFileTypeAsync();
 
 			//ie this mean we couldn't find the file type
-			if (_fileType == null)
+			if (_fileType.Mime == null)
 			{
 				ContentType = "";
 			}

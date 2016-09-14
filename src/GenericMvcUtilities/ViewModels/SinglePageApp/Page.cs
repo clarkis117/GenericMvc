@@ -7,6 +7,30 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 {
 	public class Page
 	{
+		public Page(string name)
+		{
+			Name = name;
+		}
+
+		public Page(string name, object data)
+		{
+			Name = name;
+			Data = data;
+		}
+
+		public Page(string displayName, string name)
+		{
+			DisplayName = displayName;
+			Name = name;
+		}
+
+		public Page(string displayName, string name, object data)
+		{
+			DisplayName = displayName;
+			Name = name;
+			Data = data;
+		}
+
 		//--side list
 		//<li class="withripple" title="stuff" data-target="#about">About</li>
 		//<li class="withripple" data-target="Id">Name</li>
@@ -18,33 +42,28 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 		/// <summary>
 		/// value for HTML Id
 		/// </summary>
-		public virtual string Id { get; set; }
+		public virtual string Id { get; }
 
 		/// <summary>
 		/// File Name
 		/// </summary>
-		public virtual string Name { get; set; }
+		public virtual string Name { get; }
+
+		public virtual object Data { get; }
 
 		/// <summary>
 		/// Gets or sets the display name.
 		/// </summary>
-		public virtual string DisplayName { get; set; }
+		public string DisplayName { get; }
 
 		public virtual string ViewPath
 		{
 			get { return ($"~/Views/{ContainingFolder}/{ViewName}.cshtml"); }
 		}
 
-		public virtual string ContainingFolder { get; set; }
+		public virtual string ContainingFolder { get; }
 
-		public virtual string ViewName { get; set; }
-
-		public object Data { get; set; }
-
-		public Page()
-		{
-
-		}
+		public virtual string ViewName { get; }
 
 		public string GetDisplayName()
 		{
@@ -62,9 +81,39 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 	//page with conventions
 	public class BasicPage : Page
 	{
-		public BasicPage()
+		public BasicPage(string displayName) : base(displayName: displayName, name: null)
 		{
-			//this.Folder = ViewName;
+
+		}
+
+		public BasicPage(string name, string folder) : base(name)
+		{
+			Folder = folder;
+		}
+
+		public BasicPage(string name, object data) : base(name, data)
+		{
+
+		}
+
+		public BasicPage(string name, object data, string folder) : base(name, data)
+		{
+			Folder = folder;
+		}
+
+		public BasicPage(string displayName, string name, object data) : base(displayName, name, data)
+		{
+
+		}
+
+		public BasicPage(string displayName, string name, string folder) : base(displayName, name)
+		{
+			Folder = folder;
+		}
+
+		public BasicPage(string displayName, string name, object data, string folder) : base(displayName, name, data)
+		{
+			Folder = folder;
 		}
 
 		public override string Id
@@ -91,7 +140,7 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 			}
 		}
 
-		public string Folder { get; set; }
+		public string Folder { get; }
 
 		public override string ViewPath
 		{
@@ -110,17 +159,17 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 	/// <summary>
 	/// This is used to layout the collapsing forms 
 	/// </summary>
-	public class BasicEditor : Page
+	public class BasicEditor : BasicPage
 	{
-		public BasicEditor()
+		public BasicEditor(string displayName, BasicPage parentForm, IEnumerable<BasicPage> childForms) : base(displayName: displayName)
 		{
-			//Much wow, I so cheat
-			this.Data = this;
+			ParentForm = parentForm;
+			ChildForms = childForms;
 		}
 
-		public BasicPage ParentForm { get; set; }
+		public BasicPage ParentForm { get; }
 
-		public BasicPage[] ChildForms { get; set; }
+		public IEnumerable<BasicPage> ChildForms { get; }
 
 		public override string Id
 		{
@@ -136,10 +185,13 @@ namespace GenericMvcUtilities.ViewModels.SinglePageApp
 			{
 				return ParentForm.Name;
 			}
+		}
 
-			set
+		public override object Data
+		{
+			get
 			{
-				ParentForm.Name = value;
+				return this;
 			}
 		}
 
