@@ -1,0 +1,62 @@
+{
+  "packOptions": {
+    "summary": "GenericMvc",
+    "tags": [ "mvc", "ef", "generic", "utilities" ],
+    "owners": [ "clarkis117" ],
+    "projectUrl": "https://github.com/clarkis117/GenericMvcUtilities",
+    "licenseUrl": "https://github.com/clarkis117/GenericMvcUtilities/blob/master/License.txt",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/clarkis117/GenericMvcUtilities.git"
+    }
+  },
+
+  "buildOptions": {
+    "warningsAsErrors": false,
+    "preserveCompilationContext": true,
+    "embed": [
+      "Views/**",
+      "Views/Shared/**",
+      "Views/Account/**",
+      "Views/UserManager/**",
+      "Views/Manage/**"
+    ]
+  },
+
+  "name": "GenericMvc",
+  "title": "GenericMvc",
+  "version": "1.0.0",
+  "description": "GenericMvc is group of classes for speeding Asp.Net Core development",
+  "authors": [ "Joshua Clark" ],
+
+  "dependencies": {
+    "NETStandard.Library": "1.6.1",
+    "AutoMapper": "5.2.0",
+    "Microsoft.AspNetCore.Authorization": "1.1.0",
+    "Microsoft.EntityFrameworkCore": "1.1.0",
+    "Microsoft.AspNetCore.Identity": "1.1.0",
+    "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.1.0",
+    "Microsoft.AspNetCore.Mvc": "1.1.0",
+    "Microsoft.AspNetCore.Mvc.TagHelpers": "1.1.0",
+    "Microsoft.AspNetCore.Server.Kestrel": "1.1.0",
+    "Microsoft.AspNetCore.StaticFiles": "1.1.0",
+    "Microsoft.AspNetCore.Razor": "1.1.0",
+    "Microsoft.Extensions.Logging": "1.1.0",
+    "Microsoft.Extensions.Logging.Console": "1.1.0",
+    "Microsoft.Extensions.Logging.Debug": "1.1.0",
+    "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
+    "System.Reactive": "3.1.1",
+    "Microsoft.Extensions.FileProviders.Embedded": "1.1.0",
+    "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.1.0",
+    "Mime-Detective": "0.0.1"
+  },
+
+  "frameworks": {
+    //"net4.6": {},
+    "netstandard1.6": {
+      "imports": [
+        "portable-net451+win8"
+      ]
+    }
+  }
+}

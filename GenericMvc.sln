@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{76C8C261-C3E5-4708-A352-41C0510CB3A0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{299FF47C-9D8E-415A-8301-F4DDA828A2D1}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		appveyor.yml = appveyor.yml
+		Build.ps1 = Build.ps1
+		build.sh = build.sh
+		global.json = global.json
+		License.txt = License.txt
+		NuGet.config = NuGet.config
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvc", "src\GenericMvc\GenericMvc.xproj", "{4A5D4291-1E31-4721-956B-681C4CF87B3B}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvc.Tests", "test\GenericMvc.Tests\GenericMvc.Tests.xproj", "{362A372D-56C5-4F97-8681-9C9FF40CE30A}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvc.Test.Library", "src\GenericMvc.Test.Library\GenericMvc.Test.Library.xproj", "{0D63026E-6537-4BFA-890C-5D0A2485DF60}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A5D4291-1E31-4721-956B-681C4CF87B3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A5D4291-1E31-4721-956B-681C4CF87B3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A5D4291-1E31-4721-956B-681C4CF87B3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A5D4291-1E31-4721-956B-681C4CF87B3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{362A372D-56C5-4F97-8681-9C9FF40CE30A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{362A372D-56C5-4F97-8681-9C9FF40CE30A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{362A372D-56C5-4F97-8681-9C9FF40CE30A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{362A372D-56C5-4F97-8681-9C9FF40CE30A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D63026E-6537-4BFA-890C-5D0A2485DF60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D63026E-6537-4BFA-890C-5D0A2485DF60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D63026E-6537-4BFA-890C-5D0A2485DF60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D63026E-6537-4BFA-890C-5D0A2485DF60}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4A5D4291-1E31-4721-956B-681C4CF87B3B} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
+		{362A372D-56C5-4F97-8681-9C9FF40CE30A} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
+		{0D63026E-6537-4BFA-890C-5D0A2485DF60} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
+	EndGlobalSection
+EndGlobal

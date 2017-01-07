@@ -1,0 +1,9 @@
+﻿@using GenericMvc.ViewModels.Basic
+@model IEnumerable<PageViewModel>
+
+@*Todo: think about adding a layout to this*@
+
+@foreach (var item in Model)
+{
+	@await Html.PartialAsync(item.ViewContainerPath, item)
+}

@@ -1,0 +1,91 @@
+﻿@model GenericMvc.ViewModels.UserManager.Account.PrivilegedRegisterViewModel
+
+<form asp-controller="Account" asp-action="Register" method="post" class="form-horizontal" role="form">
+	<div asp-validation-summary="All" class="text-danger"></div>
+	<input hidden asp-for="DateRegistered" value="@DateTime.Now" />
+	<div class="form-group">
+		<label asp-for="FirstName" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="FirstName" class="form-control" />
+			<span asp-validation-for="FirstName" class="text-danger"></span>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="LastName" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="LastName" class="form-control" />
+			<span asp-validation-for="LastName" class="text-danger"></span>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="Email" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="Email" class="form-control" />
+			<span asp-validation-for="Email" class="text-danger"></span>
+			<p class="help-block">This should be the email address you check regularly.</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="ConfirmEmail" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="ConfirmEmail" class="form-control" />
+			<span asp-validation-for="ConfirmEmail" class="text-danger"></span>
+			<p class="help-block">This should be the same as the 'Email' field</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="PhoneNumber" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="PhoneNumber" class="form-control" />
+			<span asp-validation-for="PhoneNumber" class="text-danger"></span>
+			<p class="help-block">This should ideally be your daytime or mobile phone.</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="ConfirmPhoneNumber" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="ConfirmPhoneNumber" class="form-control" />
+			<span asp-validation-for="ConfirmPhoneNumber" class="text-danger"></span>
+			<p class="help-block">This should be the same as the 'Phone number' field</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="RequestedRole" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<select asp-for="RequestedRole" asp-items="ViewBag.Roles" class="form-control">
+				<option selected="selected" value="">Choose Role</option>
+			</select>
+			<span asp-validation-for="RequestedRole" class="text-danger"></span>
+			<p class="help-block">
+				Roles are used by the content management system.
+					-User Admin can add/manage other users.
+					-Content Admin can add/manage content to the system.
+					-Content Viewer can view content in the system. 
+			</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="Password" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="Password" class="form-control" />
+			<span asp-validation-for="Password" class="text-danger"></span>
+		</div>
+	</div>
+	<div class="form-group">
+		<label asp-for="ConfirmPassword" class="col-md-2 control-label"></label>
+		<div class="col-md-10">
+			<input asp-for="ConfirmPassword" class="form-control" />
+			<span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-md-offset-2 col-md-10">
+			<button type="submit" class="btn btn-primary btn-raised">Register</button>
+		</div>
+	</div>
+</form>
+
+
+@section Scripts {
+	@{ await Html.PartialAsync("_ValidationScriptsPartial"); }
+}

@@ -1,0 +1,58 @@
+﻿@using GenericMvc.ViewModels.Basic;
+@model GenericMvc.ViewModels.Basic.DetailsViewModel
+
+
+@{
+	ViewData["Title"] = Model.ControllerName + " " + Model.Action;
+}
+
+<section class="well">
+	<header class="row">
+		<div class="col-md-6">
+			<div class="pull-left">
+				<h2 class="text-primary">@Model.Title</h2>
+				<h4>@Model.Description</h4>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="pull-right">
+				@if (Model.DisplayAction)
+				{
+					<h2 class="text-primary"><i class="material-icons">info_outline</i> @Model.Action</h2>
+				}
+			</div>
+		</div>
+	</header>
+	<hr class="shadow-z-1 primarycolor" />
+	@await Model.Message.RenderAsync(Html)
+	<div class="row">
+		<div class="col-md-3">
+			<div class="pull-left">
+			</div>
+		</div>
+		<div class="col-md-9">
+			<div class="pull-right">
+			</div>
+		</div>
+	</div>
+	@await Html.PartialAsync(Model.NestedViewPath, Model.Data)
+	<a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id"><i class="material-icons">mode_edit</i> Edit</a> |
+	<a class="btn btn-default" asp-action="Index"><i class="material-icons">list</i> Back to List</a> |
+	<a class="btn btn-danger" asp-action="Delete" asp-route-id="@Model.Id"><i class="material-icons">delete</i> Delete</a>
+	<hr class="shadow-z-1 primarycolor" />
+	<footer class="row">
+		<div class="col-md-6">
+			<div class="pull-left">
+				<h5 class="text-primary">@Model.Title</h5>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="pull-right">
+				@if (Model.DisplayAction)
+				{
+					<h5 class="text-capitalize"><i class="material-icons">info_outline</i> @Model.Action</h5>
+				}
+			</div>
+		</div>
+	</footer>
+</section>

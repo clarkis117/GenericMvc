@@ -1,0 +1,275 @@
+﻿@using GenericMvc.ViewModels.UserManager
+@model IUserView
+
+<section class="well form-horizontal">
+	<h2 class="text-primary">User Details - @Model.UserName</h2>
+	<hr class="shadow-z-1 primarycolor" />
+	@await Model.Message.RenderAsync(Html)
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<h3 class="panel-title">User Information</h3>
+		</div>
+		<div class="panel-body">
+			<div class="form-group">
+				<label asp-for="Id" class="col-md-2 control-label"></label>
+				<div class="col-md-10">
+					<p class="form-control">@Model.Id</p>
+					<p>User's Unique Identifier</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label asp-for="FirstName" class="col-md-2 control-label"></label>
+				<div class="col-md-10">
+					<p class="form-control">@Model.FirstName</p>
+					<p>User's given name or other pseudonym</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label asp-for="LastName" class="col-md-2 control-label"></label>
+				<div class="col-md-10">
+					<p class="form-control">@Model.LastName</p>
+					<p>User's family name or other pseudonym</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label asp-for="UserName" class="col-md-2 control-label"></label>
+				<div class="col-md-10">
+					<p class="form-control">@Model.UserName</p>
+					<p>User's Name that is used by the system, default is user's email</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<h3 class="panel-title">Contact Information</h3>
+		</div>
+		<div class="panel-body">
+			<div class="form-group">
+				<label asp-for="Email" class="col-md-3 control-label"></label>
+				<div class="col-md-9">
+					<p class="form-control">@Model.Email</p>
+					<p>User's Email Address</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label asp-for="EmailConfirmed" class="col-md-3 control-label"></label>
+				<div class="col-md-9">
+					@if (Model.EmailConfirmed)
+					{
+						<p class="text-success form-control">Yes</p>
+					}
+					else
+					{
+						<p class="text-danger form-control">No</p>
+					}
+				</div>
+			</div>
+			<div class="form-group">
+				<label asp-for="PhoneNumber" class="col-md-3 control-label"></label>
+				<div class="col-md-9">
+					@if (Model.PhoneNumber != null)
+					{
+						<p class="form-control">@Model.PhoneNumber</p>
+					}
+					else
+					{
+						<p class="text-info form-control">No Phone Number Given</p>
+					}
+				</div>
+			</div>
+			<div class="form-group">
+				<label asp-for="PhoneNumberConfirmed" class="col-md-3 control-label"></label>
+				<div class="col-md-9">
+					@if (Model.PhoneNumberConfirmed)
+					{
+						<p class="text-success form-control">Yes</p>
+					}
+					else
+					{
+						<p class="text-danger form-control">No</p>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-warning">
+		<div class="panel-heading">
+			<h3 class="panel-title">Account Status</h3>
+		</div>
+		<div class="panel-body">
+			<div class="form-group">
+				<label asp-for="AccessFailedCount" class="col-md-3 control-label"></label>
+				<div class="col-md-9">
+					<p class="form-control">@Model.AccessFailedCount</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label asp-for="LockoutEnabled" class="col-md-3 control-label"></label>
+				<div class="col-md-9">
+					@if (Model.LockoutEnabled)
+					{
+						<p class="text-success form-control">Yes</p>
+					}
+					else
+					{
+						<p class="text-danger form-control">No</p>
+					}
+				</div>
+			</div>
+			@if (Model.LockoutEnabled)
+			{
+				<div class="form-group">
+					<label asp-for="LockoutEnd" class="col-md-3 control-label"></label>
+					<div class="col-md-9">
+						<p class="form-control">@Model.LockoutEnd.DateTime</p>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-3 control-label">Time Offset</label>
+					<div class="col-md-9">
+						<p class="text-info form-control">@Model.LockoutEnd.Offset</p>
+					</div>
+				</div>
+			}
+			<div class="form-group">
+				<label asp-for="TwoFactorEnabled" class="col-md-3 control-label"></label>
+				<div class="col-md-9">
+					@if (Model.TwoFactorEnabled)
+					{
+						<p class="text-success form-control">Yes</p>
+					}
+					else
+					{
+						<p class="text-danger form-control">No</p>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+@if (Model.ShowActions)
+{
+	<!-- Actions -->
+	<section class="well">
+		<h4 class="text-primary">Actions - Be Careful!</h4>
+		<hr class="primarycolor" />
+		<ul class="list-inline">
+			<li>
+				<button class="btn btn-info btn-raised" type="button" data-toggle="modal" data-target="#ResetPasswordModal">
+					<i class="material-icons">refresh</i> Reset Password
+				</button>
+			</li>
+			<li>
+				<button class="btn btn-warning btn-raised" type="button" data-toggle="modal" data-target="#RoleModal">
+					<i class="material-icons">perm_identity</i> Change Role
+				</button>
+			</li>
+			<li>
+				<button class="btn btn-warning btn-raised" type="button" data-toggle="modal" data-target="#LockModal">
+					<i class="material-icons">lock</i> Lock User
+				</button>
+			</li>
+			<li>
+				<button class="btn btn-danger btn-raised" type="button" data-toggle="modal" data-target="#RemoveModal">
+					<i class="material-icons">delete</i> Remove User
+				</button>
+			</li>
+		</ul>
+	</section>
+	<!-- Lock Modal -->
+	@await Html.PartialAsync("~/Views/UserManager/User/LockModal.cshtml", new LockViewModel(Model.Id))
+
+	<div class="modal fade" id="RemoveModal" tabindex="-1" role="dialog" aria-labelledby="RemoveLabel">
+		<div class="modal-dialog" role="document">
+			<form asp-contorller="User" asp-action="RemoveUser" method="post">
+				<input hidden asp-for="Id" />
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 id="RemoveLabel" class="modal-title text-danger">
+							<i class="material-icons">delete</i> User Removal
+						</h4>
+					</div>
+					<div class="modal-body">
+						<h3 class="text-center text-danger"><strong>Are you sure you want to Remove this User? @Model.Email</strong></h3>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-raised btn-default" data-dismiss="modal">
+							<i class="material-icons">cancel</i> No
+						</button>
+						<button type="submit" class="btn btn-raised btn-danger">
+							<i class="material-icons">delete_forever</i> Yes
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="modal fade" id="RoleModal" tabindex="-1" role="dialog" aria-labelledby="RoleLabel">
+		<div class="modal-dialog" role="document">
+			<form asp-contorller="User" asp-action="ChangeUserRole" method="post">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 id="RemoveLabel" class="modal-title text-warning">
+							<i class="material-icons">perm_identity</i> Change User Role
+						</h4>
+					</div>
+					<div class="modal-body">
+						<h3 class="text-center text-warning"><strong>Are you sure you want to Change this User's Role?</strong></h3>
+						<div class="center-block">
+							@await Html.PartialAsync("~/Views/UserManager/ChangeRoleForm.cshtml", new RoleChangeViewModel(Model.Id, true))
+						</div>
+						<hr/>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-raised btn-default" data-dismiss="modal">
+							<i class="material-icons">cancel</i> No
+						</button>
+						<button type="submit" class="btn btn-raised btn-warning">
+							<i class="material-icons">perm_identity</i> Yes
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="modal fade" id="ResetPasswordModal" tabindex="-1" role="dialog" aria-labelledby="ResetPasswordLabel">
+		<div class="modal-dialog" role="document">
+			<form asp-contorller="User" asp-action="ResetPassword" method="post">
+				<input hidden asp-for="Id" />
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 id="RemoveLabel" class="modal-title text-info">
+							<i class="material-icons">refresh</i> Reset User Password
+						</h4>
+					</div>
+					<div class="modal-body">
+						<h3 class="text-center text-info"><strong>Are you sure you want to reset this User's Password? @Model.Email</strong></h3>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-raised btn-default" data-dismiss="modal">
+							<i class="material-icons">cancel</i> No
+						</button>
+						<button type="submit" class="btn btn-raised btn-info">
+							<i class="material-icons">refresh</i> Yes
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+}
+
+@section Scripts {
+	@if (Model.ShowActions)
+	{
+		<script type="text/javascript">
+			$(function () {
+				$('#datetimepicker1').datetimepicker();
+			});
+		</script>
+	}
+}

@@ -1,0 +1,13 @@
+﻿@using GenericMvc.ViewModels.Basic
+@model MessageViewModel
+
+@if (!string.IsNullOrEmpty(Model.Text))
+{
+	<div class="@Model.GetAlertStyleClasses()">
+		@if (Model.IsDismissable)
+		{
+			<button class="close" type="button" data-dismiss="alert">×</button>
+		}
+		<h4><strong>@Model.Text</strong></h4>
+	</div>
+}
