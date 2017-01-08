@@ -74,16 +74,12 @@ namespace GenericMvc.Repositories
 			if (rootFolder != null)
 			{
 				//check if folder exists here
-				if (System.IO.Directory.Exists(rootFolder))
-				{
-					this.RootFolder = rootFolder;
+				if (!System.IO.Directory.Exists(rootFolder))
+					throw new System.IO.DirectoryNotFoundException(rootFolder);
 
-					this._directoryInfo = new System.IO.DirectoryInfo(rootFolder);
-				}
-				else
-				{
-					throw new ArgumentException(rootFolder);
-				}
+				this.RootFolder = rootFolder;
+
+				this._directoryInfo = new System.IO.DirectoryInfo(rootFolder);
 			}
 			else
 			{
@@ -101,7 +97,7 @@ namespace GenericMvc.Repositories
 			switch (DefaultLoadingSettings)
 			{
 				case FileLoading.JustFileInfo:
-					return Task.FromResult(entity.Initialize(path:""));
+					return Task.FromResult(entity.Initialize(path: ""));
 
 				case FileLoading.WithMime:
 					return entity.Initialize(false, FileEncodingType);
@@ -110,7 +106,7 @@ namespace GenericMvc.Repositories
 					return entity.Initialize(true, FileEncodingType);
 
 				default:
-					return Task.FromResult(entity.Initialize(path:""));
+					return Task.FromResult(entity.Initialize(path: ""));
 			}
 		}
 
@@ -254,7 +250,7 @@ namespace GenericMvc.Repositories
 				}
 				else
 				{
-					throw new System.IO.IOException("Cannot write to file: " + entity.Name);
+					throw new System.IO.IOException($"Cannot write to file: {entity.Name}, {entity.Id}");
 				}
 			}
 		}
@@ -267,26 +263,18 @@ namespace GenericMvc.Repositories
 				//var dirInfo = new System.IO.DirectoryInfo(file.ContainingFolder);
 
 				if (_directoryInfo.GetFiles(file.Name).Count() == 1)
-				{
 					return null;
-				}
 				else
-				{
-					return new System.IO.IOException("File does not Exist");
-				}
+					return new System.IO.FileNotFoundException($"{file.Name} does net exist", file.Id);
 			}
 			else
-			{
 				return new ArgumentNullException(nameof(file), "File Data is Null");
-			}
 		}
 
 		private async Task updateFile(DataFile entity)
 		{
 			if (entity._fileInfo == null)
-			{
-				entity.Initialize(path:"");
-			}
+				entity.Initialize(path: "");
 
 			//if (System.IO.Directory.Exists(ContainingFolder) && this._fileInfo.Exists)
 
@@ -569,7 +557,7 @@ namespace GenericMvc.Repositories
 				{
 					if (entity._fileInfo == null)
 					{
-						entity.Initialize(path:"");
+						entity.Initialize(path: "");
 					}
 
 					entity._fileInfo.Delete();

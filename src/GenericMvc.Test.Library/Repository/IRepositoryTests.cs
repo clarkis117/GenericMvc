@@ -305,7 +305,7 @@ namespace GenericMvc.Test.Lib.Repository
 		}
 
 		[Fact]
-		public virtual async Task UpdateRange()
+		public virtual Task UpdateRange()
 		{
 			foreach (var range in _ranges)
 			{
@@ -329,6 +329,8 @@ namespace GenericMvc.Test.Lib.Repository
 
 				//_DataToCleanUp.AddRange(createdRangeX);
 			}
+
+			return Task.FromResult<object>(null);
 		}
 
 		/* to do place in decendant class

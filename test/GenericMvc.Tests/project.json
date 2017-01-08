@@ -20,7 +20,6 @@
     "GenericMvc.Test.Library": { "target": "project" }
   },
   "frameworks": {
-    //"net4.6": {},
     "netcoreapp1.0": {
       "define": [ "ASYNCLOCAL" ],
       "dependencies": {

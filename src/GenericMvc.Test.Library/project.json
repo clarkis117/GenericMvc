@@ -16,7 +16,6 @@
     "GenericMvc": { "target": "project" }
   },
   "frameworks": {
-    //"net4.6": { },
     "netstandard1.6": {
       "imports": [
         "dnxcore50",
