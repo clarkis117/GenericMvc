@@ -75,7 +75,7 @@ namespace GenericMvc.Repositories
 			{
 				//check if folder exists here
 				if (!System.IO.Directory.Exists(rootFolder))
-					throw new System.IO.DirectoryNotFoundException(rootFolder);
+					throw new System.IO.DirectoryNotFoundException($"Directory:{rootFolder}, Current Directory {System.IO.Directory.GetCurrentDirectory()}");
 
 				this.RootFolder = rootFolder;
 
