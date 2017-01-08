@@ -17,7 +17,7 @@ namespace GenericMvcTests
 	/// </summary>
 	public class FileRepoTests : IDisposable //, IRepositoryTests
 	{
-		public const string TestFolder = "./Data/FileRepo";
+		public const string TestFolder = "./Data";
 
 		public const string TestName = "test.png";
 
@@ -120,7 +120,7 @@ namespace GenericMvcTests
 
 			Assert.True(fileExists);
 
-			var madeUpName = await FileRepo.Any(x => x.Name == "ThisShouldn'tExist.png");
+			var madeUpName = await FileRepo.Any(x => x.Name == "ThisShouldntExist.png");
 
 			Assert.False(madeUpName);
 		}
