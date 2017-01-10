@@ -11,10 +11,9 @@
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-rc2-build10025",
     "NETStandard.Library": "1.6.1",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0",
-    "Microsoft.EntityFrameworkCore.InMemory": "1.1.0",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.2",
+    "Microsoft.EntityFrameworkCore.InMemory": "1.0.2",
     "GenFu": "1.2.1",
-    "System.IO.Compression": "4.3.0",
     "Microsoft.DotNet.InternalAbstractions": "1.*",
     "GenericMvc": { "target": "project" },
     "GenericMvc.Test.Library": { "target": "project" }
