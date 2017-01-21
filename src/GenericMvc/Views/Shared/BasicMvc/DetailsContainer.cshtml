@@ -36,9 +36,15 @@
 		</div>
 	</div>
 	@await Html.PartialAsync(Model.NestedViewPath, Model.Data)
-	<a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id"><i class="material-icons">mode_edit</i> Edit</a> |
-	<a class="btn btn-default" asp-action="Index"><i class="material-icons">list</i> Back to List</a> |
-	<a class="btn btn-danger" asp-action="Delete" asp-route-id="@Model.Id"><i class="material-icons">delete</i> Delete</a>
+	@if (Model.ShowEditButton)
+	{
+		<a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id"><i class="material-icons">mode_edit</i> Edit</a>
+	}
+	<a class="btn btn-default" asp-action="Index"><i class="material-icons">list</i> Back to List</a>
+	@if (Model.ShowDeleteButton)
+	{
+		<a class="btn btn-danger" asp-action="Delete" asp-route-id="@Model.Id"><i class="material-icons">delete</i> Delete</a>
+	}
 	<hr class="shadow-z-1 primarycolor" />
 	<footer class="row">
 		<div class="col-md-6">

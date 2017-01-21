@@ -70,10 +70,17 @@ namespace GenericMvc.ViewModels.Basic
 
 		public bool UseNestedViewConventions { get; set; } = true;
 
+		protected string NestedViewOverride = null;
+
 		public override string NestedViewPath
 		{
 			get
 			{
+				if (NestedViewOverride != null)
+				{
+					return NestedViewOverride;
+				}
+
 				if (UseNestedViewConventions)
 				{
 					return ($"~/Views/{BasicMvc}{ControllerName}/{NestedView}.cshtml");
@@ -117,6 +124,10 @@ namespace GenericMvc.ViewModels.Basic
 	{
 		private const string DetailsContainer = "Details";
 
+		public bool ShowEditButton { get; set; } = true;
+
+		public bool ShowDeleteButton { get; set; } = true;
+
 		public DetailsViewModel(Controller context): base(context)
 		{
 			ContainerName = BasicMvc + DetailsContainer;
@@ -146,7 +157,7 @@ namespace GenericMvc.ViewModels.Basic
 		{
 			get
 			{
-				 return ($"~/Views/{ContainerFolder}/{NestedView}Container.cshtml"); 
+				 return ($"~/Views/{ContainerFolder}/{NestedView}Container.cshtml");
 			}
 		}
 		*/
@@ -186,9 +197,18 @@ namespace GenericMvc.ViewModels.Basic
 	{
 		private const string DeleteContainer = "Delete";
 
-		public DeleteViewModel(Controller context) : base(context)
+		private const string Details = "Details";
+
+		public DeleteViewModel(Controller context, string deleteDetailsViewOverride = null) : base(context)
 		{
 			ContainerName = BasicMvc + DeleteContainer;
+
+			NestedView = Details;
+
+			if (deleteDetailsViewOverride != null)
+			{
+				NestedViewOverride = deleteDetailsViewOverride;
+			}
 
 			var deplural = depluralizeController(ControllerName) ?? ControllerName;
 

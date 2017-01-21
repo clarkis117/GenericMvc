@@ -33,7 +33,8 @@ namespace GenericMvc.Controllers
 		InvalidQuery
 	}
 
-	public abstract class BaseController<TKey, T> : Controller
+	public abstract class ReadOnlyBasicController<TKey, T>
+		: Controller, IReadOnlyBasicController<TKey, T>
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
@@ -43,9 +44,11 @@ namespace GenericMvc.Controllers
 
 		protected static readonly Type typeOfT = typeof(T);
 
+		protected bool IsMutable = false;
+
 		protected static Microsoft.EntityFrameworkCore.Metadata.IEntityType DataModel;
 
-		public BaseController(IEntityRepository<T> repository, ILogger<T> logger)
+		public ReadOnlyBasicController(IEntityRepository<T> repository, ILogger<T> logger)
 		{
 			try
 			{
@@ -203,6 +206,7 @@ namespace GenericMvc.Controllers
 				var indexViewModel = new IndexViewModel(this)
 				{
 					Data = results,
+					ShowCreateButton = IsMutable,
 					DisplayingCount = results.LongCount(),
 					TotalCount = await Repository.Count(),
 					Message = messageViewModel ?? new MessageViewModel(),
@@ -247,6 +251,7 @@ namespace GenericMvc.Controllers
 						{
 							Action = "Index",
 							NestedView = "Index",
+							ShowCreateButton = IsMutable,
 							Data = results,
 							DisplayingCount = results.LongCount(),
 							TotalCount = await Repository.Count(),
@@ -271,6 +276,49 @@ namespace GenericMvc.Controllers
 				Logger.LogError(FormatLogMessage(message, this.Request), e);
 
 				return RedirectToAction(nameof(Index), new { message = Status.ErrorExecutingQuery });
+			}
+		}
+
+		[Route("[controller]/[action]/"), HttpGet("{id}")]
+		public virtual async Task<IActionResult> Details(TKey id, Status? message)
+		{
+			try
+			{
+				if (id != null && ModelState.IsValid)
+				{
+					var item = await Repository.Get(Repository.MatchByIdExpression(id));
+
+					if (item != null)
+					{
+						var detailsViewModel = new DetailsViewModel(this)
+						{
+							Id = item.Id,
+							ShowDeleteButton = IsMutable,
+							ShowEditButton = IsMutable,
+							Data = item,
+							Message = GetMessageFromEnum(message)
+						};
+
+						return this.ViewFromModel(detailsViewModel);
+					}
+					else
+					{
+						return RedirectToAction(nameof(this.Index), new { message = Status.ItemNotFound });
+					}
+				}
+				else
+				{
+					return RedirectToAction(nameof(this.Index), new { message = Status.RequestOrQueryIsInvalid });
+				}
+			}
+			catch (Exception ex)
+			{
+				string errorMessage = "Detailed View Failed";
+
+				this.Logger.LogError(FormatLogMessage(errorMessage, this.Request), ex);
+
+				//throw new Exception(FormatExceptionMessage(this, Message), ex);
+				return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 			}
 		}
 	}

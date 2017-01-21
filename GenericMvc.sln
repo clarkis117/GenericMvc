@@ -23,6 +23,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvc.Tests", "test\Ge
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvc.Test.Library", "src\GenericMvc.Test.Library\GenericMvc.Test.Library.xproj", "{0D63026E-6537-4BFA-890C-5D0A2485DF60}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvc.Test.App", "src\GenericMvc.Test.App\GenericMvc.Test.App.xproj", "{B81D036B-D703-46B2-81B9-E724B85DC8BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{0D63026E-6537-4BFA-890C-5D0A2485DF60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D63026E-6537-4BFA-890C-5D0A2485DF60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D63026E-6537-4BFA-890C-5D0A2485DF60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B81D036B-D703-46B2-81B9-E724B85DC8BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B81D036B-D703-46B2-81B9-E724B85DC8BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B81D036B-D703-46B2-81B9-E724B85DC8BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B81D036B-D703-46B2-81B9-E724B85DC8BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,5 +55,6 @@ Global
 		{4A5D4291-1E31-4721-956B-681C4CF87B3B} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
 		{362A372D-56C5-4F97-8681-9C9FF40CE30A} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
 		{0D63026E-6537-4BFA-890C-5D0A2485DF60} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
+		{B81D036B-D703-46B2-81B9-E724B85DC8BC} = {76C8C261-C3E5-4708-A352-41C0510CB3A0}
 	EndGlobalSection
 EndGlobal

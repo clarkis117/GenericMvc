@@ -9,9 +9,9 @@ using System.Linq.Expressions;
 
 namespace GenericMvc.Controllers
 {
-	public interface IBaseController<TKey, T> 
-		where T : class
-		where TKey : IEquatable<TKey>
+	public interface IReadOnlyBasicController<TKey, T>
+	where T : class
+	where TKey : IEquatable<TKey>
 	{
 		//http get
 		Task<IActionResult> Index(Status? message);
@@ -21,7 +21,12 @@ namespace GenericMvc.Controllers
 
 		//http get
 		Task<IActionResult> Details(TKey id, Status? message);
+	}
 
+	public interface IBasicController<TKey, T> : IReadOnlyBasicController<TKey, T>
+		where T : class
+		where TKey : IEquatable<TKey>
+	{
 		//http get
 		IActionResult Create(Status? message);
 

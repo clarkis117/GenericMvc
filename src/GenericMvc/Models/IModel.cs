@@ -13,7 +13,6 @@ namespace GenericMvc.Models
 		//string JsonType { get; }
 	}
 
-	
 	public interface IModelWithFile<TKey> : IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{

@@ -1,0 +1,21 @@
+﻿@model IEnumerable<GenericMvc.Test.App.Models.Person>
+
+<table class="table table-striped table-responsive table-hover">
+	<tr>
+		<th>@Html.DisplayNameFor(model => model.Id)</th>
+		<th>
+			@Html.DisplayNameFor(model => model.Name)
+		</th>
+		<th>Actions</th>
+	</tr>
+	@foreach (var item in Model)
+	{
+		<tr>
+			<td>@Html.DisplayFor(modelItem => item.Id)</td>
+			<td>@Html.DisplayFor(modelItem => item.Name)</td>
+			<td>
+				<a asp-action="Details" asp-route-id="@item.Id">Details</a>
+			</td>
+		</tr>
+	}
+</table>

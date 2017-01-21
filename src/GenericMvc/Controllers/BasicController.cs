@@ -9,7 +9,13 @@ using System.Threading.Tasks;
 namespace GenericMvc.Controllers
 {
 	//this should be handled in derived classes: [Authorize(Roles = RoleHelper.SystemOwner + "," + RoleHelper.UserAdmin + "," + RoleHelper.ContentAdmin)]
-	public abstract class BasicController<TKey, T> : BaseController<TKey, T>, IBaseController<TKey, T>
+	/// <summary>
+	/// Basic MVC Controller
+	/// </summary>
+	/// <typeparam name="TKey"></typeparam>
+	/// <typeparam name="T"></typeparam>
+	public abstract class BasicController<TKey, T>
+		: ReadOnlyBasicController<TKey, T>, IBasicController<TKey, T>
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{
@@ -17,21 +23,20 @@ namespace GenericMvc.Controllers
 		/// Initializes a new instance of the <see cref="BaseController{T}" /> class.
 		/// </summary>
 		/// <param name="repository">The repo.</param>
-		public BasicController(IEntityRepository<T> repository, ILogger<T> logger) : base(repository, logger)
+		public BasicController(IEntityRepository<T> repository, ILogger<T> logger, string deleteDetailsViewOverride = null)
+			: base(repository, logger)
 		{
+			IsMutable = true;
+
+
+
 			try
 			{
-				if (repository != null && logger != null)
-				{
-					//Set repo to repo field
-					//this.Repository = repository;
+				if (repository == null)
+					throw new ArgumentNullException(nameof(repository));
 
-					//this.Logger = logger;
-				}
-				else
-				{
-					throw new ArgumentNullException("Repository or Logger argument is null");
-				}
+				if (logger == null)
+					throw new ArgumentNullException(nameof(logger));
 			}
 			catch (Exception ex)
 			{
@@ -40,47 +45,6 @@ namespace GenericMvc.Controllers
 				this.Logger.LogCritical(message, ex);
 
 				throw new Exception(message, ex);
-			}
-		}
-
-		[Route("[controller]/[action]/"), HttpGet("{id}")]
-		public virtual async Task<IActionResult> Details(TKey id, Status? message)
-		{
-			try
-			{
-				if (id != null && ModelState.IsValid)
-				{
-					var item = await Repository.Get(Repository.MatchByIdExpression(id));
-
-					if (item != null)
-					{
-						var detailsViewModel = new DetailsViewModel(this)
-						{
-							Id = item.Id,
-							Data = item,
-							Message = GetMessageFromEnum(message)
-						};
-
-						return this.ViewFromModel(detailsViewModel);
-					}
-					else
-					{
-						return RedirectToAction(nameof(this.Index), new { message = Status.ItemNotFound});
-					}
-				}
-				else
-				{
-					return RedirectToAction(nameof(this.Index), new { message = Status.RequestOrQueryIsInvalid});
-				}
-			}
-			catch (Exception ex)
-			{
-				string errorMessage = "Detailed View Failed";
-
-				this.Logger.LogError(FormatLogMessage(errorMessage, this.Request), ex);
-
-				//throw new Exception(FormatExceptionMessage(this, Message), ex);
-				return RedirectToAction(nameof(this.Index), new { message = Status.ErrorProcessingRequest });
 			}
 		}
 
@@ -125,6 +89,7 @@ namespace GenericMvc.Controllers
 			}
 		}
 
+		[NonAction]
 		public static IActionResult GetEditViewModel(Controller controller, T item, Status message)
 		{
 			var editViewModel = new EditViewModel(controller)
