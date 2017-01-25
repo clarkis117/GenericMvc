@@ -63,7 +63,7 @@ namespace GenericMvc.ViewModels.UserManager
 	/// <typeparam name="TKey">The type of the key.</typeparam>
 	/// <typeparam name="TUser">The type of the user.</typeparam>
 	/// <typeparam name="TRole">The type of the role.</typeparam>
-	/// <seealso cref="GenericMvc.ViewModels.UserManager.IUserView" />
+	/// <seealso cref="GenericMvcModels.ViewModels.UserManager.IUserView" />
 	public class UserDetailsViewModel<TKey, TUser, TRole> : IUserView
 		where TKey : IEquatable<TKey>
 		where TUser : IdentityUser<TKey>, Models.IPrivilegedUserConstraints

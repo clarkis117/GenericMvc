@@ -12,6 +12,7 @@ using GenericMvc.Repositories;
 using GenericMvc.Test.App.Models;
 using Microsoft.EntityFrameworkCore;
 using GenericMvc.StartupUtils;
+using GenericMvc.Controllers;
 
 namespace GenericMvc.Test.App
 {
@@ -55,6 +56,8 @@ namespace GenericMvc.Test.App
 			context.People.AddRange(new Person { Name = "Blue" }, new Person { Name = "Nick" });
 
 			context.SaveChanges();
+
+			BasicModelsController.Initialize(typeof(Person));
 
 			if (env.IsDevelopment())
 			{

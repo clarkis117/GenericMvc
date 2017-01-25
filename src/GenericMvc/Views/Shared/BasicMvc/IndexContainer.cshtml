@@ -1,8 +1,10 @@
-﻿@using GenericMvc.ViewModels.Basic;
-@model GenericMvc.ViewModels.Basic.IndexViewModel
+﻿@using GenericMvc.ViewModels.Basic
+@model  GenericMvc.ViewModels.Basic.IndexViewModel
 
 @{
 	ViewData["Title"] = Model.ControllerName + " " + Model.Action;
+
+	Layout = BasicMvc.Layout ?? Layout;
 }
 
 <section class="well">

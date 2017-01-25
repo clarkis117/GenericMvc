@@ -28,8 +28,6 @@ namespace GenericMvc.Controllers
 		{
 			IsMutable = true;
 
-
-
 			try
 			{
 				if (repository == null)
