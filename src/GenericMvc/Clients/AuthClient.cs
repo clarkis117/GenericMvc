@@ -75,7 +75,7 @@ namespace GenericMvc.Client
 	/// <summary>
 	/// User Xamarin connectivity package to test connection status on creation
 	/// </summary>
-	/// <seealso cref="GenericMvc.Client.IAuthClient" />
+	/// <seealso cref="GenericMvcModels.Client.IAuthClient" />
 	/// <seealso cref="System.IDisposable" />
 	public class AuthClient : IAuthClient, IDisposable
 	{

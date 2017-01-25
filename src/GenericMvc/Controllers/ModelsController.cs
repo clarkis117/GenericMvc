@@ -3,25 +3,75 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
-namespace GenericMvcUtilities.Controllers
+namespace GenericMvc.Controllers
 {
 	public class BasicModelsController : Controller
 	{
-		//protected static List<>
+		private static Type _appAssembly;
 
-		public static void Register(Controller controller)
+		private static Assembly _currentAssembly;
+
+		public static Assembly CurrentAssembly { get { return _currentAssembly; } }
+
+		public static void Initialize(Type typeInCurrentAssembly)
+		{
+			if (typeInCurrentAssembly == null)
+				throw new ArgumentNullException(nameof(typeInCurrentAssembly));
+
+			_appAssembly = typeInCurrentAssembly;
+
+			_currentAssembly = typeInCurrentAssembly.GetTypeInfo().Assembly;
+
+			var types = CurrentAssembly.GetTypes();
+
+			var controls = types.Where(x => x.GetTypeInfo().GetInterfaces()
+			   .Any(y => y == typeof(IBaseController)) && !x.GetTypeInfo().IsAbstract);
+
+			foreach (var item in controls)
+			{
+				Register(item);
+			}
+		}
+
+		public class ViewModel
+		{
+			public string Name { get; set; }
+
+			public Type Controller { get; set; }
+		}
+
+		protected static List<ViewModel> viewModels = new List<ViewModel>();
+		 
+		public static void Register(Type controller)
 		{
 			if (controller == null)
 				throw new ArgumentNullException(nameof(controller));
 
-			var controllerName = controller.RouteData.Values["controller"].ToString();
+			var controllerName = "Controller";
+
+			string name = controller.Name;
+
+			if (controllerName.EndsWith(controllerName, StringComparison.OrdinalIgnoreCase))
+			{
+				name = name.Substring(0, name.Length - controllerName.Length);
+			}
+						
+			var viewModel = new ViewModel
+			{
+				Name = name,
+				Controller = controller
+			};
+
+			viewModels.Add(viewModel);
 		}
 
-		public BasicModelsController()
+		[Route("[controller]/[action]/"), HttpGet]
+		public IActionResult Index()
 		{
-
+			return View("~/Views/Shared/BasicMvc/Models.cshtml", viewModels);
 		}
 	}
 }

@@ -9,7 +9,12 @@ using System.Linq.Expressions;
 
 namespace GenericMvc.Controllers
 {
-	public interface IReadOnlyBasicController<TKey, T>
+	public interface IBaseController
+	{
+
+	}
+
+	public interface IReadOnlyBasicController<TKey, T> : IBaseController
 	where T : class
 	where TKey : IEquatable<TKey>
 	{

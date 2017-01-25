@@ -17,7 +17,7 @@ namespace GenericMvc.Repositories
 	///
 	/// MimeTypes should be included in non get with data calls
 	/// </summary>
-	/// <seealso cref="GenericMvc.Repositories.IRepository{TViewModel}" />
+	/// <seealso cref="GenericMvcModels.Repositories.IRepository{TViewModel}" />
 	public abstract class PairedRepository<TKey, TViewModel, TEntity, TEntityRepo, TFileRepo> : IRepository<TViewModel>
 		where TKey : IEquatable<TKey>
 		where TViewModel : class, IModelFile<TKey>, new()

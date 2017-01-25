@@ -37,7 +37,7 @@ namespace GenericMvc.ViewModels.UserManager
 	/// </summary>
 	/// <typeparam name="TKey">The type of the key.</typeparam>
 	/// <typeparam name="TPendingUser">The type of the user.</typeparam>
-	/// <seealso cref="GenericMvc.ViewModels.UserManager.IPendingUserView" />
+	/// <seealso cref="GenericMvcModels.ViewModels.UserManager.IPendingUserView" />
 	public class PendingUserDetails<TKey, TPendingUser> : IPendingUserView
 		where TKey : IEquatable<TKey>
 		where TPendingUser : PendingUser<TKey>, Models.IPrivilegedUserConstraints

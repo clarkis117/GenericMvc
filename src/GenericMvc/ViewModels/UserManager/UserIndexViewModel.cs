@@ -70,7 +70,7 @@ namespace GenericMvc.ViewModels.UserManager
 	/// </summary>
 	/// <typeparam name="TKey">The type of the key.</typeparam>
 	/// <typeparam name="TUser">The type of the user.</typeparam>
-	/// <seealso cref="GenericMvc.ViewModels.UserManager.IUserIndexView" />
+	/// <seealso cref="GenericMvcModels.ViewModels.UserManager.IUserIndexView" />
 	public class UserIndexViewModel<TKey, TUser> : IUserIndexView
 		where TKey : IEquatable<TKey>
 		where TUser : IdentityUser<TKey>, Models.IPrivilegedUserConstraints

@@ -26,7 +26,7 @@ namespace GenericMvc.Controllers
 	/// <typeparam name="TKey">The type of the key.</typeparam>
 	/// <typeparam name="TUser">The type of the user.</typeparam>
 	/// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
-	/// <seealso cref="GenericMvc.Controllers.IAuthApiController" />
+	/// <seealso cref="GenericMvcModels.Controllers.IAuthApiController" />
 	[Authorize]
 	[Route("/api/[controller]/[action]/")]
 	public class AuthApiController<TKey, TUser> : Controller, IAuthApiController
