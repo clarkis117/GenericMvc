@@ -36,15 +36,21 @@ namespace GenericMvc.Controllers
 			}
 		}
 
-		public class ViewModel
+		public struct ViewModel
 		{
-			public string Name { get; set; }
+			public string Name { get; }
 
-			public Type Controller { get; set; }
+			public Type Controller { get; }
+
+			public ViewModel(string name, Type type)
+			{
+				Name = name;
+				Controller = type;
+			}
 		}
 
 		protected static List<ViewModel> viewModels = new List<ViewModel>();
-		 
+
 		public static void Register(Type controller)
 		{
 			if (controller == null)
@@ -55,15 +61,9 @@ namespace GenericMvc.Controllers
 			string name = controller.Name;
 
 			if (controllerName.EndsWith(controllerName, StringComparison.OrdinalIgnoreCase))
-			{
 				name = name.Substring(0, name.Length - controllerName.Length);
-			}
-						
-			var viewModel = new ViewModel
-			{
-				Name = name,
-				Controller = controller
-			};
+
+			var viewModel = new ViewModel(name, controller);
 
 			viewModels.Add(viewModel);
 		}

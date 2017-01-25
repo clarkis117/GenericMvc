@@ -5,7 +5,7 @@
 	var typeName = Model.Data.GetType().Name;
 	ViewData["Title"] = Model.ControllerName + " " + Model.Action;
 
-	Layout = BasicMvc.Layout ?? Layout;
+	Layout = GenericMvc.BasicMvc.Layout ?? Layout;
 }
 
 <section class="well">
