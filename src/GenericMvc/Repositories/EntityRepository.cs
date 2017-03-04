@@ -103,7 +103,7 @@ namespace GenericMvc.Repositories
 
 				foreach (var type in modelEntityTypes)
 				{
-					if (type.ClrType == type)
+					if (type.ClrType == typeofT)
 						return typeofModel = type;
 				}
 

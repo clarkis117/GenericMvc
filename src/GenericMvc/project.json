@@ -55,6 +55,7 @@
       "imports": [
         "portable-net451+win8"
       ]
-    }
+    },
+	"net4.6": {}
   }
 }
