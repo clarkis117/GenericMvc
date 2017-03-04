@@ -10971,8 +10971,8 @@
     },
     "GenericMvc/1.0.2": {
       "type": "project",
-      "path": "../GenericMvc/project.json",
-      "msbuildProject": "../GenericMvc/GenericMvc.xproj"
+      "path": "../../src/GenericMvc/project.json",
+      "msbuildProject": "../../src/GenericMvc/GenericMvc.xproj"
     }
   },
   "projectFileDependencyGroups": {

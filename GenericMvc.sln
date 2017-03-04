@@ -23,7 +23,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvc.Tests", "test\Ge
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvc.Test.Library", "src\GenericMvc.Test.Library\GenericMvc.Test.Library.xproj", "{0D63026E-6537-4BFA-890C-5D0A2485DF60}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvc.Test.App", "src\GenericMvc.Test.App\GenericMvc.Test.App.xproj", "{B81D036B-D703-46B2-81B9-E724B85DC8BC}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "GenericMvc.Test.App", "test\GenericMvc.Test.App\GenericMvc.Test.App.xproj", "{B81D036B-D703-46B2-81B9-E724B85DC8BC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{B3BA7BC4-C4C6-4538-A568-CB2DD883BA3A}"
 EndProject

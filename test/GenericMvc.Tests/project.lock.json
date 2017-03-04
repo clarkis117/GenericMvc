@@ -6684,6 +6684,9 @@
           "NETStandard.Library": "1.6.1",
           "System.Reactive": "3.1.1"
         },
+        "frameworkAssemblies": [
+          "System.IO.Compression"
+        ],
         "compile": {
           "net46/GenericMvc.dll": {}
         },
