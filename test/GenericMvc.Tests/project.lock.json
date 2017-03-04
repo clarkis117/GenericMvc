@@ -6706,6 +6706,9 @@
           "NETStandard.Library": "1.6.1",
           "xunit": "2.2.0"
         },
+        "frameworkAssemblies": [
+          "System.IO.Compression"
+        ],
         "compile": {
           "net46/GenericMvc.Test.Library.dll": {}
         },
@@ -13864,7 +13867,9 @@
     ".NETCoreApp,Version=v1.1": [
       "Microsoft.NETCore.App >= 1.1.0"
     ],
-    ".NETFramework,Version=v4.6": []
+    ".NETFramework,Version=v4.6": [
+      "System.IO.Compression >= 4.*"
+    ]
   },
   "tools": {},
   "projectFileToolGroups": {}

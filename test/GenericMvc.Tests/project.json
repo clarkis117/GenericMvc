@@ -27,6 +27,10 @@
         }
       }
     },
-	"net4.6": {}
+    "net4.6": {
+      "frameworkAssemblies": {
+        "System.IO.Compression": "4.*"
+      }
+    }
   }
 }

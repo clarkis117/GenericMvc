@@ -58,7 +58,7 @@
     },
     "net4.6": {
       "frameworkAssemblies": {
-		"System.IO.Compression": "*"
+		"System.IO.Compression": "4.*"
       }
     }
   }

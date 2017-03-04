@@ -33,32 +33,32 @@
   },
 
   "frameworks": {
-	"netcoreapp1.1": {
-	}
-  },
+    "netcoreapp1.1": {
+    }
+   },
 
-  "buildOptions": {
-	"emitEntryPoint": true,
-	"preserveCompilationContext": true
-  },
+    "buildOptions": {
+      "emitEntryPoint": true,
+      "preserveCompilationContext": true
+    },
 
-  "runtimeOptions": {
-	"configProperties": {
-	  "System.GC.Server": true
-	}
-  },
+    "runtimeOptions": {
+      "configProperties": {
+        "System.GC.Server": true
+      }
+    },
 
-  "publishOptions": {
-	"include": [
-	  "wwwroot",
-	  "**/*.cshtml",
-	  "appsettings.json",
-	  "web.config"
-	]
-  },
+    "publishOptions": {
+      "include": [
+        "wwwroot",
+        "**/*.cshtml",
+        "appsettings.json",
+        "web.config"
+      ]
+    },
 
-  "scripts": {
-	"prepublish": [ "bower install", "dotnet bundle" ],
-	"postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
+    "scripts": {
+      "prepublish": [ "bower install", "dotnet bundle" ],
+      "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
+    }
   }
-}
