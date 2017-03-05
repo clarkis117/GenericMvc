@@ -1698,6 +1698,18 @@
           "lib/net45/_._": {}
         }
       },
+      "System.Reflection.TypeExtensions/4.3.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "mscorlib"
+        ],
+        "compile": {
+          "ref/net46/System.Reflection.TypeExtensions.dll": {}
+        },
+        "runtime": {
+          "lib/net46/System.Reflection.TypeExtensions.dll": {}
+        }
+      },
       "System.Resources.ResourceManager/4.3.0": {
         "type": "package",
         "compile": {
@@ -2067,6 +2079,25 @@
         },
         "runtime": {
           "lib/net46/System.Xml.XPath.XDocument.dll": {}
+        }
+      },
+      "GenericMvc.Data/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.6",
+        "dependencies": {
+          "AutoMapper": "5.2.0",
+          "Microsoft.AspNetCore.Mvc": "1.1.0",
+          "Microsoft.EntityFrameworkCore": "1.1.0",
+          "Mime-Detective": "0.0.2",
+          "NETStandard.Library": "1.6.1",
+          "System.Reactive.Linq": "3.1.1",
+          "System.Reflection.TypeExtensions": "4.3.0"
+        },
+        "compile": {
+          "net46/GenericMvc.Data.dll": {}
+        },
+        "runtime": {
+          "net46/GenericMvc.Data.dll": {}
         }
       }
     },
@@ -5262,6 +5293,25 @@
         },
         "runtime": {
           "lib/netstandard1.3/System.Xml.XPath.XDocument.dll": {}
+        }
+      },
+      "GenericMvc.Data/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "AutoMapper": "5.2.0",
+          "Microsoft.AspNetCore.Mvc": "1.1.0",
+          "Microsoft.EntityFrameworkCore": "1.1.0",
+          "Mime-Detective": "0.0.2",
+          "NETStandard.Library": "1.6.1",
+          "System.Reactive.Linq": "3.1.1",
+          "System.Reflection.TypeExtensions": "4.3.0"
+        },
+        "compile": {
+          "netstandard1.6/GenericMvc.Data.dll": {}
+        },
+        "runtime": {
+          "netstandard1.6/GenericMvc.Data.dll": {}
         }
       }
     }
@@ -11152,11 +11202,16 @@
         "ref/xamarintvos10/_._",
         "ref/xamarinwatchos10/_._"
       ]
+    },
+    "GenericMvc.Data/1.0.0": {
+      "type": "project",
+      "path": "../GenericMvc.Data/project.json",
+      "msbuildProject": "../GenericMvc.Data/GenericMvc.Data.xproj"
     }
   },
   "projectFileDependencyGroups": {
     "": [
-      "AutoMapper >= 5.2.0",
+      "GenericMvc.Data >= 1.0.0",
       "Microsoft.AspNetCore.Authorization >= 1.1.0",
       "Microsoft.AspNetCore.Identity >= 1.1.0",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 1.1.0",
@@ -11171,7 +11226,6 @@
       "Microsoft.Extensions.Logging.Abstractions >= 1.1.0",
       "Microsoft.Extensions.Logging.Console >= 1.1.0",
       "Microsoft.Extensions.Logging.Debug >= 1.1.0",
-      "Mime-Detective >= 0.0.2",
       "NETStandard.Library >= 1.6.1",
       "System.Reactive >= 3.1.1"
     ],

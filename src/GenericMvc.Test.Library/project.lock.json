@@ -1803,6 +1803,18 @@
           "lib/net45/_._": {}
         }
       },
+      "System.Reflection.TypeExtensions/4.3.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "mscorlib"
+        ],
+        "compile": {
+          "ref/net46/System.Reflection.TypeExtensions.dll": {}
+        },
+        "runtime": {
+          "lib/net46/System.Reflection.TypeExtensions.dll": {}
+        }
+      },
       "System.Resources.ResourceManager/4.3.0": {
         "type": "package",
         "compile": {
@@ -2230,11 +2242,11 @@
           "lib/net452/xunit.execution.desktop.dll": {}
         }
       },
-      "GenericMvc/1.0.2": {
+      "GenericMvc/1.0.3": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
-          "AutoMapper": "5.2.0",
+          "GenericMvc.Data": "1.0.0",
           "Microsoft.AspNetCore.Authorization": "1.1.0",
           "Microsoft.AspNetCore.Identity": "1.1.0",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.1.0",
@@ -2249,7 +2261,6 @@
           "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
           "Microsoft.Extensions.Logging.Console": "1.1.0",
           "Microsoft.Extensions.Logging.Debug": "1.1.0",
-          "Mime-Detective": "0.0.2",
           "NETStandard.Library": "1.6.1",
           "System.Reactive": "3.1.1"
         },
@@ -2261,6 +2272,25 @@
         },
         "runtime": {
           "net46/GenericMvc.dll": {}
+        }
+      },
+      "GenericMvc.Data/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.6",
+        "dependencies": {
+          "AutoMapper": "5.2.0",
+          "Microsoft.AspNetCore.Mvc": "1.1.0",
+          "Microsoft.EntityFrameworkCore": "1.1.0",
+          "Mime-Detective": "0.0.2",
+          "NETStandard.Library": "1.6.1",
+          "System.Reactive.Linq": "3.1.1",
+          "System.Reflection.TypeExtensions": "4.3.0"
+        },
+        "compile": {
+          "net46/GenericMvc.Data.dll": {}
+        },
+        "runtime": {
+          "net46/GenericMvc.Data.dll": {}
         }
       }
     },
@@ -5793,11 +5823,11 @@
           "lib/netstandard1.1/xunit.execution.dotnet.dll": {}
         }
       },
-      "GenericMvc/1.0.2": {
+      "GenericMvc/1.0.3": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "AutoMapper": "5.2.0",
+          "GenericMvc.Data": "1.0.0",
           "Microsoft.AspNetCore.Authorization": "1.1.0",
           "Microsoft.AspNetCore.Identity": "1.1.0",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.1.0",
@@ -5812,7 +5842,6 @@
           "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
           "Microsoft.Extensions.Logging.Console": "1.1.0",
           "Microsoft.Extensions.Logging.Debug": "1.1.0",
-          "Mime-Detective": "0.0.2",
           "NETStandard.Library": "1.6.1",
           "System.Reactive": "3.1.1"
         },
@@ -5821,6 +5850,25 @@
         },
         "runtime": {
           "netstandard1.6/GenericMvc.dll": {}
+        }
+      },
+      "GenericMvc.Data/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "AutoMapper": "5.2.0",
+          "Microsoft.AspNetCore.Mvc": "1.1.0",
+          "Microsoft.EntityFrameworkCore": "1.1.0",
+          "Mime-Detective": "0.0.2",
+          "NETStandard.Library": "1.6.1",
+          "System.Reactive.Linq": "3.1.1",
+          "System.Reflection.TypeExtensions": "4.3.0"
+        },
+        "compile": {
+          "netstandard1.6/GenericMvc.Data.dll": {}
+        },
+        "runtime": {
+          "netstandard1.6/GenericMvc.Data.dll": {}
         }
       }
     }
@@ -6993,6 +7041,7 @@
     "Newtonsoft.Json/9.0.1": {
       "sha512": "U82mHQSKaIk+lpSVCbWYKNavmNH1i5xrExDEquU1i6I5pV6UMOqRnJRSlKO3cMPfcpp0RgDY+8jUXHdQ4IfXvw==",
       "type": "package",
+      "path": "Newtonsoft.Json/9.0.1",
       "files": [
         "Newtonsoft.Json.9.0.1.nupkg.sha512",
         "Newtonsoft.Json.nuspec",
@@ -7016,6 +7065,7 @@
     "Remotion.Linq/2.1.1": {
       "sha512": "IJn0BqkvwEDpP+2qjvci7n4/a9f7DhKESLWb2/uG4xQh3rTkGTBUz69bI4IivCoKkTFAqjXxYDZw2K/npohjsw==",
       "type": "package",
+      "path": "Remotion.Linq/2.1.1",
       "files": [
         "Remotion.Linq.2.1.1.nupkg.sha512",
         "Remotion.Linq.nuspec",
@@ -8603,6 +8653,7 @@
     "System.Interactive.Async/3.0.0": {
       "sha512": "UEM+WmG1Oq0bNbPx/E1jaIQ83QOrPfVDUyuYBtG6D6DpB77ytv9flPterMujumpHuoRjSc0ilSB8w41fQc05dw==",
       "type": "package",
+      "path": "System.Interactive.Async/3.0.0",
       "files": [
         "System.Interactive.Async.3.0.0.nupkg.sha512",
         "System.Interactive.Async.nuspec",
@@ -12193,16 +12244,22 @@
         "xunit.extensibility.execution.nuspec"
       ]
     },
-    "GenericMvc/1.0.2": {
+    "GenericMvc/1.0.3": {
       "type": "project",
       "path": "../GenericMvc/project.json",
       "msbuildProject": "../GenericMvc/GenericMvc.xproj"
+    },
+    "GenericMvc.Data/1.0.0": {
+      "type": "project",
+      "path": "../GenericMvc.Data/project.json",
+      "msbuildProject": "../GenericMvc.Data/GenericMvc.Data.xproj"
     }
   },
   "projectFileDependencyGroups": {
     "": [
       "GenFu >= 1.2.1",
-      "GenericMvc",
+      "GenericMvc >= 1.0.3",
+      "GenericMvc.Data >= 1.0.0",
       "Microsoft.AspNetCore.TestHost >= 1.1.0",
       "Microsoft.EntityFrameworkCore.InMemory >= 1.1.0",
       "Microsoft.EntityFrameworkCore.SqlServer >= 1.1.0",
