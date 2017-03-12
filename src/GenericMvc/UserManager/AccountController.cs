@@ -1,5 +1,6 @@
 ﻿using GenericMvc.Attributes;
 using GenericMvc.Models;
+using GenericMvc.Models.ViewModels;
 using GenericMvc.Repositories;
 using GenericMvc.Services;
 using GenericMvc.ViewModels.Basic;
@@ -16,6 +17,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
+//todo change login view model in this case to privildge login view model, to elminate confusion
+	//in other words create a new model
 //Todo: add in account confirmation phase for added pending users
 //todo: add generic mvc views modeling to it for bootstrap material design
 namespace GenericMvc.UserManager
@@ -70,7 +73,7 @@ namespace GenericMvc.UserManager
 		//todo check for system owner... and default password post
 		// POST: /Account/Login
 		[HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
-		public async Task<IActionResult> Login(PriviledgedLoginViewModel model, string returnUrl = null)
+		public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
 		{
 			//early out for bad requests
 			if (model == null || !ModelState.IsValid)
@@ -86,7 +89,7 @@ namespace GenericMvc.UserManager
 
 			// This doesn't count login failures towards account lockout
 			// To enable password failures to trigger account lockout, set lockoutOnFailure: true
-			var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+			var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.IsPersistent, lockoutOnFailure: false);
 
 			if (result.Succeeded)
 			{
@@ -101,7 +104,7 @@ namespace GenericMvc.UserManager
 			}
 			else if (result.RequiresTwoFactor)
 			{
-				return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+				return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.IsPersistent });
 			}
 			else if (result.IsLockedOut)
 			{
@@ -113,7 +116,7 @@ namespace GenericMvc.UserManager
 					&& result.RequiresTwoFactor == false)
 			{
 				//Check for pending user here, query by email address for pending user
-				var pendingUser = await _pendingUserRepository.Get(x => x.Email == model.Email);
+				var pendingUser = await _pendingUserRepository.Get(x => x.Email == model.UserName);
 
 				//check for result and correctness of result
 				if (pendingUser != null)
@@ -159,9 +162,9 @@ namespace GenericMvc.UserManager
 		#region System Owner Actions
 
 		[NonAction]
-		private async Task<bool> DefaultSystemOwnerFilter(PriviledgedLoginViewModel model)
+		private async Task<bool> DefaultSystemOwnerFilter(LoginViewModel model)
 		{
-			var user = await _userManager.FindByEmailAsync(model.Email);
+			var user = await _userManager.FindByEmailAsync(model.UserName);
 			//var user = await GetCurrentUserAsync();
 
 			if (await _userManager.IsInRoleAsync(user, RoleHelper.SystemOwner))

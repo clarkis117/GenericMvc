@@ -1,4 +1,4 @@
-﻿using GenericMvc.Client;
+﻿using GenericMvc.Clients;
 using GenericMvc.Models;
 using GenericMvc.Test.Lib.Fixtures;
 using Microsoft.Extensions.Logging;

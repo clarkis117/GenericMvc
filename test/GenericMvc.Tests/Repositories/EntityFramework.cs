@@ -13,7 +13,7 @@ using GenFu;
 
 namespace GenericMvc.Tests.Repositories
 {
-	public class EntityFramework : IRepositoryTests<Blog, int, BlogRepo, BlogDbContext, DataBaseFixture<BlogDbContext>>
+	public class EntityFramework : EntityRepository<Blog, int, BlogRepo, BlogDbContext, DataBaseFixture<BlogDbContext>>
 	{
 		public EntityFramework() : base()
 		{
@@ -31,7 +31,6 @@ namespace GenericMvc.Tests.Repositories
 				OwnerId = entity.OwnerId,
 				Posts = entity.Posts
 			};
-			//throw new NotImplementedException();
 		}
 
 		protected override Blog CreateObjectGraph(int n)
@@ -119,29 +118,27 @@ namespace GenericMvc.Tests.Repositories
 			return collection;
 		}
 
-		//[Fact]
+
 		public override Task GetManyWithData()
 		{
 			return Task.FromResult<object>(null);
-			//throw new NotImplementedException();
 		}
 
 		public override Task GetWithData()
 		{
 			return Task.FromResult<object>(null);
-			//throw new NotImplementedException();
 		}
+
 
 		protected override Expression<Func<Blog, bool>> GetManyQuery()
 		{
 			return null;
-			///throw new NotImplementedException();
 		}
+
 
 		protected override Expression<Func<Blog, bool>> GetQuery()
 		{
 			return null;
-			//throw new NotImplementedException();
 		}
 	}
 }

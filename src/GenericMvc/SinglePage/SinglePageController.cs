@@ -9,10 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using GenericMvc.Controllers;
 using GenericMvc.ViewModels.SinglePageApp;
+using GenericMvc.Data.Controllers;
 
-namespace GenericMvc.Controllers
+namespace GenericMvc.SinglePage
 {
-	public abstract class SinglePageController<T, TKey> : BaseGraphController<T, TKey>, ISinglePageController<T, TKey>
+	public abstract class SinglePageController<T, TKey> : GraphApi<T, TKey>, ISinglePageController<T, TKey>
 		where T : class, IModel<TKey>
 		where TKey : IEquatable<TKey>
 	{

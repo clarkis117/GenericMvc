@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<VersionPrefix>1.0.1</VersionPrefix>
+	<TargetFrameworks>netstandard1.6</TargetFrameworks>
+	<PreserveCompilationContext>true</PreserveCompilationContext>
+	<AssemblyName>GenericMvc.Test.Lib</AssemblyName>
+	<PackageId>GenericMvc.Test.Library</PackageId>
+	<NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+	<PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);portable-net451+win8</PackageTargetFallback>
+	<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+	<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+	<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+	<RootNamespace>GenericMvc.Test.Lib</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="..\..\GenericMvc.Clients\GenericMvc.Clients.csproj" />
+	<ProjectReference Include="..\..\GenericMvc.Files\GenericMvc.Files.csproj" />
+	<ProjectReference Include="..\..\GenericMvc.Models\GenericMvc.Models.csproj" />
+	<ProjectReference Include="..\GenericMvc\GenericMvc.csproj" />
+	<ProjectReference Include="..\GenericMvc.Data\GenericMvc.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<PackageReference Include="xunit" Version="2.2.0-beta5-build3474" />
+	<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="1.1.1" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="1.1.1" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="1.1.1" />
+	<PackageReference Include="GenFu" Version="1.2.1" />
+  </ItemGroup>
+</Project>

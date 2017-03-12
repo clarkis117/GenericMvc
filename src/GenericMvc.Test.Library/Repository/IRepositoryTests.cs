@@ -13,7 +13,7 @@ using GenericMvc.Models;
 
 namespace GenericMvc.Test.Lib.Repository
 {
-	public abstract class IRepositoryTests<TEntity, TKey, TRepository, TContext, TFixture> ///:Lib.EntityFrameworkRepository
+	public abstract class IRepositoryTests<TEntity, TKey, TRepository, TContext, TFixture>
 		where TRepository : IRepository<TEntity>
 		where TEntity : IModel<TKey>, new()
 		where TContext : DbContext
@@ -22,7 +22,7 @@ namespace GenericMvc.Test.Lib.Repository
 	{
 		private static readonly int[] _ranges = new int[] { 1, 2, 5, 10, 25, 50 };
 
-		private TFixture Fixture;
+		private TFixture _fixture;
 
 		//protected List<TEntity> DataToCleanUp;
 
@@ -35,25 +35,9 @@ namespace GenericMvc.Test.Lib.Repository
 
 		public IRepositoryTests()
 		{
-			var fixture = new TFixture();
+			_fixture = new TFixture() ?? throw new NullReferenceException($"{nameof(TFixture)}:{typeof(TFixture)}");
 
-			if (fixture != null)
-			{
-				Fixture = fixture;
-
-				Repo = NewRepo(fixture.DbContext);
-
-				//_DataToCleanUp = new List<TEntity>();
-
-				//create a test Item
-				var entityOne = A.New<TEntity>();
-
-				//(entityOne as Object).MemberwiseClone()
-			}
-			else
-			{
-				throw new ArgumentNullException(nameof(fixture));
-			}
+			Repo = NewRepo(_fixture.DbContext);
 		}
 
 		/// <summary>
@@ -103,9 +87,6 @@ namespace GenericMvc.Test.Lib.Repository
 				var exists = await Repo.Any(x => item.Id.Equals(x.Id));
 
 				Assert.True(exists);
-
-				//todo query instead
-				//Assert.Same(item, exists);
 			}
 		}
 
@@ -215,8 +196,6 @@ namespace GenericMvc.Test.Lib.Repository
 				var deleteResult = await Repo.DeleteRange(createdRangeX);
 
 				Assert.True(deleteResult);
-
-				//_DataToCleanUp.AddRange(createdRangeX);
 			}
 		}
 
@@ -333,33 +312,9 @@ namespace GenericMvc.Test.Lib.Repository
 			return Task.FromResult<object>(null);
 		}
 
-		/* to do place in decendant class
-		[Fact]
-		public void GetDataContext()
-		{
-			var context = Repo.DataContext;
 
-			Assert.NotNull(context);
-		}
 
-		[Fact]
-		public void ContextSet()
-		{
-			var contextSet = Repo.ContextSet;
 
-			Assert.NotNull(contextSet);
-		}
-
-		[Fact]
-		public void GetEntityTypes()
-		{
-			var types = Repo.DataContext.Model.GetEntityTypes();
-
-			Assert.NotNull(types);
-
-			Assert.NotEmpty(types);
-		}
-		*/
 
 		//[Fact]
 		public Task<bool> DeleteChild(object child)
