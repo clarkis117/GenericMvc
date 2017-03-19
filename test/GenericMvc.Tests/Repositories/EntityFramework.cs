@@ -140,5 +140,10 @@ namespace GenericMvc.Tests.Repositories
 		{
 			return null;
 		}
+
+		public override Task GetMany()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

@@ -243,12 +243,8 @@ namespace GenericMvc.Test.Lib.Repository
 			//_DataToCleanUp.AddRange(data);
 		}
 
-		//[Fact]
-		public virtual Task GetMany()
-		{
-			return Task.FromResult<object>(null);
-			//throw new NotImplementedException();
-		}
+		[Fact]
+		public abstract Task GetMany();
 
 		[Fact]
 		public abstract Task GetManyWithData();
@@ -268,17 +264,16 @@ namespace GenericMvc.Test.Lib.Repository
 			{
 				var mutated = Mutator(item);
 
-				//todo fix object tracking
-				//var updated = await Repo.Update(mutated);
+				var updated = await Repo.Update(mutated);
 
-				//Assert.NotNull(updated);
+				Assert.NotNull(updated);
 
-				//Assert.NotSame(mutated, updated);
+				Assert.NotSame(mutated, updated);
 
-				//updatedList.Add(updated);
+				updatedList.Add(updated);
 			}
 
-			//Assert.True(data.Count() == updatedList.Count());
+			Assert.True(data.Count() == updatedList.Count());
 
 			//_DataToCleanUp.AddRange(updatedList);
 		}

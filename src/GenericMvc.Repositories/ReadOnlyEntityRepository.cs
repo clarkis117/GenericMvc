@@ -5,8 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -39,11 +37,11 @@ namespace GenericMvc.Repositories
 
 		protected static readonly Type typeofT = typeof(T);
 
-		public Type TypeOfEntity { get { return typeofT; } }
+		public Type TypeOfEntity => typeofT;
 
 		private static readonly ParameterExpression expressionOfT = Expression.Parameter(typeofT);
 
-		public ParameterExpression EntityExpression { get { return expressionOfT; } }
+		public ParameterExpression EntityExpression => expressionOfT;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="EntityRepository{T}"/> class.
@@ -55,21 +53,13 @@ namespace GenericMvc.Repositories
 		{
 			try
 			{
-				if (dbContext == null)
-					throw new ArgumentNullException(nameof(dbContext));
+				DataContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 
 				if (modelEntityTypes == null)
 					modelEntityTypes = dbContext.Model.GetEntityTypes();
 
-				//check for entity based on one in graph controller
 				if (hasGenericTypeBeenChecked || IsTypePresentInDataContext(typeofT, EntityTypes))
 				{
-					//set data base context
-					this.DataContext = dbContext;
-
-					//set the working set
-					this.ContextSet = this.DataContext.Set<T>();
-
 					if (!hasGenericTypeBeenChecked)
 						hasGenericTypeBeenChecked = true;
 				}
@@ -77,6 +67,8 @@ namespace GenericMvc.Repositories
 				{
 					throw new ArgumentException(this.GetType().ToString() + ": Not Member of Current DbContext.");
 				}
+
+				ContextSet = DataContext.Set<T>();
 			}
 			catch (Exception ex)
 			{
@@ -148,22 +140,30 @@ namespace GenericMvc.Repositories
 			return isPresent;
 		}
 
+		protected static CancellationToken NewCancelTokenThrows
+		{
+			get
+			{
+				var token = new CancellationToken();
+
+				token.ThrowIfCancellationRequested();
+
+				return token;
+			}
+		}
+
 		/// <summary>
 		/// Checks for the existence using the specified predicate.
 		/// </summary>
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception"></exception>
-		public Task<bool> Any(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public Task<bool> Any(Expression<Func<T, bool>> predicate)
 		{
 			if (predicate == null)
 				throw new ArgumentNullException(nameof(predicate));
 
-			var token = new CancellationToken();
-
-			token.ThrowIfCancellationRequested();
-
-			return this.ContextSet.AsNoTracking().AnyAsync(predicate, token);
+			return ContextSet.AsNoTracking().AnyAsync(predicate, NewCancelTokenThrows);
 		}
 
 		/// <summary>
@@ -172,51 +172,28 @@ namespace GenericMvc.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception"></exception>
-		public bool AnySync(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public bool AnySync(Expression<Func<T, bool>> predicate)
 		{
 			if (predicate == null)
 				throw new ArgumentNullException(nameof(predicate));
 
-			return this.ContextSet.AsNoTracking().Any(predicate);
+			return ContextSet.AsNoTracking().Any(predicate);
 		}
 
-		public Task<long> Count()
-		{
-			var token = new CancellationToken();
+		public Task<long> Count() => ContextSet.AsNoTracking().LongCountAsync(NewCancelTokenThrows);
 
-			token.ThrowIfCancellationRequested();
+		public IEnumerator<T> GetEnumerator() => ContextSet.AsEnumerable().GetEnumerator();
 
-			return ContextSet.AsNoTracking().LongCountAsync(token);
-		}
-
-		public IEnumerator<T> GetEnumerator()
-		{
-			return ContextSet.AsEnumerable().GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return ContextSet.AsEnumerable().GetEnumerator();
-		}
+		IEnumerator IEnumerable.GetEnumerator() => ContextSet.AsEnumerable().GetEnumerator();
 
 		/// <summary>
 		/// Gets all the entities from the table.
 		/// </summary>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Get All Failed:  + typeof(T).ToString()</exception>
-		public virtual async Task<IEnumerable<T>> GetAll()
-		{
-			CancellationToken token = new CancellationToken();
+		public virtual async Task<IEnumerable<T>> GetAll() => (await ContextSet.AsNoTracking().ToListAsync(NewCancelTokenThrows));
 
-			token.ThrowIfCancellationRequested();
-
-			return await ContextSet.AsNoTracking().ToListAsync(token);
-		}
-
-		protected virtual IQueryable<T> GetIncludeQuery()
-		{
-			return this.ContextSet;
-		}
+		protected virtual IQueryable<T> GetIncludeQuery() => ContextSet;
 
 		/// <summary>
 		/// Gets the specified entity using the predicate.
@@ -224,17 +201,12 @@ namespace GenericMvc.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Get Failed:  + typeof(T).ToString()</exception>
-		public virtual Task<T> Get(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public virtual Task<T> Get(Expression<Func<T, bool>> predicate)
 		{
 			if (predicate == null)
 				throw new ArgumentNullException(nameof(predicate));
 
-			System.Threading.CancellationToken token = new System.Threading.CancellationToken();
-
-			//Throw if query is Canceled
-			token.ThrowIfCancellationRequested();
-
-			return ContextSet.AsNoTracking().FirstOrDefaultAsync<T>(predicate, token);
+			return ContextSet.AsNoTracking().FirstOrDefaultAsync<T>(predicate, NewCancelTokenThrows);
 		}
 
 		/// <summary>
@@ -243,24 +215,15 @@ namespace GenericMvc.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Get Failed:  + typeof(T).ToString()</exception>
-		public virtual Task<T> Get(System.Linq.Expressions.Expression<Func<T, bool>> predicate, bool WithNestedData = false)
+		public virtual Task<T> Get(Expression<Func<T, bool>> predicate, bool WithNestedData = false)
 		{
 			if (predicate == null)
 				throw new ArgumentNullException(nameof(predicate));
 
 			if (WithNestedData)
-			{
-				System.Threading.CancellationToken token = new System.Threading.CancellationToken();
+				return GetIncludeQuery().AsNoTracking().FirstOrDefaultAsync(predicate, NewCancelTokenThrows);
 
-				//Throw if query is Canceled
-				token.ThrowIfCancellationRequested();
-
-				return GetIncludeQuery().AsNoTracking().FirstOrDefaultAsync(predicate, token);
-			}
-			else
-			{
-				return Get(predicate);
-			}
+			return Get(predicate);
 		}
 
 		//todo: also give this a boolean argument for using get or getcomplete
@@ -270,16 +233,12 @@ namespace GenericMvc.Repositories
 		/// <param name="predicate">The predicate.</param>
 		/// <returns></returns>
 		/// <exception cref="System.Exception">Get Multi Failed:  + typeof(T).ToString()</exception>
-		public async virtual Task<IList<T>> GetMany(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public async virtual Task<IList<T>> GetMany(Expression<Func<T, bool>> predicate)
 		{
 			if (predicate == null)
 				throw new ArgumentNullException(nameof(predicate));
 
-			CancellationToken token = new CancellationToken();
-
-			token.ThrowIfCancellationRequested();
-
-			return (await ContextSet.AsNoTracking().Where(predicate).ToListAsync(token)) as IList<T>;
+			return (await ContextSet.AsNoTracking().Where(predicate).ToListAsync(NewCancelTokenThrows));
 		}
 
 		public virtual Task<IList<T>> GetMany(Expression<Func<T, bool>> predicate, bool WithNestedData = false)
@@ -288,13 +247,9 @@ namespace GenericMvc.Repositories
 				throw new ArgumentNullException(nameof(predicate));
 
 			if (WithNestedData)
-			{
 				return GetIncludeQuery().AsNoTracking().Where(predicate).ToListAsync() as Task<IList<T>>;
-			}
-			else
-			{
-				return GetMany(predicate);
-			}
+
+			return GetMany(predicate);
 		}
 
 		private bool _disposed = false;
@@ -308,17 +263,12 @@ namespace GenericMvc.Repositories
 		{
 			try
 			{
-				if (!this._disposed)
+				if (disposing && !_disposed)
 				{
-					if (disposing)
-					{
-						this.DataContext.Dispose();
-					}
+					DataContext.Dispose();
+
+					_disposed = true;
 				}
-
-				//this.ContextSet = null;
-
-				this._disposed = true;
 			}
 			catch (Exception ex)
 			{
@@ -331,8 +281,7 @@ namespace GenericMvc.Repositories
 		/// </summary>
 		public void Dispose()
 		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
+			Dispose(true);
 		}
 	}
 }

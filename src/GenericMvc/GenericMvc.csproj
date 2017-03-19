@@ -1,54 +1,54 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>GenericMvc is group of classes for speeding Asp.Net Core development</Description>
-    <AssemblyTitle>GenericMvc</AssemblyTitle>
-    <Authors>Joshua Clark</Authors>
-    <TargetFrameworks>netstandard1.6</TargetFrameworks>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>GenericMvc</AssemblyName>
-    <PackageId>GenericMvc</PackageId>
-    <PackageTags>mvc;ef;generic;utilities</PackageTags>
-    <PackageProjectUrl>https://github.com/clarkis117/GenericMvc</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/clarkis117/GenericMvc/blob/master/License.txt</PackageLicenseUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/clarkis117/GenericMvc.git</RepositoryUrl>
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);portable-net451+win8</PackageTargetFallback>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <Version>1.0.4</Version>
+	<Description>GenericMvc is group of classes for speeding Asp.Net Core development</Description>
+	<AssemblyTitle>GenericMvc</AssemblyTitle>
+	<Authors>Joshua Clark</Authors>
+	<TargetFrameworks>netstandard1.6</TargetFrameworks>
+	<PreserveCompilationContext>true</PreserveCompilationContext>
+	<AssemblyName>GenericMvc</AssemblyName>
+	<PackageId>GenericMvc</PackageId>
+	<PackageTags>mvc;ef;generic;utilities</PackageTags>
+	<PackageProjectUrl>https://github.com/clarkis117/GenericMvc</PackageProjectUrl>
+	<PackageLicenseUrl>https://github.com/clarkis117/GenericMvc/blob/master/License.txt</PackageLicenseUrl>
+	<RepositoryType>git</RepositoryType>
+	<RepositoryUrl>https://github.com/clarkis117/GenericMvc.git</RepositoryUrl>
+	<NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+	<PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);portable-net451+win8</PackageTargetFallback>
+	<GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+	<GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+	<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+	<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+	<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+	<GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+	<Version>1.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Views\**" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+	<EmbeddedResource Include="Views/Shared/BasicMvc/*.*" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GenericMvc.Api\GenericMvc.Api.csproj" />
-    <ProjectReference Include="..\GenericMvc.Auth\GenericMvc.Auth.csproj" />
-    <ProjectReference Include="..\GenericMvc.Models\GenericMvc.Models.csproj" />
-    <ProjectReference Include="..\GenericMvc.Repositories\GenericMvc.Repositories.csproj" />
+	<ProjectReference Include="..\GenericMvc.Api\GenericMvc.Api.csproj" />
+	<ProjectReference Include="..\GenericMvc.Auth\GenericMvc.Auth.csproj" />
+	<ProjectReference Include="..\GenericMvc.Models\GenericMvc.Models.csproj" />
+	<ProjectReference Include="..\GenericMvc.Repositories\GenericMvc.Repositories.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="1.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="1.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="1.1.2" />
+	<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="1.1.1" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.1" />
+	<PackageReference Include="Microsoft.AspNetCore.Identity" Version="1.1.1" />
+	<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="1.1.1" />
+	<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />
+	<PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="1.1.2" />
+	<PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.1" />
+	<PackageReference Include="Microsoft.AspNetCore.Razor" Version="1.1.1" />
+	<PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.1" />
+	<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.1" />
+	<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.1" />
+	<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.1.1" />
+	<PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="1.1.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="1.1.2" />
   </ItemGroup>
 </Project>

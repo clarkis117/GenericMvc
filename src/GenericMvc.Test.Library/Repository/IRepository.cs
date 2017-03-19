@@ -32,7 +32,7 @@ namespace GenericMvc.Test.Lib
 		Task DeleteRange();
 	}
 
-	public interface EntityFrameworkRepository
+	public interface IEntityFrameworkRepository
 	{
 		void GetDataContext();
 

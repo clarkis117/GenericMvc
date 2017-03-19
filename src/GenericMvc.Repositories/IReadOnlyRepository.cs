@@ -12,21 +12,21 @@ namespace GenericMvc.Repositories
 
 		ParameterExpression EntityExpression { get; }
 
-		Task<bool> Any(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
+		Task<bool> Any(Expression<Func<TEntity, bool>> predicate);
 
 		Task<long> Count();
 
 		//enumerable because entire store is not loaded
 		Task<IEnumerable<TEntity>> GetAll();
 
-		Task<TEntity> Get(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
+		Task<TEntity> Get(Expression<Func<TEntity, bool>> predicate);
 
-		Task<TEntity> Get(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate, bool WithNestedData = false);
-
-		//list because loaded into memory
-		Task<IList<TEntity>> GetMany(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate);
+		Task<TEntity> Get(Expression<Func<TEntity, bool>> predicate, bool WithNestedData = false);
 
 		//list because loaded into memory
-		Task<IList<TEntity>> GetMany(System.Linq.Expressions.Expression<Func<TEntity, bool>> predicate, bool WithNestedData = false);
+		Task<IList<TEntity>> GetMany(Expression<Func<TEntity, bool>> predicate);
+
+		//list because loaded into memory
+		Task<IList<TEntity>> GetMany(Expression<Func<TEntity, bool>> predicate, bool WithNestedData = false);
 	}
 }

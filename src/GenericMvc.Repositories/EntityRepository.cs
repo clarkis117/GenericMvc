@@ -37,7 +37,7 @@ namespace GenericMvc.Repositories
 
 			var addedEntity = ContextSet.Add(entity);
 
-			if (await this.DataContext.SaveChangesAsync() >= 0)
+			if (await DataContext.SaveChangesAsync() >= 0)
 			{
 				//return true;
 				return addedEntity.Entity;
@@ -62,7 +62,7 @@ namespace GenericMvc.Repositories
 
 			ContextSet.AddRange(entities);
 
-			if (await this.DataContext.SaveChangesAsync() >= 0)
+			if (await DataContext.SaveChangesAsync() >= 0)
 			{
 				return entities;
 			}
@@ -87,7 +87,7 @@ namespace GenericMvc.Repositories
 
 			var updatedEntity = ContextSet.Update(entity);
 
-			if (await this.DataContext.SaveChangesAsync() >= 0)
+			if (await DataContext.SaveChangesAsync() >= 0)
 			{
 				return updatedEntity.Entity;
 			}
@@ -105,7 +105,7 @@ namespace GenericMvc.Repositories
 
 			ContextSet.UpdateRange(entities);
 
-			if (await this.DataContext.SaveChangesAsync() >= 0)
+			if (await DataContext.SaveChangesAsync() >= 0)
 			{
 				return entities;
 			}
@@ -129,14 +129,7 @@ namespace GenericMvc.Repositories
 
 			ContextSet.Remove(entity);
 
-			if (await DataContext.SaveChangesAsync() >= 0)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return await DataContext.SaveChangesAsync() >= 0;
 		}
 
 		public virtual async Task<bool> DeleteRange(IEnumerable<T> entities)
@@ -146,14 +139,7 @@ namespace GenericMvc.Repositories
 
 			ContextSet.RemoveRange(entities);
 
-			if (await DataContext.SaveChangesAsync() >= 0)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return await DataContext.SaveChangesAsync() >= 0;
 		}
 
 		//Second make sure the type is present in the data-context
@@ -172,14 +158,7 @@ namespace GenericMvc.Repositories
 				{
 					DataContext.Remove(child);
 
-					if (await DataContext.SaveChangesAsync() >= 0)
-					{
-						return true;
-					}
-					else
-					{
-						return false;
-					}
+					return await DataContext.SaveChangesAsync() >= 0;
 				}
 				else
 				{
@@ -199,7 +178,7 @@ namespace GenericMvc.Repositories
 		/// <exception cref="System.Exception">Save Failed: +ex.Message</exception>
 		public Task<int> Save()
 		{
-			return this.DataContext.SaveChangesAsync();
+			return DataContext.SaveChangesAsync();
 		}
 	}
 }
