@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GenericMvc.Test.App.Repositories
 {
-	public class PersonRepository : BaseEntityRepository<Person>
+	public class PersonRepository : EntityRepository<Person>
 	{
 		public PersonRepository(PersonDbContext dbContext) : base(dbContext)
 		{

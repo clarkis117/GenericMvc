@@ -36,13 +36,13 @@ namespace GenericMvc.UserManager
 
 		protected readonly RoleManager<TRole> RoleManager;
 
-		protected readonly BaseEntityRepository<TUser> UserRepository;
+		protected readonly EntityRepository<TUser> UserRepository;
 
 		protected readonly ILogger<UserController<TUser, TRole, TKey>> Logger;
 
 		public UserController(UserManager<TUser> userManager,
 			RoleManager<TRole> roleManager,
-			BaseEntityRepository<TUser> userRepository,
+			EntityRepository<TUser> userRepository,
 			ILogger<UserController<TUser, TRole, TKey>> logger)
 		{
 			try

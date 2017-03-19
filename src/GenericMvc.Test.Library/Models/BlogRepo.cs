@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GenericMvc.Test.Lib.Models
 {
-    public class BlogRepo : BaseEntityRepository<Blog>
+    public class BlogRepo : EntityRepository<Blog>
     {
 		public BlogRepo(DbContext context) : base(context)
 		{

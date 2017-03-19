@@ -26,12 +26,12 @@ namespace GenericMvc.UserManager
 		where TPendingUser : PendingUser<TKey>
 		where TKey : IEquatable<TKey>
 	{
-		protected readonly BaseEntityRepository<TPendingUser> PendingUserRepository;
+		protected readonly EntityRepository<TPendingUser> PendingUserRepository;
 
 		protected readonly ILogger<PendingUserController<TPendingUser, TKey>> Logger;
 
 		public PendingUserController(
-			BaseEntityRepository<TPendingUser> pendingUserRepository,
+			EntityRepository<TPendingUser> pendingUserRepository,
 			ILogger<PendingUserController<TPendingUser, TKey>> logger)
 		{
 			try

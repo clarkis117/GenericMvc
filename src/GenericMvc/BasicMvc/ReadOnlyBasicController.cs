@@ -69,7 +69,7 @@ namespace GenericMvc.Controllers
 					var model = Repository.DataContext.Model.FindEntityType(typeOfT.FullName);
 
 					if (model == null)
-						throw new ArgumentException($"Generic parameter {typeOfT.FullName} is not a member of the DB Context used by {typeof(BaseEntityRepository<T>)}");
+						throw new ArgumentException($"Generic parameter {typeOfT.FullName} is not a member of the DB Context used by {typeof(EntityRepository<T>)}");
 
 					DataModel = model;
 				}

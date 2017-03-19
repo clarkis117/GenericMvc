@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GenericMvc.Repositories
 {
-	public class InjectableEntityRepo<T, TContext> : BaseEntityRepository<T>
+	public class InjectableEntityRepo<T, TContext> : EntityRepository<T>
 		where T : class
 		where TContext : DbContext
 	{
