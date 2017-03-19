@@ -6,6 +6,8 @@ using GenericMvc.Repositories;
 using GenericMvc.Models;
 using Xunit;
 using GenericMvc.Tests;
+using GenericMvc.Files.Models;
+using GenericMvc.Files.Repositories;
 
 namespace GenericMvcTests
 {

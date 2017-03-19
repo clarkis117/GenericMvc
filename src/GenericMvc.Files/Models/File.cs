@@ -1,9 +1,10 @@
-﻿using MimeDetective;
+﻿using GenericMvc.Models;
+using MimeDetective;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
-namespace GenericMvc.Models
+namespace GenericMvc.Files.Models
 {
 	/// <summary>
 	/// Byte Encodings for files

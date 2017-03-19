@@ -1,4 +1,4 @@
-﻿using GenericMvc.Data.Controllers;
+﻿using GenericMvc.Api;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;

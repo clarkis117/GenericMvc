@@ -5,8 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MimeDetective;
+using GenericMvc.Files.Models;
+using GenericMvc.Repositories;
 
-namespace GenericMvc.Repositories
+namespace GenericMvc.Files.Repositories
 {
 	public static class Utilities
 	{

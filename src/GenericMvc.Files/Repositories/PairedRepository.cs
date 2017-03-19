@@ -1,5 +1,4 @@
-﻿
-using GenericMvc.Models;
+﻿using GenericMvc.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,8 +7,10 @@ using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using GenericMvc.Files.Models;
+using GenericMvc.Repositories;
 
-namespace GenericMvc.Repositories
+namespace GenericMvc.Files.Repositories
 {
 	/// <summary>
 	/// This repository is meant for view models which are paired with files on disk

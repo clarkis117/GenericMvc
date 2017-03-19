@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using GenericMvc.Controllers;
 using GenericMvc.ViewModels.SinglePageApp;
-using GenericMvc.Data.Controllers;
+using GenericMvc.Api;
 
 namespace GenericMvc.SinglePage
 {

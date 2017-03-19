@@ -1,4 +1,6 @@
-﻿using GenericMvc.Models;
+﻿using GenericMvc.Files.Models;
+using GenericMvc.Models;
+using GenericMvc.Repositories;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +9,7 @@ using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
-namespace GenericMvc.Repositories
+namespace GenericMvc.Files.Repositories
 {
 	/// <summary>
 	/// currently does not allow modifications to folder structure

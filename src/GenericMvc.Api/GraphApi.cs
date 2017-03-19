@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GenericMvc.Data.Controllers
+namespace GenericMvc.Api
 {
 	public class GraphApi<T, TKey> : Api<T, TKey>, IGraphApi<T, TKey>
 		where T : class, IModel<TKey>

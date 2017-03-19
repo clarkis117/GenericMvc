@@ -29,9 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\GenericMvc.Auth\GenericMvc.Auth.csproj" />
-    <ProjectReference Include="..\..\GenericMvc.Models\GenericMvc.Models.csproj" />
-    <ProjectReference Include="..\GenericMvc.Data\GenericMvc.Data.csproj" />
+    <ProjectReference Include="..\GenericMvc.Api\GenericMvc.Api.csproj" />
+    <ProjectReference Include="..\GenericMvc.Auth\GenericMvc.Auth.csproj" />
+    <ProjectReference Include="..\GenericMvc.Models\GenericMvc.Models.csproj" />
+    <ProjectReference Include="..\GenericMvc.Repositories\GenericMvc.Repositories.csproj" />
   </ItemGroup>
 
   <ItemGroup>

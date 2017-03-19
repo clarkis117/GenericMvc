@@ -1,4 +1,5 @@
-﻿using GenericMvc.Models;
+﻿using GenericMvc.Files.Models;
+using GenericMvc.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using GenericMvc.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GenericMvc.Models
+namespace GenericMvc.Files.Models
 {
 	public interface IModelWithFile<TKey> : IModel<TKey>
 	where TKey : IEquatable<TKey>

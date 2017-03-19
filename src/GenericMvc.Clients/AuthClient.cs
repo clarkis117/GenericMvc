@@ -1,5 +1,4 @@
-﻿
-using GenericMvc.Models.ViewModels;
+﻿using GenericMvc.Models.ViewModels;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,23 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GenericMvc.Clients
 {
-	public class JsonContent : StringContent
-	{
-		public const string ContentType = "application/json";
-
-		public JsonContent(string content) : base(content)
-		{
-			this.Headers.ContentType = new MediaTypeHeaderValue(ContentType);
-		}
-	}
-
-
 	public interface IAuthClient
 	{
 		IEnumerable<string> Cookies { get; set; }
@@ -47,78 +34,46 @@ namespace GenericMvc.Clients
 		Task<bool> Logout();
 	}
 
-	public struct RouteInfo
-	{
-		public string Api;
-
-		public string ControllerName;
-
-		public string Login;
-
-		public string Register;
-
-		public string Logout;
-
-		public RouteInfo(string controllerName = "auth", string login = "login", string register = "register", string logout = "logout")
-		{
-			ControllerName = controllerName;
-
-			Login = login;
-
-			Register = register;
-
-			Logout = logout;
-
-			Api = "/api/";
-		}
-	}
-
 	/// <summary>
-	/// User Xamarin connectivity package to test connection status on creation
+	/// todo User Xamarin connectivity package to test connection status on creation
 	/// </summary>
-	/// <seealso cref="GenericMvcModels.Client.IAuthClient" />
-	/// <seealso cref="System.IDisposable" />
-	public class AuthClient : IAuthClient, IDisposable
+	/// <seealso cref="GenericMvc.Client.IAuthClient" />
+	public class AuthClient : IAuthClient
 	{
-		private readonly HttpClient _client;
-
-		public readonly string MimeType = "application/json";
-
-		private readonly JsonSerializer _serailizer;
-
-		private readonly RouteInfo _info;
+		private readonly HttpFixture _fixture;
 
 		private LoginViewModel _loginInfo;
 
 		private readonly bool _cacheLoginInfo;
 
+		public string Api { get; set; } = "api";
+
+		public string ControllerName { get; set; } = "auth";
+
+		public string LoginAction { get; set; } = "login";
+
+		public string RegisterAction { get; set; } = "register";
+
+		public string LogoutAction { get; set; } = "logout";
 
 		public IEnumerable<string> Cookies { get; set; }
 
 		public string AuthToken { get; set; }
 
-		public string RegisterRoute => _info.Api + _info.ControllerName + "/" + _info.Register;
+		public string RegisterRoute => $"/{Api}/{ControllerName}/{RegisterAction}";
 
-		public string LoginRoute => _info.Api + _info.ControllerName + "/" + _info.Login;
+		public string LoginRoute => $"/{Api}/{ControllerName}/{LoginAction}";
 
-		public string LogoutRoute => _info.Api + _info.ControllerName + "/" + _info.Logout;
+		public string LogoutRoute => $"/{Api}/{ControllerName}/{LogoutAction}";
 
-		public AuthClient(RouteInfo routeInfo, HttpClient client, bool cacheLoginInfo = true)
+		public AuthClient(HttpFixture fixture, bool cacheLoginInfo = true)
 		{
-			if (client != null)
-			{
-				_client = client;
+			if (fixture == null)
+				throw new ArgumentNullException(nameof(fixture));
 
-				_info = routeInfo;
+			_fixture = fixture;
 
-				_serailizer = JsonSerializer.Create();
-
-				this._client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			}
-			else
-			{
-				throw new ArgumentNullException(nameof(client));
-			}
+			_cacheLoginInfo = cacheLoginInfo;
 		}
 
 		//ToDo: investigate a better alternative to this
@@ -146,13 +101,14 @@ namespace GenericMvc.Clients
 		{
 			if (path != null && System.IO.File.Exists(path))
 			{
-				return Task.Run(() =>
+				return Task.Run(async () =>
 				{
 					LoginViewModel loginInfo;
 
 					using (var reader = new StreamReader(System.IO.File.OpenRead(path)))
 					{
-						loginInfo = (LoginViewModel)_serailizer.Deserialize(reader, typeof(LoginViewModel));
+						var info = await reader.ReadToEndAsync();
+						loginInfo = (LoginViewModel) JsonConvert.DeserializeObject(info, typeof(LoginViewModel));
 					}
 
 					return loginInfo;
@@ -182,13 +138,16 @@ namespace GenericMvc.Clients
 					login = _loginInfo;
 				}
 
-				return Task.Run(() =>
+				return Task.Run(async () =>
 				{
 					try
 					{
 						using (var textWriter = System.IO.File.CreateText(path))
 						{
-							_serailizer.Serialize(textWriter, login);
+							var info = JsonConvert.SerializeObject(login);
+
+							await textWriter.WriteAsync(info);
+							await textWriter.FlushAsync();
 						}
 
 						return true;
@@ -215,8 +174,8 @@ namespace GenericMvc.Clients
 				var cookieJar = new CookieContainer();
 
 				//Post Password and stuff to Rest Server, Response should contain the password token cookie
-				using (HttpResponseMessage response = await this._client.PostAsync(this.LoginRoute,
-													new JsonContent(JsonConvert.SerializeObject(model))))
+				using (HttpResponseMessage response = await _fixture.Client.PostAsync(LoginRoute,
+										new JsonContent(JsonConvert.SerializeObject(model))))
 				{
 					if (response.IsSuccessStatusCode)
 					{
@@ -253,8 +212,8 @@ namespace GenericMvc.Clients
 		{
 			if (registrationInfo != null)
 			{
-				using (HttpResponseMessage response = await this._client.PostAsync(this.RegisterRoute,
-													new JsonContent(JsonConvert.SerializeObject(registrationInfo))))
+				using (HttpResponseMessage response = await _fixture.Client.PostAsync(RegisterRoute,
+								new JsonContent(JsonConvert.SerializeObject(registrationInfo))))
 				{
 					if (response.IsSuccessStatusCode)
 					{
@@ -283,7 +242,7 @@ namespace GenericMvc.Clients
 		{
 			try
 			{
-				using (HttpResponseMessage response = await this._client.PostAsync(this.LogoutRoute,
+				using (HttpResponseMessage response = await _fixture.Client.PostAsync(this.LogoutRoute,
 					new JsonContent("Log me out")))
 				{
 					if (response.IsSuccessStatusCode)
@@ -301,43 +260,5 @@ namespace GenericMvc.Clients
 				return false;
 			}
 		}
-
-		#region IDisposable Support
-
-		private bool disposedValue = false; // To detect redundant calls
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposedValue)
-			{
-				if (disposing)
-				{
-					// TODO: dispose managed state (managed objects).
-					_client.Dispose();
-				}
-
-				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-				// TODO: set large fields to null.
-
-				disposedValue = true;
-			}
-		}
-
-		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-		// ~AuthClient() {
-		//   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-		//   Dispose(false);
-		// }
-
-		// This code added to correctly implement the disposable pattern.
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			Dispose(true);
-			// TODO: uncomment the following line if the finalizer is overridden above.
-			// GC.SuppressFinalize(this);
-		}
-
-		#endregion IDisposable Support
 	}
 }

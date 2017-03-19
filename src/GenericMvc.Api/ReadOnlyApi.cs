@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace GenericMvc.Data.Controllers
+namespace GenericMvc.Api
 {
 	public class ReadOnlyApi<T, TKey> : Controller, IReadOnlyApi<T, TKey>
 		where T : class, IModel<TKey>

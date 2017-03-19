@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GenericMvc.Data.Controllers
+namespace GenericMvc.Api
 {
 	public interface IReadOnlyApi<T, TKey>
 		where T : class

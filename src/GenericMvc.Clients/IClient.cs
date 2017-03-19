@@ -8,38 +8,17 @@ using System.Net.Http;
 
 namespace GenericMvc.Clients
 {
-	public interface IApiClient<T, TKey>
+	public interface IClient<T, TKey> : IReadOnlyClient<T, TKey>
 		where T : class
 		where TKey : IEquatable<TKey>
 	{
-		//Begin Routes
-		string Protocal { get; set; }
-
-		string HostName { get; set; }
-
-		string HostUrl { get; }
-
-		string ApiPath { get; }
-
-		string GetAllRoute { get; }
-
 		string CreateRoute { get; }
 
 		string CreatesRoute { get; }
 
-		string GetRoute { get; }
-
 		string UpdateRoute { get; }
 
 		string DeleteRoute { get; }
-		//End Routes
-
-		//Uility CRUD Methods
-		Task<HttpResponseMessage> SendRequest(string route, string concatCookies, HttpMethod method, HttpContent content);
-
-		Task<HttpResponseMessage> Get(TKey id, bool useAuth);
-
-		Task<HttpResponseMessage> GetAll(bool useAuth);
 
 		Task<HttpResponseMessage> Create(T item, bool useAuth);
 
@@ -54,11 +33,6 @@ namespace GenericMvc.Clients
 		Task<HttpResponseMessage> Update(bool useAuth, TKey id, HttpContent contentOverride);
 
 		Task<HttpResponseMessage> Delete(TKey id, bool useAuth);
-
-		//All these use auth
-		Task<T> Get(TKey id);
-
-		Task<IEnumerable<T>> GetAll();
 
 		Task<T> Create(T item);
 

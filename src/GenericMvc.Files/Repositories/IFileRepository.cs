@@ -1,4 +1,6 @@
-﻿using GenericMvc.Models;
+﻿using GenericMvc.Files.Models;
+using GenericMvc.Models;
+using GenericMvc.Repositories;
 using MimeDetective;
 using System;
 using System.Collections;
@@ -10,7 +12,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace GenericMvc.Repositories
+namespace GenericMvc.Files.Repositories
 {
 	/// <summary>
 	/// currently does not allow modifications to folder structure

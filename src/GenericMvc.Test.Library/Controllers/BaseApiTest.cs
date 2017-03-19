@@ -21,7 +21,9 @@ namespace GenericMvc.Test.Lib.Controllers
 	{
 		#region Fields
 
-		private readonly ApiClient<T, TKey> _client;
+		public Encoding EncodingType = Encoding.UTF8;
+
+		private readonly Client<T, TKey> _client;
 
 		protected const int NumberOfWhiteListedObjects = 2;
 
@@ -63,23 +65,23 @@ namespace GenericMvc.Test.Lib.Controllers
 			if (fixture != null)
 			{
 				//setup logger
-				this.Logger = fixture.LogFactory.CreateLogger(this.GetType().Name);
+				Logger = fixture.LogFactory.CreateLogger(GetType().Name);
 
 				//setup white list
 				WhiteListedTestDataIds = new List<TKey>();
 
 				//setup converters
-				this.Converters = converters;
+				Converters = converters;
 
 				//get the client
-				this._client = new ApiClient<T, TKey>(fixture.Client, fixture.AuthCookie, converters);
+				_client = new Client<T, TKey>(fixture.Client, fixture.AuthCookie, converters);
 
 				//setup serialized test data
-				this.SerializedTestData = this.GetTestData(this.TestDataPath).Result;
+				SerializedTestData = GetTestData(TestDataPath).Result;
 
 				//set deserialized test data, create at least two objects and record ids
 				//this.DeserializedTestData = (T)JsonConvert.DeserializeObject(this.SerializedTestData, typeof(T), this.Converters.ToArray());
-				using (var jsonReader = new JsonTextReader(new StringReader(this.SerializedTestData)))
+				using (var jsonReader = new JsonTextReader(new StringReader(SerializedTestData)))
 				{
 					var serial = JsonSerializer.Create(new JsonSerializerSettings()
 					{
@@ -87,7 +89,7 @@ namespace GenericMvc.Test.Lib.Controllers
 						TypeNameHandling = TypeNameHandling.Auto
 					});
 
-					this.DeserializedTestData = (T)serial.Deserialize(jsonReader, typeof(T));
+					DeserializedTestData = (T)serial.Deserialize(jsonReader, typeof(T));
 				}
 
 				//create white listed data
@@ -102,7 +104,7 @@ namespace GenericMvc.Test.Lib.Controllers
 							this.CreatedTestData = response;
 						}
 
-						this.WhiteListedTestDataIds.Add(response.Id);
+						WhiteListedTestDataIds.Add(response.Id);
 					}
 					else
 					{
@@ -168,7 +170,7 @@ namespace GenericMvc.Test.Lib.Controllers
 			{
 				var baddata = await this.GetTestData(this.BadDataPath);
 
-				var response = await this._client.Create(true, new StringContent(baddata, this._client.EncodingType, this._client.MimeType));
+				var response = await this._client.Create(true, new StringContent(baddata, EncodingType, _client.MimeType));
 
 				Assert.NotNull(response);
 
@@ -193,7 +195,7 @@ namespace GenericMvc.Test.Lib.Controllers
 
 				var baddata = Arrayify(baddatum, 2);
 
-				var response = await this._client.Create(true, new StringContent(baddata, this._client.EncodingType, this._client.MimeType));
+				var response = await this._client.Create(true, new StringContent(baddata, EncodingType, _client.MimeType));
 
 				Assert.NotNull(response);
 
@@ -220,7 +222,7 @@ namespace GenericMvc.Test.Lib.Controllers
 				{
 					foreach (var verb in excludedMethod)
 					{
-						var response = await this._client.SendRequest(_client.ApiPath+url, this._client.AuthCookie, verb, null);
+						var response = await this._client.SendRequest(_client.ApiPath + url, this._client.AuthCookie, verb, null);
 
 						Assert.NotNull(response);
 
@@ -307,7 +309,7 @@ namespace GenericMvc.Test.Lib.Controllers
 					foreach (var verb in excludedMethod)
 					{
 						var response = await this._client.SendRequest(_client.ApiPath + url, this._client.AuthCookie, verb,
-									new StringContent(baddatum, this._client.EncodingType, this._client.MimeType));
+									new StringContent(baddatum, EncodingType, _client.MimeType));
 
 						Assert.NotNull(response);
 
@@ -330,7 +332,7 @@ namespace GenericMvc.Test.Lib.Controllers
 		{
 			try
 			{
-				var content = new StringContent(this.SerializedTestData, this._client.EncodingType, this._client.MimeType);
+				var content = new StringContent(SerializedTestData, EncodingType, _client.MimeType);
 
 				var createResponse = await this._client.Create(true, content);
 
@@ -369,7 +371,7 @@ namespace GenericMvc.Test.Lib.Controllers
 		{
 			try
 			{
-				var content = new StringContent(this.SerializedTestData, this._client.EncodingType, this._client.MimeType);
+				var content = new StringContent(SerializedTestData, EncodingType, _client.MimeType);
 
 				var createResponse = await this._client.Create(true, content);
 
@@ -402,7 +404,7 @@ namespace GenericMvc.Test.Lib.Controllers
 
 				var mutatedData = await this.MutateData(created);
 
-				var mutatedContent = new StringContent(JsonConvert.SerializeObject(mutatedData), this._client.EncodingType, this._client.MimeType);
+				var mutatedContent = new JsonContent(mutatedData);
 
 				var response = await this._client.Update(true, mutatedData.Id, mutatedContent);
 
@@ -433,7 +435,7 @@ namespace GenericMvc.Test.Lib.Controllers
 		{
 			try
 			{
-				var response = await this._client.Create(true, new StringContent("", this._client.EncodingType, this._client.MimeType));
+				var response = await this._client.Create(true, new StringContent("", EncodingType, _client.MimeType));
 
 				Assert.NotNull(response);
 
@@ -454,7 +456,7 @@ namespace GenericMvc.Test.Lib.Controllers
 		{
 			try
 			{
-				var response = await this._client.Creates(true, new StringContent("", this._client.EncodingType, this._client.MimeType));
+				var response = await this._client.Creates(true, new StringContent("", EncodingType, _client.MimeType));
 
 				Assert.NotNull(response);
 
@@ -475,7 +477,7 @@ namespace GenericMvc.Test.Lib.Controllers
 		{
 			try
 			{
-				var response = await this._client.Update(true, this.WhiteListedTestDataIds.First(), new StringContent("", this._client.EncodingType, this._client.MimeType));
+				var response = await this._client.Update(true, this.WhiteListedTestDataIds.First(), new StringContent("", EncodingType, _client.MimeType));
 
 				Assert.NotNull(response);
 
@@ -558,7 +560,7 @@ namespace GenericMvc.Test.Lib.Controllers
 		{
 			try
 			{
-				var content = new StringContent(this.SerializedTestData, this._client.EncodingType, this._client.MimeType);
+				var content = new StringContent(this.SerializedTestData, EncodingType, _client.MimeType);
 
 				var response = await this._client.Create(true, content);
 
@@ -591,7 +593,7 @@ namespace GenericMvc.Test.Lib.Controllers
 		{
 			try
 			{
-				var content = new StringContent(Arrayify(this.SerializedTestData, 20), this._client.EncodingType, this._client.MimeType);
+				var content = new StringContent(Arrayify(this.SerializedTestData, 20), EncodingType, _client.MimeType);
 
 				var response = await this._client.Creates(true, content);
 
@@ -631,7 +633,7 @@ namespace GenericMvc.Test.Lib.Controllers
 			{
 				var mutatedData = await this.MutateData(this.CreatedTestData);
 
-				var content = new StringContent(JsonConvert.SerializeObject(mutatedData), this._client.EncodingType, this._client.MimeType);
+				var content = new JsonContent(mutatedData);
 
 				var response = await this._client.Update(true, mutatedData.Id, content);
 
@@ -702,7 +704,7 @@ namespace GenericMvc.Test.Lib.Controllers
 		{
 			try
 			{
-				var content = new StringContent(this.SerializedTestData, this._client.EncodingType, this._client.MimeType);
+				var content = new StringContent(this.SerializedTestData, EncodingType, _client.MimeType);
 
 				var response = await this._client.Create(false, content);
 
@@ -729,7 +731,7 @@ namespace GenericMvc.Test.Lib.Controllers
 		{
 			try
 			{
-				var content = new StringContent(Arrayify(this.SerializedTestData, 2), this._client.EncodingType, this._client.MimeType);
+				var content = new JsonContent(Arrayify(this.SerializedTestData, 2));
 
 				var response = await this._client.Creates(false, content);
 
@@ -829,7 +831,7 @@ namespace GenericMvc.Test.Lib.Controllers
 			{
 				var mutatedData = await this.MutateData(this.DeserializedTestData);
 
-				var content = new StringContent(JsonConvert.SerializeObject(mutatedData), this._client.EncodingType, this._client.MimeType);
+				var content = new JsonContent(mutatedData);
 
 				var response = await this._client.Update(false, this.WhiteListedTestDataIds.First(), content);
 
@@ -869,7 +871,6 @@ namespace GenericMvc.Test.Lib.Controllers
 				{
 					//dispose managed state (managed objects).
 					this._client.Dispose();
-
 				}
 
 				// free unmanaged resources (unmanaged objects) and override a finalizer below.

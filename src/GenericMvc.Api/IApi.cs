@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using GenericMvc.Models;
 
-namespace GenericMvc.Data.Controllers
+namespace GenericMvc.Api
 {
 	/// <summary>
 	/// Base Interface for all Web API nodes
