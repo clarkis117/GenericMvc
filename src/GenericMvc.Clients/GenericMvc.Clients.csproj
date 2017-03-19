@@ -1,6 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	<TargetFramework>netstandard1.4</TargetFramework>
+	<Copyright>Copyright © 2017, Joshua Clark</Copyright>
+	<Company />
+	<Authors>Joshua Clark</Authors>
+	<PackageLicenseUrl>https://github.com/clarkis117/GenericMvc/blob/master/License.txt</PackageLicenseUrl>
+	<PackageProjectUrl>https://github.com/clarkis117/GenericMvc</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/clarkis117/GenericMvc.git</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="Newtonsoft.Json" Version="9.0.1" />

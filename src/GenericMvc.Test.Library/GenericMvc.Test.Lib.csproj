@@ -11,6 +11,14 @@
 	<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
 	<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
 	<RootNamespace>GenericMvc.Test.Lib</RootNamespace>
+	<Copyright>Copyright © 2017, Joshua Clark</Copyright>
+	<FileVersion>1.0.2.0</FileVersion>
+	<AssemblyVersion>1.0.2.0</AssemblyVersion>
+	<PackageLicenseUrl>https://github.com/clarkis117/GenericMvc/blob/master/License.txt</PackageLicenseUrl>
+	<PackageProjectUrl>https://github.com/clarkis117/GenericMvc</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/clarkis117/GenericMvc.git</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<Authors>Joshua Clark</Authors>
   </PropertyGroup>
 
   <ItemGroup>

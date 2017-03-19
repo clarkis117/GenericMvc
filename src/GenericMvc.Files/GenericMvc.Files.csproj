@@ -1,6 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	<TargetFramework>netstandard1.6</TargetFramework>
+	<Copyright>Copyright © 2017, Joshua Clark</Copyright>
+	<PackageLicenseUrl>https://github.com/clarkis117/GenericMvc/blob/master/License.txt</PackageLicenseUrl>
+	<PackageProjectUrl>https://github.com/clarkis117/GenericMvc</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/clarkis117/GenericMvc.git</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<Authors>Joshua Clark</Authors>
+	<Company />
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />

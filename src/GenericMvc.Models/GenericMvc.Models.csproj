@@ -3,6 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Copyright>Copyright © 2017, Joshua Clark</Copyright>
+    <PackageLicenseUrl>https://github.com/clarkis117/GenericMvc/blob/master/License.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/clarkis117/GenericMvc</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/clarkis117/GenericMvc.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl />
+    <Authors>Joshua Clark</Authors>
+    <Company />
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,6 +2,13 @@
 
   <PropertyGroup>
 	<TargetFramework>netstandard1.4</TargetFramework>
+	<Copyright>Copyright © 2017, Joshua Clark</Copyright>
+	<PackageLicenseUrl>https://github.com/clarkis117/GenericMvc/blob/master/License.txt</PackageLicenseUrl>
+	<PackageProjectUrl>https://github.com/clarkis117/GenericMvc</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/clarkis117/GenericMvc.git</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<Company />
+	<Authors>Joshua Clark</Authors>
   </PropertyGroup>
 
   <ItemGroup>

@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("GenericMvc")]
-[assembly: AssemblyCopyright("Copyright © 2016, Joshua Clark")]
+[assembly: AssemblyCopyright("Copyright © 2017, Joshua Clark")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
