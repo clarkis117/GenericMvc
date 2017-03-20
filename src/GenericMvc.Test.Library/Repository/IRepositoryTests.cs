@@ -268,7 +268,8 @@ namespace GenericMvc.Test.Lib.Repository
 
 				Assert.NotNull(updated);
 
-				Assert.NotSame(mutated, updated);
+				//todo this should be seperate
+				Assert.Same(mutated, updated);
 
 				updatedList.Add(updated);
 			}

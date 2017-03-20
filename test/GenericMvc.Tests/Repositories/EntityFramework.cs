@@ -20,18 +20,7 @@ namespace GenericMvc.Tests.Repositories
 
 		}
 
-		protected override Blog Mutator(Blog entity)
-		{
-			return new Blog()
-			{
-				Id = entity.Id,
-				DateCreated = entity.DateCreated,
-				Name = entity.Name,
-				Owner = entity.Owner,
-				OwnerId = entity.OwnerId,
-				Posts = entity.Posts
-			};
-		}
+		protected override Blog Mutator(Blog entity) => entity;
 
 		protected override Blog CreateObjectGraph(int n)
 		{
